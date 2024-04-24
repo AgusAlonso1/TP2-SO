@@ -43,7 +43,7 @@ char getChar(){
 
 static int readFromKeyboard(char * buffer) {
     int i=0;
-    char c;
+    char c = '\0';
     while (c != ' ' && c != '\t' && c != '\n' && i < BUFFER_DIM) {
         c = getChar();
         buffer[i++] = c;
