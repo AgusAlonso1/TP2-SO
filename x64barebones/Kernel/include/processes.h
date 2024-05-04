@@ -13,8 +13,8 @@
 typedef struct processCDT * processADT;
 
 processADT create_process();
-uint64_t block_process();
-uint64_t unblock_process();
+uint64_t set_state(uint64_t state);
+uint64_t get_state();
 uint64_t kill_process();
 
 
