@@ -23,7 +23,7 @@ void allocUpdateInfo(MemoryInfoADT memoryInfo, uint64_t block_size) {
     memoryInfo->memoryFree -= block_size;
 }
 
-void freeUpdateIndo(MemoryInfoADT memoryInfo, uint64_t block_size) {
+void freeUpdateInfo(MemoryInfoADT memoryInfo, uint64_t block_size) {
     memoryInfo->memoryInUse -= block_size;
     memoryInfo->memoryFree += block_size;
 }
