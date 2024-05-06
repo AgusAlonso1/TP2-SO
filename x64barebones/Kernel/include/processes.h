@@ -9,14 +9,26 @@
 #define BLOCKED 2
 #define FOREGROUND 0
 #define BACKGROUND 1
+#define STACK_SIZE 4096
 
-typedef struct processCDT * processADT;
 
-processADT create_process();
-uint64_t set_state(uint64_t state);
+typedef int (*Function)(int argc, char **args);
+
+
+typedef struct ProcessCDT* ProcessADT;
+
+ProcessADT create_process(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args);
+void set_state(uint64_t state);
 uint64_t get_state();
 uint64_t kill_process();
-
+void set_parentPid(ProcessADT process, uint32_t parentPid);
+uint32_t get_parentPid(ProcessADT process);
+void set_priority(ProcessADT process, uint32_t priority);
+uint32_t get_priority(ProcessADT process);
+void set_position(ProcessADT process, uint32_t position);
+uint32_t get_position(ProcessADT process);
+void free_process(ProcessADT process);
+ProcessADT copy_process(ProcessADT process);
 
 #endif
 
