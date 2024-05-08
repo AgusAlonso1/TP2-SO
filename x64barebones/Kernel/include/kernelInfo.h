@@ -1,6 +1,0 @@
-#ifndef KERNEL_INFO_H
-#define KERNEL_INFO_H
-
-#define MEMORY_MANAGER_ADDRESS 797
-
-#endif
