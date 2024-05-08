@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <base_memory_manager.h>
+#include <lib.h>
 
 #define RUNNING 0
 #define READY 1
@@ -29,6 +30,30 @@ void set_position(ProcessADT process, uint32_t position);
 uint32_t get_position(ProcessADT process);
 void free_process(ProcessADT process);
 ProcessADT copy_process(ProcessADT process, Function function, char ** args)
+//esta desps ponerla en algun otro lugar, no aca
+void strcopy(char* destination, char* string){
+    if(destination == 0){
+        return;
+    }
+    int i;
+    for(i  = 0; string[i] != '\0'; i++){
+        destination[i] = string[i];
+    }
+    destination[i] = '\0';
+}
+
+//esta desps ponerla en algun otro lugar, no aca
+int strlen(const char * s) {
+    int i = 0;
+    while(s[i] != '\0') {
+        if(s[i] == '\t') {
+            i+=4;
+        }
+        i++;
+    }
+    return i;
+}
+
 
 #endif
 
