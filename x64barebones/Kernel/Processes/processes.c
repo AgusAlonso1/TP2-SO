@@ -34,7 +34,7 @@ ProcessADT create_process(uint32_t parentPid, uint32_t pid, char * name, uint64_
     process->state = state;
     process->position = position;   //foreground or background
     process->basePointer = allocMemory(STACK_SIZE);
-    void* stackEnd = (void*) ((uint64_t)process->stackBase + STACK_SIZE);
+    void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, args); //todo: en realidad args deberia de ser una copia local
 
     //process->fileDescriptors[0] =
@@ -89,8 +89,8 @@ void free_process(ProcessADT process){
 }
 
 //a chequear si funciona el tema de stack y basepointer
-ProcessADT copy_process(ProcessADT process){
-    processADT new_process = create_process(process->pid, process->parentPid, process->name, process->priority, process->state, process->position);
+ProcessADT copy_process(ProcessADT process, Function function, char ** args){
+    ProcessADT new_process = create_process(process->pid, process->parentPid, process->name, process->priority, process->state, process->position, function, args);
     new_process->stack = process->stack;
     new_process->basePointer = process->basePointer;
     return new_process;

@@ -28,7 +28,7 @@ uint32_t get_priority(ProcessADT process);
 void set_position(ProcessADT process, uint32_t position);
 uint32_t get_position(ProcessADT process);
 void free_process(ProcessADT process);
-ProcessADT copy_process(ProcessADT process);
+ProcessADT copy_process(ProcessADT process, Function function, char ** args)
 
 #endif
 

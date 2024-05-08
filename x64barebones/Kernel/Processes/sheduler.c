@@ -21,26 +21,38 @@ la que se enecraga de hacer el context switch de los procesos
 lo agregue al struct scheduler. La idea es que si un proceso no termina su ejecución dentro de su quantum, se pone nuevamente al final de la cola para esperar su turno.
  */
 
+typedef struct ProcessNode{
+    ProcessADT processData;
+    struct ProcessNode *prev;
+    struct ProcessNode *next;
+}ProcessNode;
+
+typedef struct SchedulerCDT{
+    ProcessNode *processes;
+    uint32_t currentPid;
+    uint64_t pidCounter;
+    uint16_t processQuantum;
+}SchedulerCDT;
 
 void create_scheduler(){
-    Scheduler* sched = (Scheduler*) SCHEDULER_ADDRESS;
+    SchedulerADT sched = (SchedulerADT) SCHEDULER_ADDRESS;
     sched->pidCounter = 0;
 
-    ProcessADT init = create_process(sched->pidCounter, sched->pidCounter++, "init", 1, READY, BACKGROUND);
+    ProcessADT init = create_process(sched->pidCounter, sched->pidCounter++, "init", 1, READY, BACKGROUND,);
     sched->currentProcess = init;
     list_process(sched, init);
 }
 
-Scheduler* get_scheduler(){
-    return (Scheduler*)SCHEDULER_ADDRESS;
+SchedulerADT get_scheduler(){
+    return (SchedulerADT)SCHEDULER_ADDRESS;
 }
 
 void create_process_sched(char* name, char position, uint64_t priority, Function function, char **args){
-    Scheduler* sched = get_scheduler();
+    SchedulerADT sched = get_scheduler();
     ProcessADT newProcess = create_process(sched->pidCounter, sched->pidCounter++, name, priority, READY, position, function, args);
 }
 
-void list_process(Scheduler *sched, ProcessADT process){
+void list_process(SchedulerADT sched, ProcessADT process){
     ProcessNode* newNode = allocMemory(sizeof(ProcessNode));
 
     newNode->processData = process;
@@ -73,7 +85,7 @@ void list_process(Scheduler *sched, ProcessADT process){
     }
 
 }
-void unlist_process(Scheduler *sched, ProcessNode *nodeToRemove){
+void unlist_process(SchedulerADT sched, ProcessNode *nodeToRemove){
     if (sched->processes == NULL || nodeToRemove == NULL) {
         return; // No hay nada que hacer si la lista está vacía o el nodo a eliminar es nulo
     }

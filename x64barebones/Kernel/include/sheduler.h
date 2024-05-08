@@ -3,23 +3,12 @@
 
 #include <processes.h>
 
-typedef struct ProcessNode{
-    ProcessADT processData;
-    struct ProcessNode *prev;
-    struct ProcessNode *next;
-}ProcessNode;
-
-typedef struct Scheduler{
-    ProcessNode *processes;
-    uint32_t currentPid;
-    uint64_t pidCounter;
-    uint16_t processQuantum;
-}Scheduler;
+typedef SchedulerCDT * SchedulerADT;
 
 void create_scheduler();
 void create_process_sched();
-void list_process(Scheduler *sched, processADT process);
-void unlist_process(Scheduler *sched, ProcessNode *nodeToRemove);
+void list_process(SchedulerADT sched, ProcessADT process);
+void unlist_process(SchedulerADT *sched, ProcessNode *nodeToRemove);
 void* schedule(void* prevProcessStack);
 
 //create scheduler
