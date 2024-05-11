@@ -37,7 +37,7 @@ ProcessADT create_process(uint32_t parentPid, uint32_t pid, char * name, uint64_
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
     char** arguments;
-    argscopy(arguments, args)
+    argscopy(arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, args); //todo: en realidad args deberia de ser una copia local
 
     //process->fileDescriptors[0] =

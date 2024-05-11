@@ -105,6 +105,7 @@ _create_stack_frame:
     mov rsp, rdx 	; Setea el stack pointer en el stackEnd del proceso
     mov rbp, rdx    ; Setea el base pointer stackEnd del proceso
 
+    ;Aling
     push 0x0        ; Pushea el SS
     push rdx        ; Pushea el RSP
     push 0x202      ; Pushea el RFLAGS

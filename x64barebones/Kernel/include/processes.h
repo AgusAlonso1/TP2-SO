@@ -19,8 +19,8 @@ typedef int (*Function)(int argc, char **args);
 typedef struct ProcessCDT* ProcessADT;
 
 ProcessADT create_process(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args);
-void set_state(uint64_t state);
-uint64_t get_state();
+void set_state(ProcessADT process, uint64_t state);
+uint64_t get_state(ProcessADT process);
 uint64_t kill_process();
 void set_parentPid(ProcessADT process, uint32_t parentPid);
 uint32_t get_parentPid(ProcessADT process);
@@ -29,7 +29,7 @@ uint32_t get_priority(ProcessADT process);
 void set_position(ProcessADT process, uint32_t position);
 uint32_t get_position(ProcessADT process);
 void free_process(ProcessADT process);
-ProcessADT copy_process(ProcessADT process, Function function, char ** args)
+ProcessADT copy_process(ProcessADT process, Function function, char ** args);
 //esta desps ponerla en algun otro lugar, no aca
 void strcopy(char* destination, char* string){
     if(destination == 0){
