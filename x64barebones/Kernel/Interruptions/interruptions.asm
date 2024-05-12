@@ -106,8 +106,12 @@ _create_stack_frame:
     mov rbp, rdx    ; Setea el base pointer stackEnd del proceso
 
     ;Aling
+    mov rax, rdx  ; rax = stackEnd
+    add rax, 7    ; Ajusta para el alineamiento de 8 bytes
+    and rax, -8   ; Alinea a un múltiplo de 8 bytes
+
     push 0x0        ; Pushea el SS
-    push rdx        ; Pushea el RSP
+    push rax        ; Pushea el RSP
     push 0x202      ; Pushea el RFLAGS
     push 0x8        ; pushea el CS
     push rdi        ; Pushea el RIP
