@@ -107,8 +107,8 @@ _create_stack_frame:
 
     ;Aling
     mov rax, rdx  ; rax = stackEnd
-    add rax, 7    ; Ajusta para el alineamiento de 8 bytes
-    and rax, -8   ; Alinea a un múltiplo de 8 bytes
+    add rax, 0x07    ; Ajusta para el alineamiento de 8 bytes
+    and rax, 0xFFFFFFFFFFFFFFF8 ;-8 = 0xFFFFFFFFFFFFFFF8   Alinea a un múltiplo de 8 bytes
 
     push 0x0        ; Pushea el SS
     push rax        ; Pushea el RSP
