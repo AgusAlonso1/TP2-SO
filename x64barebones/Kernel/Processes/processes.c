@@ -91,6 +91,8 @@ void free_process(ProcessADT process){
     freeMemory(process);
 }
 
+
+
 //a chequear si funciona el tema de stack y basepointer
 ProcessADT copy_process(ProcessADT process, Function function, char ** args){
     ProcessADT new_process = create_process(process->pid, process->parentPid, process->name, process->priority, process->state, process->position, function, args);
@@ -99,6 +101,13 @@ ProcessADT copy_process(ProcessADT process, Function function, char ** args){
     return new_process;
 }
 
+void set_stack(ProcessADT process, void * stack) {
+    process->stack = stack;
+}
+
+void * get_stack(ProcessADT process) {
+    return process->stack;
+}
 
 void argscopy(char** arguments, char** args){
     uint32_t argc = args[0]; //supongo el primer argumetno es siempre argc

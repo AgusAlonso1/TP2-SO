@@ -8,6 +8,7 @@
 #define RUNNING 0
 #define READY 1
 #define BLOCKED 2
+#define EXITED 3
 #define FOREGROUND 0
 #define BACKGROUND 1
 #define STACK_SIZE 4096
@@ -30,6 +31,9 @@ void set_position(ProcessADT process, uint32_t position);
 uint32_t get_position(ProcessADT process);
 void free_process(ProcessADT process);
 ProcessADT copy_process(ProcessADT process, Function function, char ** args);
+void set_stack(ProcessADT process, void * stack);
+void * get_stack(ProcessADT process); 
+void argscopy(char** arguments, char** args);
 //esta desps ponerla en algun otro lugar, no aca
 void strcopy(char* destination, char* string){
     if(destination == 0){

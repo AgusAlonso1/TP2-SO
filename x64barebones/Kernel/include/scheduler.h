@@ -5,9 +5,25 @@
 
 #define PRIORITY_LEVELS 5
 
+enum quantum_level {
+    QL1 = 2,
+    QL2 = 3,
+    QL3 = 4,
+    QL4 = 5
+};
+
+enum levels {
+    LEVEL0 = 0,
+    LEVEL1 = 1,
+    LEVEL2 = 2,
+    LEVEL3 = 3,
+    LEVEL4 = 4
+};
+
 typedef struct SchedulerCDT* SchedulerADT;
 
 void create_scheduler();
+void * schedule(void * currentStackPointer);
 void create_process_sched();
 void list_process(SchedulerADT sched, ProcessADT process);
 void unlist_process(SchedulerADT *sched, uint64_t priority);

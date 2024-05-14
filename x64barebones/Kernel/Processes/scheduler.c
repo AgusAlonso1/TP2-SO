@@ -1,4 +1,4 @@
-#include <sheduler.h>
+#include <scheduler.h>
 #define SCHEDULER_ADDRESS 700
 
 
@@ -27,15 +27,59 @@ typedef struct SchedulerCDT{
     ProcessADT currentProcess;
     uint64_t pidCounter;
     uint16_t processQuantum;
-}SchedulerCDT;
+} SchedulerCDT;
 
-void create_scheduler(){
+void create_scheduler() {
     SchedulerADT sched = (SchedulerADT) SCHEDULER_ADDRESS;
     sched->pidCounter = 0;
+}
 
-    ProcessADT init = create_process(sched->pidCounter, sched->pidCounter++, "init", 1, READY, BACKGROUND,);
-    sched->currentProcess = init;
-    list_process(sched, init);
+void * schedule(void * currentStackPointer) {
+    //Suponemos que no es el primer caso
+    SchedulerADT sched = get_scheduler();
+    set_stack(sched->currentProcess, currentStackPointer);
+    uint64_t currentState = get_state(sched->currentProcess);
+
+    if(sched->processQuantum > 0) {
+        if (currentState != BLOCKED && currentState != EXITED){
+            sched->processQuantum--;
+            return currentStackPointer;
+        }
+    }
+
+    ProcessADT processToRun;
+    if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == EXITED) {
+        uint64_t currentPriority =  get_priority(sched->currentProcess);
+        if(currentPriority != LEVEL1 && currentPriority != LEVEL4) {
+            currentPriority--;
+        }
+        set_priority(sched->currentProcess, currentPriority); 
+         
+        uint8_t found = 0; 
+        for(int i = LEVEL4; i > LEVEL0; i--) {
+            ProcessNode * currentNode = getFirstNode(sched->processes[i]);
+            while(currentNode != NULL) {
+                if(get_state(currentNode->processData) == READY) {
+                    if(!found) {
+                        pop(currentNode);
+                        processToRun = currentNode->processData;
+                        found = 1;
+                    } else {
+                        currentNode->quantumWating++;
+                        if(currentNode->quantumWating == 10) { //El quantum se puede cambiar
+                            currentNode->quantumWating = 0;
+                            uint64_t priority = get_priority(currentNode->processData);
+                            if(priority < LEVEL3){
+                                set_priority(currentNode->processData, priority);
+                            }
+                        }
+                    }
+                }
+                currentNode = currentNode->next;
+            }
+        }
+    }
+    return get_stak(processToRun);
 }
 
 SchedulerADT get_scheduler() {
@@ -45,6 +89,7 @@ SchedulerADT get_scheduler() {
 void create_process_sched(char* name, char position, uint64_t priority, Function function, char **args) {
     SchedulerADT sched = get_scheduler();
     ProcessADT newProcess = create_process(sched->pidCounter, sched->pidCounter++, name, priority, READY, position, function, args);
+    list_process(sched, newProcess);
 }
 
 void list_process(SchedulerADT sched, ProcessADT process) {
@@ -54,15 +99,15 @@ void unlist_process(SchedulerADT sched, uint64_t priority){
    sched->currentProcess = popFirst(sched->processes[priority]);
 }
 
-void wait_process_pid(uint32_t pid, uint64_t *status){
-    SchedulerADT sched = get_scheduler();
+// void wait_process_pid(uint32_t pid, uint64_t *status){
+//     SchedulerADT sched = get_scheduler();
 
-    for (int i = 0; i < PRIORITY_LEVELS; i++) {
-        ProcessNode *current = sched->processes[i];
-        while (current != NULL) {
-            if (current->processData->pid == pid) {
-                //
-            }
-        }
-    }
-}
+//     for (int i = 0; i < PRIORITY_LEVELS; i++) {
+//         ProcessNode *current = sched->processes[i];
+//         while (current != NULL) {
+//             if (current->processData->pid == pid) {
+//                 //
+//             }
+//         }
+//     }
+// }
