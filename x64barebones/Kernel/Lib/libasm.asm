@@ -6,6 +6,7 @@ GLOBAL realTimeClock
 GLOBAL poolChar
 GLOBAL outPortSpeaker
 GLOBAL inPortSpeaker
+GLOBAL forceTimerTick
 
 
 
@@ -102,5 +103,10 @@ inPortSpeaker:
     mov rsp, rbp
     pop rbp
     ret
+
+forceTimerTick:
+    int 0x20
+    ret
+
 
 
