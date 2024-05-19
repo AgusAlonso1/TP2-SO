@@ -29,6 +29,8 @@ void listProcess(SchedulerADT sched, ProcessADT process);
 void unlistProcess(SchedulerADT *sched, uint64_t priority);
 void waitProcessPid(uint32_t pid, uint64_t state);
 void setPriority(ProcessADT process, uint64_t priority, SchedulerADT sched);
+void killProcess(uint32_t pid);
+
 //create scheduler
 //create process ----> se crea un proceso
     //add process to list -----> agregamos el proceso que se creo al array de procesos

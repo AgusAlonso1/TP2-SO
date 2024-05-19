@@ -106,9 +106,32 @@ void yield(){
     forceTimerTick();
 }
 
-void killProcess(){
+void killProcess(uint32_t pid){
+    ProcessADT processToKill;
+    uint8_t found = 0;
+    for(int i = LEVEL4; i > LEVEL0; i--) {
+        ProcessNode * currentNode = getFirstNode(sched->processes[i]);
+        while(currentNode != NULL && !found) {
+            if(getPid(currentNode->processData) == pid) {
+                processToKill = currentNode->processData;
+                pop(currentNode);
+                found = 1;
+            }
+            currentNode = currentNode->next;
+        }
+    }
 
+    if(processToKill == NULL){
+
+    }
+    //veo si existe
+    //ver que onda su estado ---> si es zombie o si esta normal
+    //saco el nodo de la lista en la que este y lo hago zombie
+    //veo si tiene zombies
+    //lo meto como zombie en su padre
+        //veo si es el que le falta a su padre para terminar
 }
+
 
 
 // void wait_process_pid(uint32_t pid, uint64_t *status){
