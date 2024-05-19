@@ -22,14 +22,13 @@ enum levels {
 
 typedef struct SchedulerCDT* SchedulerADT;
 
-void create_scheduler();
+void createScheduler();
 void * schedule(void * currentStackPointer);
-void create_process_sched();
-void list_process(SchedulerADT sched, ProcessADT process);
-void unlist_process(SchedulerADT *sched, uint64_t priority);
-void* schedule(void* prevProcessStack);
-void wait_process_pid(uint32_t pid, uint64_t state);
-
+void createProcessSched(char* name, char position, uint64_t priority, Function function, char **args);
+void listProcess(SchedulerADT sched, ProcessADT process);
+void unlistProcess(SchedulerADT *sched, uint64_t priority);
+void waitProcessPid(uint32_t pid, uint64_t state);
+void setPriority(ProcessADT process, uint64_t priority, SchedulerADT sched);
 //create scheduler
 //create process ----> se crea un proceso
     //add process to list -----> agregamos el proceso que se creo al array de procesos

@@ -3,33 +3,25 @@
 
 
 /* Comentarios scheduler:
- * Me parece que mejor va a ser que el  Scheduler sea un ADT; asi queda organizado e igual (process, mm) //ver si no queda mas prolijo hacer una libreria generica de linked list
-donde sea: typedef struct Node{
-                            void* data;
-                            struct Node *prev;
-                            struct Node *next;
-                          }Node;
-osea, como habiamos visto en un principio con void*
- * Por ahi es mejor modularizar y hacer una biblioteca linkedList donde este el tipo Node generico y LinkedList y
-ahi implementar todas las funciones basicas (add, remove, isempty, next, hastNext, etc)
- * Me parece que lo mejor es sacar lo de inicializar init aca; podemos cuando creamos el scheduler crearlo ahi a ese proceso
+ * Cambie todos los nombres de las funciones para que queden camel case, porque en algunos archivos estaba snake y en otros camel
+ * No entiendo porque hacemos pop y no liberamos la memoria del nodo, como que perdemos el nodo
  * Tenemos que ver bien la logica de cambiar estados y lo de manejar procesos zombie
- * Preguntar si es mejor hacer listas con distintas prioridades o una lista y que se vayan agregando de acuerdo a la prioridad
- * En assembler hice que la interrupcion del timer, ademas de llamar al timer hanlder, llame a la funcion schedule que es
-la que se enecraga de hacer el context switch de los procesos
- * Tambien estuve viendo lo de round robin, y como que vamos a tener que asignarle un quantum a cada proceso, asi que se
-lo agregue al struct scheduler. La idea es que si un proceso no termina su ejecución dentro de su quantum, se pone nuevamente al final de la cola para esperar su turno.
+ * En assembler (libasm) cree la interrupcion que fuerza la interrupcion del timer forceTimerTick
+ * Hice que lo de cambiar prioridad no solo cambie el valor en el ProcessADT, sino que tambien lo cambie de lista
+(estaria genial si alguno lo quiere revisar)
+ * Hice la funcion yield(), que basicamente le cede el CPU a algun otro proceso
+ * Tenemos que ver bien que onda el tema del primer proceso. Como seria la logica?
  */
 
 
 typedef struct SchedulerCDT{
     ProcessListADT processes[PRIORITY_LEVELS];
     ProcessADT currentProcess;
-    uint64_t pidCounter;
+    uint32_t pidCounter;
     uint16_t processQuantum;
 } SchedulerCDT;
 
-void create_scheduler() {
+void createScheduler() {
     SchedulerADT sched = (SchedulerADT) SCHEDULER_ADDRESS;
     sched->pidCounter = 0;
 }
@@ -37,8 +29,8 @@ void create_scheduler() {
 void * schedule(void * currentStackPointer) {
     //Suponemos que no es el primer caso
     SchedulerADT sched = get_scheduler();
-    set_stack(sched->currentProcess, currentStackPointer);
-    uint64_t currentState = get_state(sched->currentProcess);
+    setStack(sched->currentProcess, currentStackPointer);
+    uint64_t currentState = getState(sched->currentProcess);
 
     if(sched->processQuantum > 0) {
         if (currentState != BLOCKED && currentState != EXITED){
@@ -49,28 +41,30 @@ void * schedule(void * currentStackPointer) {
 
     ProcessADT processToRun;
     if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == EXITED) {
-        uint64_t currentPriority =  get_priority(sched->currentProcess);
+        uint64_t currentPriority =  getPriority(sched->currentProcess);
         if(currentPriority != LEVEL1 && currentPriority != LEVEL4) {
             currentPriority--;
         }
-        set_priority(sched->currentProcess, currentPriority); 
-         
+        setPriority(sched->currentProcess, currentPriority, sched);
+
         uint8_t found = 0; 
         for(int i = LEVEL4; i > LEVEL0; i--) {
             ProcessNode * currentNode = getFirstNode(sched->processes[i]);
             while(currentNode != NULL) {
-                if(get_state(currentNode->processData) == READY) {
+                if(getState(currentNode->processData) == READY) {
                     if(!found) {
-                        pop(currentNode);
+                        pop(currentNode); //no entiendo porque pop. Cuando va el popFirst? Que pasa con la memoria del nodo?
                         processToRun = currentNode->processData;
                         found = 1;
                     } else {
-                        currentNode->quantumWating++;
-                        if(currentNode->quantumWating == 10) { //El quantum se puede cambiar
-                            currentNode->quantumWating = 0;
-                            uint64_t priority = get_priority(currentNode->processData);
+                        currentNode->quantumWaiting++;
+                        if(currentNode->quantumWaiting == 10) { //El quantum se puede cambiar
+                            currentNode->quantumWaiting = 0;
+                            uint64_t priority = getPriority(currentNode->processData);
                             if(priority < LEVEL3){
-                                set_priority(currentNode->processData, priority);
+                                pop(currentNode);     //mismo aca, la use porque supongo me elimina el nodo de la lista pero no la info,
+                                                            //pero sigo sin entender que pasa con la memoria del nodo
+                                setPriority(currentNode->processData, priority+1, sched);
                             }
                         }
                     }
@@ -79,25 +73,43 @@ void * schedule(void * currentStackPointer) {
             }
         }
     }
-    return get_stak(processToRun);
+    return getStack(processToRun);
 }
 
-SchedulerADT get_scheduler() {
-    return (SchedulerADT)SCHEDULER_ADDRESS;
+SchedulerADT getScheduler() {
+    return (SchedulerADT) SCHEDULER_ADDRESS;
 }
 
-void create_process_sched(char* name, char position, uint64_t priority, Function function, char **args) {
+void createProcessSched(char* name, char position, uint64_t priority, Function function, char **args) {
     SchedulerADT sched = get_scheduler();
-    ProcessADT newProcess = create_process(sched->pidCounter, sched->pidCounter++, name, priority, READY, position, function, args);
-    list_process(sched, newProcess);
+    ProcessADT newProcess = createProcess(sched->pidCounter, sched->pidCounter++, name, priority, READY, position, function, args);
+    listProcess(sched, newProcess);
 }
 
-void list_process(SchedulerADT sched, ProcessADT process) {
-    add(sched->processes[get_priority(process)], process);
+void listProcess(SchedulerADT sched, ProcessADT process) {
+    add(sched->processes[getPriority(process)], process);
 }
-void unlist_process(SchedulerADT sched, uint64_t priority){
+
+void unlistFirtsProcess(SchedulerADT sched, uint64_t priority){
    sched->currentProcess = popFirst(sched->processes[priority]);
 }
+
+//le cambia la prioridad al proceso y lo cambia de lista
+void setPriority(ProcessADT process, uint64_t priority, SchedulerADT sched){
+    setProcessPriority(sched->currentProcess, currentPriority);
+    add(sched->processes[priority], process);
+}
+
+void yield(){
+    SchedulerADT sched = getScheduler();
+    sched->processQuantum = 0;
+    forceTimerTick();
+}
+
+void killProcess(){
+
+}
+
 
 // void wait_process_pid(uint32_t pid, uint64_t *status){
 //     SchedulerADT sched = get_scheduler();
