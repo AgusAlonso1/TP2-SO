@@ -2,14 +2,7 @@
 
 /* Comentarios process:
  * Revisar el tema de copy process
- * La idea de la wrapper es como lo que dijo agodio en donde cada vez que termina de ejecutarse el proceso, manejamos
-el valor de retorno y que se quede muerto
-  * Como habias dicho tomi, me parece que lo de igualar char* y eso no va; va a ver que hacer copias de los valores que pasan por parametros (punteros)
-porq ahi vi que dijo agodio que esos punteros pueden ser modificados en otro lado y romper las cosas en kernel
- * En assembler cree la funcion _create_stack_frame, que hace basicamente lo que dijo agodio en la clase (pushea las cosas y arma el stack)
- * Tambien defini un tipo de dato Function que seria un puntero a funcion, donde las funciones tienen (int argc, char **args). La idea desps
-seria ponerla en algun .h que tambn se comparta con userland, asi podemos definirlas ahi y pasarlas por las syscalls directamente
- * Despues intente definir el tamaño del stack para conseguir el stackEnd, no se si el numero esta bien (intente hacer un registros*tmañoregistros)
+ * Cambie todos los nombres de las funciones para que queden camel case, porque en algunos archivos estaba snake y en otros camel
  */
 
 
@@ -25,7 +18,7 @@ typedef struct ProcessCDT {
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
 
-ProcessADT create_process(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args) {
+ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args) {
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
@@ -51,41 +44,41 @@ void wrapper(Function function, char **args) {
 }
 
 
-void set_state(ProcessADT process, uint64_t state) {
+void setState(ProcessADT process, uint64_t state) {
     if(process->state != state) {
         process->state = state;
     }
 } 
 
-uint64_t get_state(ProcessADT process){
+uint64_t getState(ProcessADT process){
     return process->state;
 }
 
-void set_parentPid(ProcessADT process, uint32_t parentPid) {
+void setParentPid(ProcessADT process, uint32_t parentPid) {
     process->parentPid = parentPid;
 }
 
-uint32_t get_parentPid(ProcessADT process){
+uint32_t getParentPid(ProcessADT process){
     return process->parentPid;
 }
 
-void set_priority(ProcessADT process, uint32_t priority) {
+void setProcessPriority(ProcessADT process, uint32_t priority) {
     process->priority = priority;
 }
 
-uint32_t get_priority(ProcessADT process){
+uint32_t getPriority(ProcessADT process){
     return process->priority;
 }
 
-void set_position(ProcessADT process, uint32_t position) {
+void setPosition(ProcessADT process, uint32_t position) {
     process->position = position;
 }
 
-uint32_t get_position(ProcessADT process){
+uint32_t getPosition(ProcessADT process){
     return process->position;
 }
 
-void free_process(ProcessADT process){
+void freeProcess(ProcessADT process){
     freeMemory(process->name);
     freeMemory(process->basePointer);
     freeMemory(process);
@@ -94,18 +87,18 @@ void free_process(ProcessADT process){
 
 
 //a chequear si funciona el tema de stack y basepointer
-ProcessADT copy_process(ProcessADT process, Function function, char ** args){
-    ProcessADT new_process = create_process(process->pid, process->parentPid, process->name, process->priority, process->state, process->position, function, args);
+ProcessADT copyProcess(ProcessADT process, Function function, char ** args){
+    ProcessADT new_process = createProcess(process->pid, process->parentPid, process->name, process->priority, process->state, process->position, function, args);
     new_process->stack = process->stack;
     new_process->basePointer = process->basePointer;
     return new_process;
 }
 
-void set_stack(ProcessADT process, void * stack) {
+void setStack(ProcessADT process, void * stack) {
     process->stack = stack;
 }
 
-void * get_stack(ProcessADT process) {
+void * getStack(ProcessADT process) {
     return process->stack;
 }
 

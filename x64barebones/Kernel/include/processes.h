@@ -19,20 +19,20 @@ typedef int (*Function)(int argc, char **args);
 
 typedef struct ProcessCDT* ProcessADT;
 
-ProcessADT create_process(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args);
-void set_state(ProcessADT process, uint64_t state);
-uint64_t get_state(ProcessADT process);
-uint64_t kill_process();
-void set_parentPid(ProcessADT process, uint32_t parentPid);
-uint32_t get_parentPid(ProcessADT process);
-void set_priority(ProcessADT process, uint32_t priority);
-uint32_t get_priority(ProcessADT process);
-void set_position(ProcessADT process, uint32_t position);
-uint32_t get_position(ProcessADT process);
-void free_process(ProcessADT process);
-ProcessADT copy_process(ProcessADT process, Function function, char ** args);
-void set_stack(ProcessADT process, void * stack);
-void * get_stack(ProcessADT process); 
+ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args);
+void setState(ProcessADT process, uint64_t state);
+uint64_t getState(ProcessADT process);
+uint64_t killProcess();
+void setParentPid(ProcessADT process, uint32_t parentPid);
+uint32_t getParentPid(ProcessADT process);
+void setProcessPriority(ProcessADT process, uint32_t priority);
+uint32_t getPriority(ProcessADT process);
+void setPosition(ProcessADT process, uint32_t position);
+uint32_t getPosition(ProcessADT process);
+void freeProcess(ProcessADT process);
+ProcessADT copyProcess(ProcessADT process, Function function, char ** args);
+void setStack(ProcessADT process, void * stack);
+void * getStack(ProcessADT process);
 void argscopy(char** arguments, char** args);
 //esta desps ponerla en algun otro lugar, no aca
 void strcopy(char* destination, char* string){
