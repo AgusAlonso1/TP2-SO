@@ -62,6 +62,14 @@ uint32_t getParentPid(ProcessADT process){
     return process->parentPid;
 }
 
+void setPid(ProcessADT process, uint32_t pid) {
+    process->pid = pid;
+}
+
+uint32_t getPid(ProcessADT process){
+    return process->pid;
+}
+
 void setProcessPriority(ProcessADT process, uint32_t priority) {
     process->priority = priority;
 }
