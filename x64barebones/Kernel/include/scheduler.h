@@ -2,7 +2,6 @@
 #define SCHEDULER_H
 
 #include <linkedList.h>
-#include <processes.h>
 
 #define PRIORITY_LEVELS 5
 #define SUCCESS 0
@@ -37,7 +36,7 @@ void setPriority(ProcessADT process, uint64_t priority, SchedulerADT sched);    
 void yield();                                                                   //yield -----> renunciar al CPU (setear el quantum del proceso en 0 y forzar un timer tick)
 void killProcess(uint32_t pid);                                                 //kill ------> mata al proceso
 ProcessNode * getProcessNode(uint32_t pid);
-void setState(uint32_t pid, uint64_t state);                                    //cambiar estado ----> cambia el estado del proceso
+uint16_t setState(uint32_t pid, uint64_t state);                                    //cambiar estado ----> cambia el estado del proceso
 void exitProcess(int ret);                                                      //exit de la wrapper de proceso (maneja la terminacion de un proceso)
 
 

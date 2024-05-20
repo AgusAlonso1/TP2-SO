@@ -58,9 +58,9 @@ void * schedule(void * currentStackPointer) {
                         pop(currentNode);
                         found = 1;
                     } else {
-                        currentNode->quantumWaiting++;
-                        if(currentNode->quantumWaiting == 10) { //El quantum se puede cambiar
-                            currentNode->quantumWaiting = 0;
+                        currentNode->quantumWating++;
+                        if(currentNode->quantumWating == 10) { //El quantum se puede cambiar
+                            currentNode->quantumWating = 0;
                             uint64_t priority = getProcessPriority(currentNode->processData);
                             if(priority < LEVEL3){
                                 setPriority(currentNode->processData, priority+1, sched);
@@ -82,7 +82,8 @@ SchedulerADT getScheduler() {
 
 void createProcessSched(char* name, char position, uint64_t priority, Function function, char **args) {
     SchedulerADT sched = getScheduler();
-    ProcessADT newProcess = createProcess(sched->pidCounter, sched->pidCounter++, name, priority, READY, position, function, args);
+    int currentPid = sched->pidCounter; //Sino hacemos esto tira un warning raro
+    ProcessADT newProcess = createProcess(currentPid, sched->pidCounter++, name, priority, READY, position, function, args);
     listProcess(sched, newProcess);
 }
 
@@ -161,7 +162,7 @@ uint16_t setState(uint32_t pid, uint64_t state){
         return SUCCESS;
     }
 
-    setProcessState(processNode->processData);      //se cambia el estado
+    setProcessState(processNode->processData, state);      //se cambia el estado
 
     if(state == BLOCKED){                           //si el nuevo estado es bloqueado, va al maximo nivel, sino queda donde esta
         add(sched->processes[LEVEL4], processNode->processData);
@@ -172,6 +173,7 @@ uint16_t setState(uint32_t pid, uint64_t state){
 }
 
 ProcessNode * getProcessNode(uint32_t pid){
+    SchedulerADT sched = getScheduler();
     ProcessNode* processNode = NULL;
     uint8_t found = 0;
     for(int i = LEVEL4; i > LEVEL0; i--) {

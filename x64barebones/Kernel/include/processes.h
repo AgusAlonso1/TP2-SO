@@ -14,7 +14,8 @@
 #define STACK_SIZE 4096
 
 
-typedef int (*Function)(int argc, char **args);
+typedef int (*Function)(int, char **);
+typedef void (*wrp)(Function, char **);
 
 
 typedef struct ProcessCDT* ProcessADT;
@@ -35,29 +36,6 @@ ProcessADT copyProcess(ProcessADT process, Function function, char ** args);
 void setProcessStack(ProcessADT process, void * stack);
 void * getProcessStack(ProcessADT process);
 void argscopy(char** arguments, char** args);
-//esta desps ponerla en algun otro lugar, no aca
-void strcopy(char* destination, char* string){
-    if(destination == 0){
-        return;
-    }
-    int i;
-    for(i  = 0; string[i] != '\0'; i++){
-        destination[i] = string[i];
-    }
-    destination[i] = '\0';
-}
-
-//esta desps ponerla en algun otro lugar, no aca
-int strlen(const char * s) {
-    int i = 0;
-    while(s[i] != '\0') {
-        if(s[i] == '\t') {
-            i+=4;
-        }
-        i++;
-    }
-    return i;
-}
 
 
 #endif

@@ -9,7 +9,7 @@ typedef struct ProcessListCDT * ProcessListADT;
 
 typedef struct ProcessNode{
     ProcessADT processData;
-    uint8_t  quantumWaiting;
+    uint8_t  quantumWating;
     struct ProcessNode * next;
     struct ProcessNode * prev;
 }ProcessNode;
