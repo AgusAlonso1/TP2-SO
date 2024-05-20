@@ -31,7 +31,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
     char** arguments;
     argscopy(arguments, args);
-    process->stack = _create_stack_frame(&wrapper, function, stackEnd, args); //todo: en realidad args deberia de ser una copia local
+    process->stack = _create_stack_frame(&wrapper, function, stackEnd, arguments);
 
     //process->fileDescriptors[0] =
     return process;
@@ -44,29 +44,29 @@ void wrapper(Function function, char **args) {
 }
 
 
-void setState(ProcessADT process, uint64_t state) {
+void setProcessState(ProcessADT process, uint64_t state) {
     if(process->state != state) {
         process->state = state;
     }
 } 
 
-uint64_t getState(ProcessADT process){
+uint64_t getProcessState(ProcessADT process){
     return process->state;
 }
 
-void setParentPid(ProcessADT process, uint32_t parentPid) {
+void setProcessParentPid(ProcessADT process, uint32_t parentPid) {
     process->parentPid = parentPid;
 }
 
-uint32_t getParentPid(ProcessADT process){
+uint32_t getProcessParentPid(ProcessADT process){
     return process->parentPid;
 }
 
-void setPid(ProcessADT process, uint32_t pid) {
+void setProcessPid(ProcessADT process, uint32_t pid) {
     process->pid = pid;
 }
 
-uint32_t getPid(ProcessADT process){
+uint32_t getProcessPid(ProcessADT process){
     return process->pid;
 }
 
@@ -74,15 +74,15 @@ void setProcessPriority(ProcessADT process, uint32_t priority) {
     process->priority = priority;
 }
 
-uint32_t getPriority(ProcessADT process){
+uint32_t getProcessPriority(ProcessADT process){
     return process->priority;
 }
 
-void setPosition(ProcessADT process, uint32_t position) {
+void setProcessPosition(ProcessADT process, uint32_t position) {
     process->position = position;
 }
 
-uint32_t getPosition(ProcessADT process){
+uint32_t getProcessPosition(ProcessADT process){
     return process->position;
 }
 
@@ -102,11 +102,11 @@ ProcessADT copyProcess(ProcessADT process, Function function, char ** args){
     return new_process;
 }
 
-void setStack(ProcessADT process, void * stack) {
+void setProcessStack(ProcessADT process, void * stack) {
     process->stack = stack;
 }
 
-void * getStack(ProcessADT process) {
+void * getProcessStack(ProcessADT process) {
     return process->stack;
 }
 

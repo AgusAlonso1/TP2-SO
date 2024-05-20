@@ -20,20 +20,20 @@ typedef int (*Function)(int argc, char **args);
 typedef struct ProcessCDT* ProcessADT;
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args);
-void setState(ProcessADT process, uint64_t state);
-uint64_t getState(ProcessADT process);
-void setParentPid(ProcessADT process, uint32_t parentPid);
-uint32_t getParentPid(ProcessADT process);
-void setPid(ProcessADT process, uint32_t pid);
-uint32_t getPid(ProcessADT process);
+void setProcessState(ProcessADT process, uint64_t state);
+uint64_t getProcessState(ProcessADT process);
+void setProcessParentPid(ProcessADT process, uint32_t parentPid);
+uint32_t getProcessParentPid(ProcessADT process);
+void setProcessPid(ProcessADT process, uint32_t pid);
+uint32_t getProcessPid(ProcessADT process);
 void setProcessPriority(ProcessADT process, uint32_t priority);
-uint32_t getPriority(ProcessADT process);
-void setPosition(ProcessADT process, uint32_t position);
-uint32_t getPosition(ProcessADT process);
+uint32_t getProcessPriority(ProcessADT process);
+void setProcessPosition(ProcessADT process, uint32_t position);
+uint32_t getProcessPosition(ProcessADT process);
 void freeProcess(ProcessADT process);
 ProcessADT copyProcess(ProcessADT process, Function function, char ** args);
-void setStack(ProcessADT process, void * stack);
-void * getStack(ProcessADT process);
+void setProcessStack(ProcessADT process, void * stack);
+void * getProcessStack(ProcessADT process);
 void argscopy(char** arguments, char** args);
 //esta desps ponerla en algun otro lugar, no aca
 void strcopy(char* destination, char* string){
