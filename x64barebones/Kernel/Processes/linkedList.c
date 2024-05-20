@@ -41,6 +41,7 @@ ProcessADT popFirst(ProcessListADT list) {
 
 void pop(ProcessNode * node) {
     node->prev->next = node->next;
+    freeMemory(node);
 }
 
 
