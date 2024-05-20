@@ -5,6 +5,7 @@
 #define BASE 2
 #define MIN_EXP 5 // 2^5 = 32 B
 #define TRUE 1
+#define FALSE 0
 
 typedef enum {
     FREE,
@@ -40,7 +41,7 @@ static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, Me
 static void * removeChunk(MemoryChunk * chunk);
 
 
-MemoryManagerADT createMemoryManager(void *const firstAdress, uint64_t const availableMem) {
+MemoryManagerADT createMemoryManager(void * const firstAdress, uint64_t const availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
     memoryManager->maxExpOfTwo = log2(availableMem);
     memoryManager->firstAvailableAdress = firstAdress;
@@ -51,8 +52,8 @@ MemoryManagerADT createMemoryManager(void *const firstAdress, uint64_t const ava
 
     createMemoryInfo(memoryManager->info, availableMem);
 
-    for (uint8_t i = 0; i < MAX_EXP; i++) { // Initialize all chunks in NULL
-        memoryManager->chunks[i] = NULL;
+    for (uint8_t current_exp = 0; current_exp < MAX_EXP; current_exp++) { // Initialize all chunks in NULL
+        memoryManager->chunks[current_exp] = NULL;
     }
 
     memoryManager->chunks[memoryManager->maxExpOfTwo - 1] = createMemoryChunk(firstAdress, memoryManager->maxExpOfTwo, NULL);
@@ -150,7 +151,7 @@ static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
 static void reorderChunks(uint8_t expIndexToAlloc) {
     MemoryManagerADT memoryManager = getMemoryManager();
     if (memoryManager->chunks[expIndexToAlloc] == NULL) { // No chunk of the exponent size, need to split bigger ones
-        uint8_t availableChunkIdx = 0;
+        uint8_t availableChunkIdx = FALSE;
         for (uint8_t possibleIndex = expIndexToAlloc + 1; possibleIndex < MAX_EXP - 1 && !availableChunkIdx; possibleIndex++) {
             if (memoryManager->chunks[possibleIndex] != NULL) { // Found the closest available chunk
                 availableChunkIdx = TRUE;
@@ -187,7 +188,7 @@ static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, Me
     return newChunk;
 }
 
-// Removes the first chunk of the exp adn returns its adress
+// Removes the first chunk of the exp and returns its adress
 static void * removeChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
     uint8_t chunksIndex = chunk->exp - 1;
