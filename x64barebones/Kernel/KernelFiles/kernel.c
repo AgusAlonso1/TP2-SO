@@ -4,6 +4,7 @@
 #include <moduleLoader.h>
 #include <idtManager.h>
 #include <videoDriver.h>
+#include <memoryManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -51,10 +52,9 @@ void * initializeKernelBinary()
 
 int main() {
     loadIDT();
-	drawSquare(0xB0CA07, 1024, 768, 4);
+	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
 
 	((EntryPoint)sampleCodeModuleAddress)();
 
-    while(1);
 	return 0;
 }
