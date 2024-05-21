@@ -1,6 +1,8 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+#include <memoryManager.h>
+
 // Access
 #define ACS_PRESENT 0x80        // Segmento presente en memoria
 #define ACS_CSEG 0x18           // Code segment
@@ -17,7 +19,7 @@
 
 #define MEMORY_MANAGER_ADDRESS 0x500000
 #define MEMORY_MANAGER_SIZE 32
-#define SCHEDULER_ADDRESS MEMORY_MANAGER_ADDRESS + sizeof(MemoryManagerCDT)
+#define SCHEDULER_ADDRESS (MEMORY_MANAGER_ADDRESS + MEMORY_MANAGER_SIZE)
 
 #define MEMORY_MANAGER_FIRST_ADDRESS 0x501000
 

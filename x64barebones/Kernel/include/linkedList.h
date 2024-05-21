@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <processes.h>
-//#include <memoryManager.h>
 
 typedef struct ProcessListCDT * ProcessListADT; 
 

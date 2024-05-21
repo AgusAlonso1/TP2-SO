@@ -1,4 +1,6 @@
 #include <processes.h>
+#include <stddef.h>
+
 extern void * _create_stack_frame(wrp wrapperFuntion, Function function, void * stackEnd, char ** args);
 
 /* Comentarios process:

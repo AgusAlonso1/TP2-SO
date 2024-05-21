@@ -2,7 +2,7 @@
 #define PROCESS_H 
 
 #include <stdint.h>
-#include <base_memory_manager.h>
+#include <memoryManager.h>
 #include <lib.h>
 
 #define RUNNING 0

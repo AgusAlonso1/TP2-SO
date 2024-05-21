@@ -1,4 +1,5 @@
 #include <linkedList.h>
+#include <stddef.h>
 
 typedef struct ProcessListCDT{
     ProcessNode * first;

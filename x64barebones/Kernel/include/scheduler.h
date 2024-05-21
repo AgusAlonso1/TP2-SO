@@ -2,10 +2,13 @@
 #define SCHEDULER_H
 
 #include <linkedList.h>
+#include <stddef.h>
+#include <definitions.h>
 
 #define PRIORITY_LEVELS 5
 #define SUCCESS 0
 #define ERROR -1
+
 enum quantum_level {
     QL1 = 2,
     QL2 = 3,
@@ -26,9 +29,7 @@ typedef struct SchedulerCDT* SchedulerADT;
 void createScheduler();                                                         //create scheduler
 SchedulerADT getScheduler();
 void * schedule(void * currentStackPointer);                                    //schedule process ---> cambia de proceso running(se ejecuta cuando timer tick)
-void createProcessSched(char* name, char position, uint64_t priority,
-                        Function function, char **args);                        //create process ----> se crea un proceso
-                                                                                    // add process to list -----> agregamos el proceso que se creo al array de procesos
+void createProcessSched(char* name, char position, uint64_t priority, Function function, char **args);                        //create process ----> se crea un proceso
 void listProcess(SchedulerADT sched, ProcessADT process);
 void unlistProcess(SchedulerADT *sched, uint64_t priority);
 void waitProcessPid(uint32_t pid, uint64_t state);                              //waitpid -----> block al padre y vemos si bajamos prioridad

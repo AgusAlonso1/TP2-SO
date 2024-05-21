@@ -1,6 +1,4 @@
 #include <scheduler.h>
-#define SCHEDULER_ADDRESS 700
-
 
 /* Comentarios scheduler:
  * Cambie todos los nombres de las funciones para que queden camel case, porque en algunos archivos estaba snake y en otros camel
