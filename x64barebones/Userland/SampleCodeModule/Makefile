@@ -2,6 +2,7 @@ include ../Makefile.inc
 
 MODULE=0000-sampleCodeModule.bin
 SOURCES=$(wildcard */*.c)
+MODULEELF=0000-sampleCodeModule.elf
 SOURCES_ASM=$(wildcard */*.asm)
 OBJECTS=$(SOURCES:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
@@ -11,7 +12,8 @@ LOADEROBJECT=$(LOADERSRC:.c=.o)
 all: $(MODULE)
 
 $(MODULE):$(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT)
-	$(LD) $(LDFLAGS) -T sampleCodeModule.ld -o ../$(MODULE) $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM)
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) -o ../$(MODULE)
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 -no-pie $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) -o ../$(MODULEELF)
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
@@ -20,7 +22,7 @@ $(MODULE):$(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 $(LOADEROBJECT):
-	$(GCC) $(GCCFLAGS) $(LOADERSRC) -c -o $(LOADEROBJECT)
+	$(GCC) $(GCCFLAGS) -I./include -c $(LOADERSRC) -o $(LOADEROBJECT)
 
 
 clean:
