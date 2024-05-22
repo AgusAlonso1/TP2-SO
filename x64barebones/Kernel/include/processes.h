@@ -32,9 +32,11 @@ uint32_t getProcessPriority(ProcessADT process);
 void setProcessPosition(ProcessADT process, uint32_t position);
 uint32_t getProcessPosition(ProcessADT process);
 void freeProcess(ProcessADT process);
-ProcessADT copyProcess(ProcessADT process, Function function, char ** args);
+ProcessADT copyProcess(ProcessADT process);
 void setProcessStack(ProcessADT process, void * stack);
 void * getProcessStack(ProcessADT process);
+void setProcessReturnValue(ProcessADT process, int returnValue);
+int getProcessReturnValue(ProcessADT process);
 void argscopy(char** arguments, char** args);
 
 

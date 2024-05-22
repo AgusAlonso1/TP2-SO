@@ -19,5 +19,6 @@ ProcessADT getFirstProcess(ProcessListADT list);
 ProcessADT popFirst(ProcessListADT list);
 void pop(ProcessNode * node);
 ProcessNode * getFirstNode(ProcessListADT list);
+ProcessListADT newList();
 
 #endif

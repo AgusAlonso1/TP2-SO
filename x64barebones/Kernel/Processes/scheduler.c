@@ -6,7 +6,7 @@
  * Hay que ver si hacemos lo de que en el kill tenga valor de retorno o lo dejamos con que cuando exitea bien (onda retorna)
 se guarde ese valor de retorno; de otra forma, podemos setearlo en el killProcess, y si no termino devuelve -1 ? Para pensar
  * Tenemos que ver bien que onda el tema del primer proceso. Como seria la logica?
-
+ * Cree una funcion newList porque tenia problemas a la hora de llamar a ProcessListCDT aca en el scheduler.c
  */
 
 // TAREAS IMPORTANTES PENDIENTES
@@ -48,7 +48,7 @@ void * schedule(void * currentStackPointer) {
         if(currentPriority != LEVEL1 && currentPriority != LEVEL4) {
             currentPriority--;
         }
-        setPriority(sched->currentProcess, currentPriority, sched);
+        setPriority(sched->currentProcess, currentPriority);
 
         uint8_t found = 0; 
         for(int i = LEVEL4; i > LEVEL0; i--) {
@@ -65,7 +65,7 @@ void * schedule(void * currentStackPointer) {
                             currentNode->quantumWating = 0;
                             uint64_t priority = getProcessPriority(currentNode->processData);
                             if(priority < LEVEL3){
-                                setPriority(currentNode->processData, priority+1, sched);
+                                setPriority(currentNode->processData, priority+1);
                                 pop(currentNode);
                             }
                         }
@@ -203,12 +203,12 @@ uint32_t getParentPid(){
 
 ProcessListADT getProcessCopy(){
     SchedulerADT sched = getScheduler();
-    ProcessListADT processListCopies = allocMemory(sizeof (ProcessListCDT))
+    ProcessListADT processListCopies = newList();
 
     ProcessADT copy;
     for(int i = LEVEL4; i > LEVEL0; i--) {
         ProcessNode * currentNode = getFirstNode(sched->processes[i]);
-        while(currentNode != NULL && !found) {
+        while(currentNode != NULL) {
             copy = copyProcess(currentNode->processData);
             add(processListCopies, copy);
             currentNode = currentNode->next;

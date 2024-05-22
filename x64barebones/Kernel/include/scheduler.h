@@ -41,10 +41,11 @@ uint16_t setState(uint32_t pid, uint64_t state);                                
 void exitProcess(int ret);                                                      //exit de la wrapper de proceso (maneja la terminacion de un proceso)
 uint32_t getPid();                                                              //getpid -----> usa getpid del process
 uint32_t getParentPid();                                                        //getppid ------> usa getppid del process
-ProcessListADT getProcessCopy();
+ProcessListADT getProcessCopy();                                                //ps -----> hacer copia de la process info en el momento ese
+void exitProcess(int returnValue);
 
 
-//ps -----> hacer copia de la process info en el momento ese
+
 
 
 

@@ -23,6 +23,11 @@ void add(ProcessListADT list, ProcessADT process) {
     list->last = newProcess;
 }
 
+ProcessListADT newList(){
+    ProcessListADT list = allocMemory(sizeof(ProcessListCDT));
+    return list;
+}
+
 ProcessADT getFirstProcess(ProcessListADT list) {
     return list->first->processData;
 }

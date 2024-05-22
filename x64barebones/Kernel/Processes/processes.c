@@ -1,5 +1,6 @@
 #include <processes.h>
 #include <stddef.h>
+#include <scheduler.h>
 
 extern void * _create_stack_frame(wrp wrapperFuntion, Function function, void * stackEnd, char ** args);
 
