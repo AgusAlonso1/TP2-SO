@@ -1,17 +1,21 @@
 #include <scheduler.h>
 
 /* Comentarios scheduler:
- * Cambie todos los nombres de las funciones para que queden camel case, porque en algunos archivos estaba snake y en otros camel
- * No entiendo porque hacemos pop y no liberamos la memoria del nodo, como que perdemos el nodo
  * Tenemos que ver bien la logica de cambiar estados y lo de manejar procesos zombie
  * En assembler (libasm) cree la interrupcion que fuerza la interrupcion del timer forceTimerTick
- * Hice que lo de cambiar prioridad no solo cambie el valor en el ProcessADT, sino que tambien lo cambie de lista
-(estaria genial si alguno lo quiere revisar)
- * Hice la funcion yield(), que basicamente le cede el CPU a algun otro proceso
+ * Hay que ver si hacemos lo de que en el kill tenga valor de retorno o lo dejamos con que cuando exitea bien (onda retorna)
+se guarde ese valor de retorno; de otra forma, podemos setearlo en el killProcess, y si no termino devuelve -1 ? Para pensar
  * Tenemos que ver bien que onda el tema del primer proceso. Como seria la logica?
- * Dudas con los estados. EXITED es lo mismo que ZOMBIE? lo mismo que DEAD? como seria?
+
  */
 
+// TAREAS IMPORTANTES PENDIENTES
+//ver lo de los zombies
+//terminar kill
+//terminar waitpid
+//ver logica de backgournd y foreground
+//revisar primer caso schedule
+//TESTS
 
 typedef struct SchedulerCDT{
     ProcessListADT processes[PRIORITY_LEVELS];
@@ -32,14 +36,14 @@ void * schedule(void * currentStackPointer) {
     uint64_t currentState = getProcessState(sched->currentProcess);
 
     if(sched->processQuantum > 0) {
-        if (currentState != BLOCKED && currentState != EXITED){
+        if (currentState != BLOCKED && currentState != ZOMBIE){
             sched->processQuantum--;
             return currentStackPointer;
         }
     }
 
     ProcessADT processToRun;
-    if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == EXITED) {
+    if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == ZOMBIE) {
         uint64_t currentPriority =  getProcessPriority(sched->currentProcess);
         if(currentPriority != LEVEL1 && currentPriority != LEVEL4) {
             currentPriority--;
@@ -94,7 +98,8 @@ void unlistFirtsProcess(SchedulerADT sched, uint64_t priority){
 }
 
 //le cambia la prioridad al proceso y lo cambia de lista (el proceso que toma como argumento ya esta popeado)
-void setPriority(ProcessADT process, uint64_t priority, SchedulerADT sched){
+void setPriority(ProcessADT process, uint64_t priority){
+    SchedulerADT sched = getScheduler();
     setProcessPriority(sched->currentProcess, priority);
     add(sched->processes[priority], process);
 }
@@ -124,12 +129,12 @@ void killProcess(uint32_t pid){
         processToKill = sched->currentProcess;
     }
 
-    if(getProcessState(processToKill) == EXITED){   //no se si va EXITED O ZOMBIE
+    if(getProcessState(processToKill) == ZOMBIE){
         return;
     }
 
-    setProcessState(processToKill, EXITED);
-    add(sched->processes[LEVEL0], processToKill);   //agregamos al proceso a la lista de EXITED/muertos?
+    setProcessState(processToKill, ZOMBIE);
+    add(sched->processes[LEVEL0], processToKill);
 
     //veo si tiene zombies
     //lo meto como zombie en su padre
@@ -145,18 +150,17 @@ uint16_t setState(uint32_t pid, uint64_t state){
     SchedulerADT sched = getScheduler();
     ProcessNode * processNode = getProcessNode(pid);
 
-    //si el nodo en nulo no existe un proceso con ese pid
+    //si el nodo es nulo no existe un proceso con ese pid
     if(processNode == NULL){
         return ERROR;
     }
 
     uint64_t currentState = getProcessState(processNode->processData);
 
-    //el estado RUNNING solo se cambia en schedule el estado EXITED solo se cambia en exit/killProcess; el tema es ver donde hacemos lo de ZOMBIE
-    //EXITED es lo mismo que ZOMBIE? lo mismo que DEAD? como seria?
-    if(currentState == RUNNING || currentState == EXITED || state == EXITED){
+    //el estado RUNNING solo se cambia en schedule el estado ZOMBIE solo se cambia en exit/killProcess; el tema es ver donde hacemos lo de ZOMBIE
+    if(currentState == RUNNING || currentState == ZOMBIE || state == ZOMBIE){
         return ERROR;
-    }else if(currentState == state){
+    } else if(currentState == state){
         return SUCCESS;
     }
 
@@ -187,9 +191,40 @@ ProcessNode * getProcessNode(uint32_t pid){
     return processNode;
 }
 
-void exitProcess(int ret){
-
+uint32_t getPid(){
+    SchedulerADT sched = getScheduler();
+    return getProcessPid(sched->currentProcess);
 }
+
+uint32_t getParentPid(){
+    SchedulerADT sched = getScheduler();
+    return getProcessParentPid(sched->currentProcess);
+}
+
+ProcessListADT getProcessCopy(){
+    SchedulerADT sched = getScheduler();
+    ProcessListADT processListCopies = allocMemory(sizeof (ProcessListCDT))
+
+    ProcessADT copy;
+    for(int i = LEVEL4; i > LEVEL0; i--) {
+        ProcessNode * currentNode = getFirstNode(sched->processes[i]);
+        while(currentNode != NULL && !found) {
+            copy = copyProcess(currentNode->processData);
+            add(processListCopies, copy);
+            currentNode = currentNode->next;
+        }
+    }
+    return processListCopies;
+}
+
+void exitProcess(int returnValue){
+    SchedulerADT sched = getScheduler();
+    setProcessReturnValue(sched->currentProcess, returnValue);
+    killProcess(getProcessPid(sched->currentProcess));
+}
+
+//Hay que ver si hacemos lo de que en el kill tenga valor de retorno o lo dejamos con que cuando exitea bien (onda retorna)
+//se guarde ese valor de retorno; de otra forma, podemos setearlo en el killProcess, y si no termino devuelve -1 ? Para pensar
 
 // void wait_process_pid(uint32_t pid, uint64_t *status){
 //     SchedulerADT sched = get_scheduler();

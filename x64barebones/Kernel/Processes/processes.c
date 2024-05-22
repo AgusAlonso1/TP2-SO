@@ -4,7 +4,8 @@
 extern void * _create_stack_frame(wrp wrapperFuntion, Function function, void * stackEnd, char ** args);
 
 /* Comentarios process:
- * Revisar el tema de copy process
+ * Ver si no nos conviene hacer un nuevo tipo de Proceso para copy, onda un ProcessCopy, porque hay varios campos de ProcessCDT que no usamos para la copia
+por ahi sirve para no alocar memoria de mas
  * Cambie todos los nombres de las funciones para que queden camel case, porque en algunos archivos estaba snake y en otros camel
  */
 
@@ -17,7 +18,8 @@ typedef struct ProcessCDT {
     uint64_t state;
     void * stack;
     void * basePointer;
-    char position;  //Background or Foreground
+    char position;  //Background (1) or Foreground (0)
+    int returnValue;  //no se si inicializarlo o dejarlo asi
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
 
@@ -81,7 +83,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
-    process->name =  allocMemory(sizeof(strlen(name)));
+    process->name =  allocMemory(sizeof(strlen(name))+1);
     strcopy(process->name, name);
     process->priority = priority;
     process->state = READY;
@@ -100,7 +102,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
 void wrapper(Function function, char **args) {
     int len = stringArrayLen(args);
     int ret = function(len, args);     //todas las funciones reciben un argc y argv; el valor que retorna la funcion lo guardamos por si otro proceso lo necesita
-    //exitProcess(ret);      //todo: hay q implementar; seria un pongo el proceso en modo zombie (se supone que se sale el current)
+    exitProcess(ret);
 }
 
 
@@ -154,12 +156,20 @@ void freeProcess(ProcessADT process){
 
 
 
-//a chequear si funciona el tema de stack y basepointer
-ProcessADT copyProcess(ProcessADT process, Function function, char ** args){
-    ProcessADT new_process = createProcess(process->pid, process->parentPid, process->name, process->priority, process->state, process->position, function, args);
-    new_process->stack = process->stack;
-    new_process->basePointer = process->basePointer;
-    return new_process;
+ProcessADT copyProcess(ProcessADT process){
+    ProcessADT processCopy = allocMemory(sizeof(ProcessCDT));
+
+    processCopy->name =  allocMemory(sizeof(strlen(process->name)+1));
+    strcopy(processCopy->name, process->name);
+
+    processCopy->pid = process->pid;
+    processCopy->priority = process->priority;
+    processCopy->basePointer = process->basePointer;
+    processCopy->stack = process->stack;
+    processCopy->state = process->state;
+    processCopy->position = process->position;
+
+    return processCopy;
 }
 
 void setProcessStack(ProcessADT process, void * stack) {
@@ -170,6 +180,13 @@ void * getProcessStack(ProcessADT process) {
     return process->stack;
 }
 
+void setProcessReturnValue(ProcessADT process, int returnValue) {
+    process->returnValue = returnValue;
+}
+
+int getProcessReturnValue(ProcessADT process) {
+    return process->returnValue;
+}
 
 void argscopy(char** arguments, char** args){
     uint64_t  argc = my_atoi(args[0]); //supongo el primer argumetno es siempre argc

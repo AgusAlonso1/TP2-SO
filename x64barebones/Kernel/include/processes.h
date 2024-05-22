@@ -8,7 +8,7 @@
 #define RUNNING 0
 #define READY 1
 #define BLOCKED 2
-#define EXITED 3
+#define ZOMBIE 3
 #define FOREGROUND 0
 #define BACKGROUND 1
 #define STACK_SIZE 4096
@@ -39,10 +39,6 @@ void argscopy(char** arguments, char** args);
 
 
 #endif
-
-
-
-
 
 
 

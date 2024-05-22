@@ -33,23 +33,19 @@ void createProcessSched(char* name, char position, uint64_t priority, Function f
 void listProcess(SchedulerADT sched, ProcessADT process);
 void unlistProcess(SchedulerADT *sched, uint64_t priority);
 void waitProcessPid(uint32_t pid, uint64_t state);                              //waitpid -----> block al padre y vemos si bajamos prioridad
-void setPriority(ProcessADT process, uint64_t priority, SchedulerADT sched);    //cambiar prioridad de un proceso
+void setPriority(ProcessADT process, uint64_t priority);                        //cambiar prioridad de un proceso
 void yield();                                                                   //yield -----> renunciar al CPU (setear el quantum del proceso en 0 y forzar un timer tick)
 void killProcess(uint32_t pid);                                                 //kill ------> mata al proceso
 ProcessNode * getProcessNode(uint32_t pid);
-uint16_t setState(uint32_t pid, uint64_t state);                                    //cambiar estado ----> cambia el estado del proceso
+uint16_t setState(uint32_t pid, uint64_t state);                                //cambiar estado ----> cambia el estado del proceso
 void exitProcess(int ret);                                                      //exit de la wrapper de proceso (maneja la terminacion de un proceso)
-
-
-
-
-
+uint32_t getPid();                                                              //getpid -----> usa getpid del process
+uint32_t getParentPid();                                                        //getppid ------> usa getppid del process
+ProcessListADT getProcessCopy();
 
 
 //ps -----> hacer copia de la process info en el momento ese
-//getpid -----> usa getpid del process
-//getppid ------> usa getppid del process
-//time running ----> asignamiento del tiempo
+
 
 
 #endif
