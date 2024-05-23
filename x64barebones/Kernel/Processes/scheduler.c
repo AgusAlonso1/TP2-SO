@@ -10,15 +10,11 @@ se guarde ese valor de retorno; de otra forma, podemos setearlo en el killProces
  */
 
 // TAREAS IMPORTANTES PENDIENTES
-//ver lo de los zombies
-//terminar kill
-//terminar waitpid
 //ver logica de backgournd y foreground
 //revisar primer caso schedule
-//TESTS
 
 typedef struct SchedulerCDT{
-    ProcessListADT processes[PRIORITY_LEVELS];
+    ProcessListADT processes[PRIORITY_LEVELS]; 
     ProcessADT currentProcess;
     uint32_t pidCounter;
     uint16_t processQuantum;
@@ -57,7 +53,7 @@ void * schedule(void * currentStackPointer) {
                 if(getProcessState(currentNode->processData) == READY) {
                     if(!found) {
                         processToRun = currentNode->processData;
-                        pop(currentNode);
+                        pop(sched->processes[i], currentNode);
                         found = 1;
                     } else {
                         currentNode->quantumWating++;
@@ -66,7 +62,7 @@ void * schedule(void * currentStackPointer) {
                             uint64_t priority = getProcessPriority(currentNode->processData);
                             if(priority < LEVEL3){
                                 setPriority(currentNode->processData, priority+1);
-                                pop(currentNode);
+                                pop(sched->processes[i], currentNode);
                             }
                         }
                     }
@@ -117,28 +113,44 @@ void killProcess(uint32_t pid){
     char isProcessRunning = getProcessPid(sched->currentProcess) == pid ? 1 : 0;    //como sacamos siempre el nodo y lo eliminaos,
                                                                                             // el caso en el que quiera matar el que esta RUNNNING,
                                                                                             // hay que ver si el pid que pide el igual al pid del currentProcess
-    if(processNode == NULL && !isProcessRunning){
+    if(processNode == NULL && !isProcessRunning) {
         return;
     }
 
     ProcessADT processToKill;
     if(!isProcessRunning){
         processToKill = processNode->processData;
-        pop(processNode);       //lo elimino de donde sea que este
+        pop(sched->processes[getProcessPriority(processToKill)], processNode);       //lo elimino de donde sea que este
     } else{
         processToKill = sched->currentProcess;
     }
 
-    if(getProcessState(processToKill) == ZOMBIE){
+    if(getProcessState(processToKill) == ZOMBIE || getProcessMortality(processToKill)) {
         return;
     }
-
+    
     setProcessState(processToKill, ZOMBIE);
+
     add(sched->processes[LEVEL0], processToKill);
 
-    //veo si tiene zombies
-    //lo meto como zombie en su padre
-        //veo si es el que le falta a su padre para terminar
+    ProcessNode * currentNode = getFirstNode(getProcessDeadChildList(processToKill));
+
+    while(currentNode != NULL) {
+        ProcessNode * zombieNode = currentNode;
+        currentNode = currentNode->next;
+        freeProcess(zombieNode->processData);
+        freeMemory(zombieNode);
+    }
+
+    ProcessNode * parent = getProcessNode(getParentPid(processToKill));
+    if(parent != NULL && getProcessState(parent) != ZOMBIE) {
+        add(getProcessDeadChildList(parent), processToKill);
+        if(getProcessWatingPid(parent) == getProcessPid(processToKill) && getProcessState(parent) == BLOCKED) {
+            setState(parent, READY);
+        }
+    } else {
+        freeProcess(processToKill);
+    }
 
    if(getProcessPid(sched->currentProcess) == getProcessPid(processToKill)){
        yield();
@@ -168,7 +180,7 @@ uint16_t setState(uint32_t pid, uint64_t state){
 
     if(state == BLOCKED){                           //si el nuevo estado es bloqueado, va al maximo nivel, sino queda donde esta
         add(sched->processes[LEVEL4], processNode->processData);
-        pop(processNode);
+        pop(sched->processes[LEVEL4],processNode);
     }
 
     return SUCCESS;
@@ -223,18 +235,24 @@ void exitProcess(int returnValue){
     killProcess(getProcessPid(sched->currentProcess));
 }
 
-//Hay que ver si hacemos lo de que en el kill tenga valor de retorno o lo dejamos con que cuando exitea bien (onda retorna)
-//se guarde ese valor de retorno; de otra forma, podemos setearlo en el killProcess, y si no termino devuelve -1 ? Para pensar
-
-// void wait_process_pid(uint32_t pid, uint64_t *status){
-//     SchedulerADT sched = get_scheduler();
-
-//     for (int i = 0; i < PRIORITY_LEVELS; i++) {
-//         ProcessNode *current = sched->processes[i];
-//         while (current != NULL) {
-//             if (current->processData->pid == pid) {
-//                 //
-//             }
-//         }
-//     }
-// }
+uint64_t wait_process_pid(uint32_t pid) {
+    SchedulerADT sched = getScheduler();
+    ProcessNode * childNode =  getProcessNode(pid);
+    if(childNode == NULL) {
+        return ERROR;
+    }
+    ProcessADT childProcess = childNode->processData;
+    uint32_t parentPid = getProcessParentPid(childProcess);
+    if(parentPid != getProcessPid(sched->currentProcess)) {
+        return ERROR;
+    }
+    setProcessWatingPid(sched->currentProcess, pid);
+    if(getProcessState(childProcess) != ZOMBIE) {
+        setState(sched->currentProcess, BLOCKED);
+        yield();
+    } 
+    uint64_t toReturn = getProcessReturnValue(childProcess);
+    pop(getProcessDeadChildList(sched->currentProcess), childNode);
+    freeProcess(childProcess);
+    return toReturn;
+} 

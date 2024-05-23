@@ -25,6 +25,9 @@ void add(ProcessListADT list, ProcessADT process) {
 
 ProcessListADT newList(){
     ProcessListADT list = allocMemory(sizeof(ProcessListCDT));
+    list->first = NULL;
+    list->last = NULL;
+    list->size = 0;
     return list;
 }
 
@@ -45,8 +48,30 @@ ProcessADT popFirst(ProcessListADT list) {
     return process;
 }
 
-void pop(ProcessNode * node) {
-    node->prev->next = node->next;
+void pop(ProcessListADT list, ProcessNode * node) {
+    if(node == NULL) {
+        return;
+    }
+    ProcessADT processData = node->processData;
+
+    if(node == list->first) {
+        list->first = node->next;
+        if(list->first != NULL) {
+            list->first->prev = NULL;
+        }
+    }
+    if(node == list->last) {
+        list->last = node->prev;
+        if(list->last != NULL) {
+            list->last->next = NULL;
+        }
+    }
+    if(node->prev!=NULL) {
+        node->prev->next = node->next;
+    }
+    if(node->next != NULL) {
+        node->next->prev = node->prev;
+    }
     freeMemory(node);
 }
 
