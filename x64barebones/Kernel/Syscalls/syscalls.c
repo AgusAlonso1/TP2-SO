@@ -7,8 +7,9 @@
 #include <timer.h>
 #include <interruptions.h>
 #include <sound.h>
+#include <memoryManager.h>
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP}SysID;
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE}SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -36,9 +37,11 @@ static void sys_clear_screen();
 static void sys_sleep(unsigned long long ms);
 static void sys_get_ticks(unsigned long long * ticks);
 static void sys_beep(uint32_t frequency);
+static void * sys_malloc(uint64_t size);
+static void sys_free(void * ptrToFree) ;
 
 
-void syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
+uint64_t syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
     uint64_t rdi,rsi,rdx,rcx,r8;// r9;     //Save registers with respective order for each syscall logic legiablitity
     rdi = otherRegisters[0];
     rsi = otherRegisters[1];
@@ -111,9 +114,14 @@ void syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
             break;
         case BEEP :
             sys_beep((uint32_t) rdi);
+        case MALLOC:
+            return (uint64_t) sys_malloc((uint64_t) rdi);
+        case FREE:
+            sys_free((void*) rdi);
         default :
             break;
     }
+    return -1;
 }
 
 // Syscall Read - ID = 0
@@ -226,4 +234,12 @@ static void sys_get_ticks(unsigned long long * ticks) {
 
 static void sys_beep(uint32_t frequency) {
     beep(frequency);
+}
+
+static void * sys_malloc(uint64_t size) {
+    return allocMemory(size);
+}
+
+static void sys_free(void * ptrToFree) {
+    return freeMemory(ptrToFree);
 }
