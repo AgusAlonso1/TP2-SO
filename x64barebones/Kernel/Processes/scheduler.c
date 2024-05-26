@@ -1,12 +1,15 @@
 #include <scheduler.h>
 
 /* Comentarios scheduler:
- * Tenemos que ver bien la logica de cambiar estados y lo de manejar procesos zombie
- * En assembler (libasm) cree la interrupcion que fuerza la interrupcion del timer forceTimerTick
- * Hay que ver si hacemos lo de que en el kill tenga valor de retorno o lo dejamos con que cuando exitea bien (onda retorna)
-se guarde ese valor de retorno; de otra forma, podemos setearlo en el killProcess, y si no termino devuelve -1 ? Para pensar
- * Tenemos que ver bien que onda el tema del primer proceso. Como seria la logica?
- * Cree una funcion newList porque tenia problemas a la hora de llamar a ProcessListCDT aca en el scheduler.c
+ * Cree una libreria generica LinkedListADT, que si modificamos unas cosas podemos usarla en vez de la que tenemos ahora
+lo hice porque por un tema de includes, no podia tener una lista del tipo ProcessListADT en processes.c, entonces tiraba
+error en la parte de getProcessDeadChildList
+ * Le agregue al scheduler cantidad de procesos, para que a la hora de hacer ps (copia de procesos) sea mas facil pasarselo
+al userland como un array que como una lista
+ * Cree en globals un tipo processCopy, para que asi cuadno se lo pasemos a userland esta info pueda ser manipulada. De otra forma
+se nos es imposible acceder a la info del struct
+ * En globals puse la definicion del tipo Function, mismo puse las funciones esas que tienen q ver con string que se usan
+tanto en kernel coo userland; tambn le agregue las definiciones los tipos ZOMBIE, READY, RUNNING, BLOCKED ahi
  */
 
 // TAREAS IMPORTANTES PENDIENTES
@@ -18,11 +21,13 @@ typedef struct SchedulerCDT{
     ProcessADT currentProcess;
     uint32_t pidCounter;
     uint16_t processQuantum;
+    uint64_t processQty;
 } SchedulerCDT;
 
 void createScheduler() {
     SchedulerADT sched = (SchedulerADT) SCHEDULER_ADDRESS;
     sched->pidCounter = 0;
+    sched->processQty = 0;
 }
 
 void * schedule(void * currentStackPointer) {
@@ -81,6 +86,7 @@ SchedulerADT getScheduler() {
 void createProcessSched(char* name, char position, uint64_t priority, Function function, char **args) {
     SchedulerADT sched = getScheduler();
     int currentPid = sched->pidCounter; //Sino hacemos esto tira un warning raro
+    sched->processQty++;
     ProcessADT newProcess = createProcess(currentPid, sched->pidCounter++, name, priority, READY, position, function, args);
     listProcess(sched, newProcess);
 }
@@ -133,22 +139,25 @@ void killProcess(uint32_t pid){
 
     add(sched->processes[LEVEL0], processToKill);
 
-    ProcessNode * currentNode = getFirstNode(getProcessDeadChildList(processToKill));
+    LinkedListADT deadChildrenList = getProcessDeadChildList(processToKill);
+    Node *currentNode = deadChildrenList->first;
 
-    while(currentNode != NULL) {
-        ProcessNode * zombieNode = currentNode;
+    while (currentNode != NULL) {
+        Node *zombieNode = currentNode;
         currentNode = currentNode->next;
-        freeProcess(zombieNode->processData);
+        sched->processQty--;
+        freeProcess(zombieNode->data);
         freeMemory(zombieNode);
     }
 
     ProcessNode * parent = getProcessNode(getParentPid(processToKill));
-    if(parent != NULL && getProcessState(parent) != ZOMBIE) {
-        add(getProcessDeadChildList(parent), processToKill);
-        if(getProcessWatingPid(parent) == getProcessPid(processToKill) && getProcessState(parent) == BLOCKED) {
+    if(parent != NULL && getProcessState(parent->processData) != ZOMBIE) {
+        insert(getProcessDeadChildList(parent->processData), processToKill)
+        if(getProcessWatingPid(parent->processData) == getProcessPid(processToKill) && getProcessState(parent->processData) == BLOCKED) {
             setState(parent, READY);
         }
     } else {
+        sched->processQty--;
         freeProcess(processToKill);
     }
 
@@ -213,21 +222,6 @@ uint32_t getParentPid(){
     return getProcessParentPid(sched->currentProcess);
 }
 
-ProcessListADT getProcessCopy(){
-    SchedulerADT sched = getScheduler();
-    ProcessListADT processListCopies = newList();
-
-    ProcessADT copy;
-    for(int i = LEVEL4; i > LEVEL0; i--) {
-        ProcessNode * currentNode = getFirstNode(sched->processes[i]);
-        while(currentNode != NULL) {
-            copy = copyProcess(currentNode->processData);
-            add(processListCopies, copy);
-            currentNode = currentNode->next;
-        }
-    }
-    return processListCopies;
-}
 
 void exitProcess(int returnValue){
     SchedulerADT sched = getScheduler();
@@ -252,7 +246,31 @@ uint64_t wait_process_pid(uint32_t pid) {
         yield();
     } 
     uint64_t toReturn = getProcessReturnValue(childProcess);
-    pop(getProcessDeadChildList(sched->currentProcess), childNode);
+    removeNode(getProcessDeadChildList(sched->currentProcess), childNode);
+    sched->processQty--;
     freeProcess(childProcess);
     return toReturn;
-} 
+}
+
+
+ProcessCopyListADT getProcessCopy(){
+    SchedulerADT sched = getScheduler();
+    ProcessCopyListADT processListCopies = allocMemory(sizeof (ProcessCopyListCDT));
+    ProcessCopy * processCopyArray =  allocMemory(scheduler->qtyProcesses * sizeof(ProcessCopy));
+    int index = 0;
+
+    ProcessADT copy;
+    for(int i = LEVEL4; i > LEVEL0; i--) {
+        ProcessNode * currentNode = getFirstNode(sched->processes[i]);
+        while(currentNode != NULL) {
+            copyProcess(&processCopyArray[index], currentNode->processData)
+            index++;
+            currentNode = currentNode->next;
+        }
+    }
+    setProcessCopyListLength(processListCopies, index);
+    setProcessCopyList(processListCopies, processCopyArray);
+    return processListCopies;
+}
+
+
