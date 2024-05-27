@@ -14,13 +14,16 @@ por ahi sirve para no alocar memoria de mas
 typedef struct ProcessCDT {
     uint32_t pid;
     uint32_t parentPid;
+    uint32_t watingPid;
+    char inmortal;
     char * name; //?uint32_t
     uint64_t priority; //?
     uint64_t state;
     void * stack;
     void * basePointer;
     char position;  //Background (1) or Foreground (0)
-    int returnValue;  //no se si inicializarlo o dejarlo asi
+    uint64_t returnValue;  //no se si inicializarlo o dejarlo asi
+    ProcessListADT deadChildren; 
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
 
@@ -74,16 +77,13 @@ static int strlen(const char * s) {
     return i;
 }
 
-//Hay q terminar de implementarlo!!!
-// static void exitProcess(ProcessADT process){
-//     setProcessState(process, EXITED);
-//     freeProcess(process);
-// }
 
-ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, uint64_t state, char position, Function function, char **args) {
+ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args) {
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
+    process->watingPid = 0;
+    process->inmortal = inmortal;
     process->name =  allocMemory(sizeof(strlen(name))+1);
     strcopy(process->name, name);
     process->priority = priority;
@@ -94,7 +94,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     char** arguments = allocMemory(sizeof(args));
     argscopy(arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, arguments);
-
+    process->deadChildren = newList();
     //process->fileDescriptors[0] =
     return process;
 }
@@ -152,6 +152,7 @@ uint32_t getProcessPosition(ProcessADT process){
 void freeProcess(ProcessADT process){
     freeMemory(process->name);
     freeMemory(process->basePointer);
+    freeMemory(process->deadChildren);
     freeMemory(process);
 }
 
@@ -185,8 +186,25 @@ void setProcessReturnValue(ProcessADT process, int returnValue) {
     process->returnValue = returnValue;
 }
 
-int getProcessReturnValue(ProcessADT process) {
+uint64_t getProcessReturnValue(ProcessADT process) {
     return process->returnValue;
+}
+
+/*
+ProcessListADT getProcessDeadChildList(ProcessADT process) {
+    return process->deadChildren;
+}
+*/
+int getProcessMortality(ProcessADT process) {
+    return process->inmortal;
+}
+
+uint32_t getProcessWatingPid(ProcessADT process) {
+    return process->watingPid;
+}
+
+void setProcessWatingPid(ProcessADT process, uint32_t childPid) {
+    process->watingPid = childPid;
 }
 
 void argscopy(char** arguments, char** args){
