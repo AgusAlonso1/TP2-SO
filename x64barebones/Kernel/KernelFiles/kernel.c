@@ -7,6 +7,7 @@
 #include <memoryManager.h>
 #include <processes.h>
 #include <interruptions.h>
+#include <scheduler.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -56,6 +57,7 @@ int main() {
 	_cli(); // Disable interruptions
     loadIDT();
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
+	createScheduler();
 	_sti(); // Enable interruptions
 
 	((EntryPoint)sampleCodeModuleAddress)();
