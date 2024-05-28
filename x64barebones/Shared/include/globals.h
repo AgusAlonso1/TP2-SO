@@ -1,5 +1,5 @@
-#ifndef _GLOBALS_H
-#define _GLOBALS_H
+#ifndef GLOBALS_H
+#define GLOBALS_H
 #include <stdint.h>
 
 typedef int (*Function)(int, char **);
@@ -19,13 +19,12 @@ typedef struct ProcessCopy {
     char position;
 } ProcessCopy;
 
-typedef struct ProcessCopyListCDT* ProcessCopyListADT;
+typedef struct ProcessCopyListCDT * ProcessCopyListADT;
 
 void setProcessCopyListLength(ProcessCopyListADT processCopy, uint64_t length);
-void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopyADT processLis);
-static int stringArrayLen(char **args);
-static uint64_t my_atoi(char *s);
-static void strcopy(char* destination, char* string);
+void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopy * processLis);
 
+// Seria mas prolijo retornar diractamente el puntero, pero tengo que incluir mas cosas asi que mientras solo retorno el tamano
+uint32_t getProcessCopyListSize();
 
 #endif

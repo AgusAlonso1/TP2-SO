@@ -1,10 +1,6 @@
 #include <linkedListADT.h>
 #include <stdlib.h>
-
-typedef struct Node {
-    void * data;
-    struct Node * next;
-} Node;
+#include <processes.h>
 
 typedef struct LinkedListCDT {
     Node * first;
@@ -85,4 +81,8 @@ void removeNode(LinkedListADT list, Node *node) {
     }
     freeMemory(node);
     list->size--;
+}
+
+Node * getFirst(LinkedListADT list) {
+    return list->first;
 }

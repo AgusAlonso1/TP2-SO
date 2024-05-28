@@ -23,8 +23,6 @@ static void setUpIDTEntry(int index, uint64_t offset);
 IDTDescriptor * idt = (IDTDescriptor *) 0; // Puntero a todos los descriptores.
 
 void loadIDT() {
-    _cli(); // Disable interruptions
-
     setUpIDTEntry(0x00, (uint64_t) &_exception0Handler); //Posicion 0x00
     setUpIDTEntry(0x06, (uint64_t) &_exception6Handler); //Posicion 0x06
     setUpIDTEntry(0x20, (uint64_t) &_irq00Handler); //Posicion 0x20
@@ -33,8 +31,6 @@ void loadIDT() {
 
     picMasterMask(0xFC);
     picSlaveMask(0xFF);
-
-    _sti(); // Enable interruptions
 }
 
 void setUpIDTEntry(int index, uint64_t offset) {

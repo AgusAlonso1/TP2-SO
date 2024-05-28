@@ -2,18 +2,27 @@
 #include <globals.h>
 
 
+
 typedef struct ProcessCopyListCDT {
     uint64_t length;
     ProcessCopy * processCopyList;
 } ProcessCopyListCDT;
+
+static int stringArrayLen(char **args);
+static uint64_t my_atoi(char *s);
+static void strcopy(char* destination, char* string);
 
 
 void setProcessCopyListLength(ProcessCopyListADT processCopy, uint64_t length){
     processCopy->length = length;
 }
 
-void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopyADT processList){
-    processCopy->processCopyList = processCopyList;
+void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopy * processList){
+    processCopy->processCopyList = processList;
+}
+
+uint32_t getProcessCopyListSize() {
+    return sizeof(ProcessCopyListCDT);
 }
 
 static int stringArrayLen(char **args) {

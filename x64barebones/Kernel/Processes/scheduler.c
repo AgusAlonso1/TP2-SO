@@ -140,7 +140,7 @@ void killProcess(uint32_t pid){
     add(sched->processes[LEVEL0], processToKill);
 
     LinkedListADT deadChildrenList = getProcessDeadChildList(processToKill);
-    Node *currentNode = deadChildrenList->first;
+    Node * currentNode = getFirst(deadChildrenList);
 
     while (currentNode != NULL) {
         Node *zombieNode = currentNode;
@@ -152,7 +152,7 @@ void killProcess(uint32_t pid){
 
     ProcessNode * parent = getProcessNode(getParentPid(processToKill));
     if(parent != NULL && getProcessState(parent->processData) != ZOMBIE) {
-        insert(getProcessDeadChildList(parent->processData), processToKill)
+        insert(getProcessDeadChildList(parent->processData), processToKill);
         if(getProcessWatingPid(parent->processData) == getProcessPid(processToKill) && getProcessState(parent->processData) == BLOCKED) {
             setState(parent, READY);
         }
@@ -255,15 +255,15 @@ uint64_t wait_process_pid(uint32_t pid) {
 
 ProcessCopyListADT getProcessCopy(){
     SchedulerADT sched = getScheduler();
-    ProcessCopyListADT processListCopies = allocMemory(sizeof (ProcessCopyListCDT));
-    ProcessCopy * processCopyArray =  allocMemory(scheduler->qtyProcesses * sizeof(ProcessCopy));
+    ProcessCopyListADT processListCopies = allocMemory(sizeof(getProcessCopyListSize()));
+    ProcessCopy * processCopyArray =  allocMemory(sched->processQty * sizeof(ProcessCopy));
     int index = 0;
 
     ProcessADT copy;
     for(int i = LEVEL4; i > LEVEL0; i--) {
         ProcessNode * currentNode = getFirstNode(sched->processes[i]);
         while(currentNode != NULL) {
-            copyProcess(&processCopyArray[index], currentNode->processData)
+            copyProcess(&processCopyArray[index], currentNode->processData);
             index++;
             currentNode = currentNode->next;
         }
