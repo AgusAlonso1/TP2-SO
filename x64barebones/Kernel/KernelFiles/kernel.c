@@ -6,6 +6,7 @@
 #include <videoDriver.h>
 #include <memoryManager.h>
 #include <processes.h>
+#include <interruptions.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -52,8 +53,10 @@ void * initializeKernelBinary()
 }
 
 int main() {
+	_cli(); // Disable interruptions
     loadIDT();
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
+	_sti(); // Enable interruptions
 
 	((EntryPoint)sampleCodeModuleAddress)();
 

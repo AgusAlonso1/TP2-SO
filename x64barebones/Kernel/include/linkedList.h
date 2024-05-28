@@ -17,7 +17,8 @@ uint64_t getSize(ProcessListADT list);
 void add(ProcessListADT list, ProcessADT process);
 ProcessADT getFirstProcess(ProcessListADT list);
 ProcessADT popFirst(ProcessListADT list);
-void pop(ProcessNode * node);
+void pop(ProcessListADT list, ProcessNode * node);
 ProcessNode * getFirstNode(ProcessListADT list);
+ProcessListADT newList();
 
 #endif
