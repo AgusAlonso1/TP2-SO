@@ -1,17 +1,10 @@
 #include <stddef.h>
 #include <globals.h>
 
-
-
 typedef struct ProcessCopyListCDT {
     uint64_t length;
     ProcessCopy * processCopyList;
 } ProcessCopyListCDT;
-
-static int stringArrayLen(char **args);
-static uint64_t my_atoi(char *s);
-static void strcopy(char* destination, char* string);
-
 
 void setProcessCopyListLength(ProcessCopyListADT processCopy, uint64_t length){
     processCopy->length = length;
@@ -25,7 +18,7 @@ uint32_t getProcessCopyListSize() {
     return sizeof(ProcessCopyListCDT);
 }
 
-static int stringArrayLen(char **args) {
+int stringArrayLen(char **args) {
     int len = 0;
     while (args[len] != NULL) {
         len++;
@@ -33,7 +26,7 @@ static int stringArrayLen(char **args) {
     return len;
 }
 
-static uint64_t my_atoi(char *s) {
+uint64_t my_atoi(char *s) {
     uint64_t acum = 0;
     uint64_t factor = 1;
 
@@ -50,10 +43,11 @@ static uint64_t my_atoi(char *s) {
     return (factor * acum);
 }
 //esta desps ponerla en algun otro lugar, no aca
-static void strcopy(char* destination, char* string){
+void my_strcopy(char* destination, char* string) {
     if(destination == 0){
         return;
     }
+
     int i;
     for(i  = 0; string[i] != '\0'; i++){
         destination[i] = string[i];
@@ -62,7 +56,7 @@ static void strcopy(char* destination, char* string){
 }
 
 //esta desps ponerla en algun otro lugar, no aca
-static int strlen(const char * s) {
+int my_strlen(const char * s) {
     int i = 0;
     while(s[i] != '\0') {
         if(s[i] == '\t') {

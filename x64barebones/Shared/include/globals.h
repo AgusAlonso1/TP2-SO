@@ -24,6 +24,12 @@ typedef struct ProcessCopyListCDT * ProcessCopyListADT;
 void setProcessCopyListLength(ProcessCopyListADT processCopy, uint64_t length);
 void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopy * processLis);
 
+int my_strlen(const char * s);
+void my_strcopy(char * destination, char* string);
+uint64_t my_atoi(char *s);
+
+int stringArrayLen(char **args);
+
 // Seria mas prolijo retornar diractamente el puntero, pero tengo que incluir mas cosas asi que mientras solo retorno el tamano
 uint32_t getProcessCopyListSize();
 

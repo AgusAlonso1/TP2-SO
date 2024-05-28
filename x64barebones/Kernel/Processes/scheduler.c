@@ -30,6 +30,8 @@ void createScheduler() {
     sched->processQty = 0;
 }
 
+static Node * getDeadChildNode(LinkedListADT list, uint32_t pid);
+
 void * schedule(void * currentStackPointer) {
     //Suponemos que no es el primer caso
     SchedulerADT sched = getScheduler();
@@ -154,7 +156,7 @@ void killProcess(uint32_t pid){
     if(parent != NULL && getProcessState(parent->processData) != ZOMBIE) {
         insert(getProcessDeadChildList(parent->processData), processToKill);
         if(getProcessWatingPid(parent->processData) == getProcessPid(processToKill) && getProcessState(parent->processData) == BLOCKED) {
-            setState(parent, READY);
+            setState(getProcessPid(parent->processData), READY);
         }
     } else {
         sched->processQty--;
@@ -240,16 +242,34 @@ uint64_t wait_process_pid(uint32_t pid) {
     if(parentPid != getProcessPid(sched->currentProcess)) {
         return ERROR;
     }
-    setProcessWatingPid(sched->currentProcess, pid);
+    setProcessWaitingPid(sched->currentProcess, pid);
     if(getProcessState(childProcess) != ZOMBIE) {
-        setState(sched->currentProcess, BLOCKED);
+        setState(getProcessPid(sched->currentProcess), BLOCKED);
         yield();
-    } 
+    }
     uint64_t toReturn = getProcessReturnValue(childProcess);
-    removeNode(getProcessDeadChildList(sched->currentProcess), childNode);
+    Node * child = getDeadChildNode(getProcessDeadChildList(sched->currentProcess), getProcessPid(childNode->processData));
+    removeNode(getProcessDeadChildList(sched->currentProcess), child); //todo: aca tenemos un problema, porque se nos es imposible encontrar el nodo ya que son de distintos tipos
     sched->processQty--;
     freeProcess(childProcess);
     return toReturn;
+}
+
+static Node * getDeadChildNode(LinkedListADT list, uint32_t pid) {
+    Node * processNode = NULL;
+    uint8_t found = 0;
+
+    Node * currentNode = getFirst(list);
+
+    while(currentNode != NULL && !found){
+        ProcessADT processData = (ProcessADT) currentNode->data;
+        if(getProcessPid(processData) == pid){
+            processNode = currentNode;
+            found = 1;
+        }
+        currentNode =  currentNode->next;
+    }
+      return  processNode;
 }
 
 
@@ -259,7 +279,6 @@ ProcessCopyListADT getProcessCopy(){
     ProcessCopy * processCopyArray =  allocMemory(sched->processQty * sizeof(ProcessCopy));
     int index = 0;
 
-    ProcessADT copy;
     for(int i = LEVEL4; i > LEVEL0; i--) {
         ProcessNode * currentNode = getFirstNode(sched->processes[i]);
         while(currentNode != NULL) {
