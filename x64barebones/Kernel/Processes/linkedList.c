@@ -52,7 +52,6 @@ void pop(ProcessListADT list, ProcessNode * node) {
     if(node == NULL) {
         return;
     }
-    ProcessADT processData = node->processData;
 
     if(node == list->first) {
         list->first = node->next;

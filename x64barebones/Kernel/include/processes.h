@@ -39,7 +39,7 @@ void argscopy(char** arguments, char** args);
 int getProcessMortality(ProcessADT process);
 LinkedListADT getProcessDeadChildList(ProcessADT process);
 uint32_t getProcessWatingPid(ProcessADT process);
-void setProcessWatingPid(ProcessADT process, uint32_t childPid); 
+void setProcessWaitingPid(ProcessADT process, uint32_t childPid); 
 
 
 #endif

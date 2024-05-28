@@ -33,8 +33,8 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->parentPid = parentPid;
     process->watingPid = 0;
     process->inmortal = inmortal;
-    process->name =  allocMemory(sizeof(strlen(name))+1);
-    strcopy(process->name, name);
+    process->name =  allocMemory(sizeof(my_strlen(name))+1);
+    my_strcopy(process->name, name);
     process->priority = priority;
     process->state = READY;
     process->position = position;   //foreground or background
@@ -108,8 +108,8 @@ void freeProcess(ProcessADT process){
 
 
 ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process){
-    processCopy->name =  allocMemory(sizeof(strlen(process->name)+1));
-    strcopy(processCopy->name, process->name);
+    processCopy->name =  allocMemory(sizeof(my_strlen(process->name)+1));
+    my_strcopy(processCopy->name, process->name);
 
     processCopy->pid = process->pid;
     processCopy->priority = process->priority;
@@ -149,7 +149,7 @@ uint32_t getProcessWatingPid(ProcessADT process) {
     return process->watingPid;
 }
 
-void setProcessWatingPid(ProcessADT process, uint32_t childPid) {
+void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
     process->watingPid = childPid;
 }
 
@@ -158,15 +158,15 @@ void argscopy(char** arguments, char** args){
     uint32_t totalArgsDim = 0;
     //calculamos la cantidad de memoria que vamos a tener q allocar
     for(int i = 0; i < argc; i++){
-        totalArgsDim += strlen(args[i]) + 1;
+        totalArgsDim += my_strlen(args[i]) + 1;
     }
     arguments = allocMemory(totalArgsDim + sizeof(char **) * (argc + 1));   //memoria para almacenar los strings y para almacenar los punteros a dichos strings
     char *pointer = (char *) arguments + (sizeof(char **) * (argc + 1));
 
     for(int i = 0; i < argc; i++){
         arguments[i] = pointer;
-        memcpy(pointer, args[i], strlen(args[i]) + 1);
-        pointer += strlen(args[i]) + 1;
+        memcpy(pointer, args[i], my_strlen(args[i]) + 1);
+        pointer += my_strlen(args[i]) + 1;
     }
     arguments[argc] = NULL;
 }
