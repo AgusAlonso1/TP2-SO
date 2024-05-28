@@ -5,9 +5,7 @@
 extern void * _create_stack_frame(wrp wrapperFuntion, Function function, void * stackEnd, char ** args);
 
 /* Comentarios process:
- * Ver si no nos conviene hacer un nuevo tipo de Proceso para copy, onda un ProcessCopy, porque hay varios campos de ProcessCDT que no usamos para la copia
-por ahi sirve para no alocar memoria de mas
- * Cambie todos los nombres de las funciones para que queden camel case, porque en algunos archivos estaba snake y en otros camel
+ *
  */
 
 
@@ -23,60 +21,11 @@ typedef struct ProcessCDT {
     void * basePointer;
     char position;  //Background (1) or Foreground (0)
     uint64_t returnValue;  //no se si inicializarlo o dejarlo asi
-    ProcessListADT deadChildren; 
+    LinkedListADT deadChildren;
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
 
 void wrapper(Function function, char **args);
-
-static int stringArrayLen(char **args) {
-    int len = 0;
-    while (args[len] != NULL) {
-        len++;
-    }
-    return len;
-}
-
-static uint64_t my_atoi(char *s) {
-    uint64_t acum = 0;
-    uint64_t factor = 1;
-    
-    if(*s == '-') {
-        factor = -1;
-        s++;
-    }
-    
-    while((*s >= '0')&&(*s <= '9')) {
-      acum = acum * 10;
-      acum = acum + (*s - 48);
-      s++;
-    }
-    return (factor * acum);
-}
-//esta desps ponerla en algun otro lugar, no aca
-static void strcopy(char* destination, char* string){
-    if(destination == 0){
-        return;
-    }
-    int i;
-    for(i  = 0; string[i] != '\0'; i++){
-        destination[i] = string[i];
-    }
-    destination[i] = '\0';
-}
-
-//esta desps ponerla en algun otro lugar, no aca
-static int strlen(const char * s) {
-    int i = 0;
-    while(s[i] != '\0') {
-        if(s[i] == '\t') {
-            i+=4;
-        }
-        i++;
-    }
-    return i;
-}
-
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args) {
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
@@ -94,7 +43,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     char** arguments = allocMemory(sizeof(args));
     argscopy(arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, arguments);
-    process->deadChildren = newList();
+    process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
     return process;
 }
@@ -158,9 +107,7 @@ void freeProcess(ProcessADT process){
 
 
 
-ProcessADT copyProcess(ProcessADT process){
-    ProcessADT processCopy = allocMemory(sizeof(ProcessCDT));
-
+ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process){
     processCopy->name =  allocMemory(sizeof(strlen(process->name)+1));
     strcopy(processCopy->name, process->name);
 
@@ -190,11 +137,10 @@ uint64_t getProcessReturnValue(ProcessADT process) {
     return process->returnValue;
 }
 
-/*
-ProcessListADT getProcessDeadChildList(ProcessADT process) {
+LinkedListADT getProcessDeadChildList(ProcessADT process) {
     return process->deadChildren;
 }
-*/
+
 int getProcessMortality(ProcessADT process) {
     return process->inmortal;
 }
