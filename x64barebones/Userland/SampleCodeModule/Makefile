@@ -2,6 +2,7 @@ include ../Makefile.inc
 
 MODULE=0000-sampleCodeModule.bin
 SOURCES=$(wildcard */*.c)
+MODULEELF=0000-sampleCodeModule.elf
 SOURCES_ASM=$(wildcard */*.asm)
 SOURCES_SHARED=$(wildcard ../Shared/*.c)
 OBJECTS=$(SOURCES:.c=.o)
@@ -12,8 +13,9 @@ LOADEROBJECT=$(LOADERSRC:.c=.o)
 
 all: $(MODULE)
 
-$(MODULE): $(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT) $(OBJECTS_SHARED)
-	$(LD) $(LDFLAGS) -T sampleCodeModule.ld -o ../$(MODULE) $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_SHARED) $(OBJECTS_ASM)
+$(MODULE):$(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT)
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_SHARED) -o ../$(MODULE)
+	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 -no-pie $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_SHARED) -o ../$(MODULEELF)
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
@@ -22,7 +24,7 @@ $(MODULE): $(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT) $(OBJECTS_SHARED)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 $(LOADEROBJECT):
-	$(GCC) $(GCCFLAGS) $(LOADERSRC) -c -o $(LOADEROBJECT)
+	$(GCC) $(GCCFLAGS) -I./include -c $(LOADERSRC) -o $(LOADEROBJECT)
 
 clean:
 	rm -rf */*.o *.o *.bin ../Shared/*.o  # Se agregó la eliminación de archivos .o en Shared
