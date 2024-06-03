@@ -68,5 +68,4 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
         freeMemory(mm_rqs[i].address);
     break;
   }
-  sleep(30000);
 }

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <definitions.h>
 
-#define MAX_EXP 23 // 2^27 = 128 MB
+#define MAX_EXP 27 // 2^27 = 128 MB
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 

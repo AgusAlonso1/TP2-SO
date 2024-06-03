@@ -42,9 +42,8 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->position = position;   //foreground or background
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
-    //char** arguments = allocMemory(sizeof(char **));
-    char ** arguments = {"hola", NULL};
-    //argscopy(arguments, args);
+    char** arguments;
+    argscopy(arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, arguments);
     process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
@@ -166,18 +165,13 @@ void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
 
 void argscopy(char** arguments, char** args){
     uint64_t  argc = my_atoi(args[0]); //supongo el primer argumetno es siempre argc
-    uint32_t totalArgsDim = 0;
-    //calculamos la cantidad de memoria que vamos a tener q allocar
-    for(int i = 0; i < argc; i++){
-        totalArgsDim += my_strlen(args[i]) + 1;
-    }
-    arguments = allocMemory(totalArgsDim + sizeof(char **) * (argc + 1));   //memoria para almacenar los strings y para almacenar los punteros a dichos strings
-    char *pointer = (char *) arguments + (sizeof(char **) * (argc + 1));
+
+    arguments = allocMemory(sizeof(char *) * (argc + 1));
 
     for(int i = 0; i < argc; i++){
-        arguments[i] = pointer;
-        memcpy(pointer, args[i], my_strlen(args[i]) + 1);
-        pointer += my_strlen(args[i]) + 1;
+        char * newArg = allocMemory(sizeof(char) * (my_strlen(args[i]) + 1));
+        my_strcopy(newArg, args[i]);
+        arguments[i++] = newArg;
     }
     arguments[argc] = NULL;
 }

@@ -62,8 +62,8 @@ int main() {
 	//createScheduler();
 	_sti(); // Enable interruptions
 
-	char * argv1[] = {"3", NULL};
-	char * argv2[] = {"8388608", NULL};
+	char * argv1[] = {"100", NULL};
+	char * argv2[] = {"134217728", NULL};
 	//test_mm(1, argv1);
 	test_mm(1, argv2);
 	test_processes(1, argv1);

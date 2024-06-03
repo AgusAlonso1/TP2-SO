@@ -4,6 +4,7 @@
 #include <test_util.h>
 #include <cursor.h>
 #include <videoDriver.h>
+#include <timer.h>
 
 enum State { RUNNING1,
              BLOCKED1,
@@ -93,4 +94,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
     }
     break;
   }
+    drawStringOnCursor((uint8_t *)"success\n", &hola);
+    sleep(3000);
 }
