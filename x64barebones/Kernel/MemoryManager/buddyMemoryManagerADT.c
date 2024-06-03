@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <memoryInfoADT.h>
 
-#define BASE 2
+#define BASE (int) 2
 #define MIN_EXP 5 // 2^5 = 32 B
 #define TRUE 1
 #define FALSE 0
@@ -21,7 +21,7 @@ typedef struct MemoryChunk { // Header of chunks with a size of 18 bytes -> MIN_
 typedef struct MemoryManagerCDT {
     uint8_t maxExpOfTwo;
     void * firstAvailableAdress;
-    MemoryChunk * chunks[MAX_EXP]; // Each position represents the power of two.
+    MemoryChunk * chunks[MAX_EXP + 1]; // Each position represents the power of two.
     MemoryInfoADT info;
 } memoryManagerCDT;
 
@@ -51,11 +51,11 @@ MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availabl
 
     createMemoryInfo(memoryManager->info, availableMem);
 
-    for (uint8_t current_exp = 0; current_exp < MAX_EXP; current_exp++) { // Initialize all chunks in NULL
+    for (uint8_t current_exp = 0; current_exp <= MAX_EXP; current_exp++) { // Initialize all chunks in NULL
         memoryManager->chunks[current_exp] = NULL;
     }
 
-    memoryManager->chunks[memoryManager->maxExpOfTwo - 1] = createMemoryChunk(firstAdress, memoryManager->maxExpOfTwo, NULL);
+    memoryManager->chunks[memoryManager->maxExpOfTwo] = createMemoryChunk(firstAdress, memoryManager->maxExpOfTwo, NULL);
     return memoryManager;
 }
 
@@ -102,7 +102,7 @@ void freeMemory(void * ptrToFree) {
 
     MemoryChunk * buddyChunk = getBuddyChunk(chunk);
     while (chunk->exp < memoryManager->maxExpOfTwo && buddyChunk->state == FREE && chunk->exp == buddyChunk->exp) {
-        // re assigned "chunk" and "buddyChunk" values to recursively check if its possible to join chunks up top
+        // re-assigned "chunk" and "buddyChunk" values to recursively check if its possible to join chunks up top
         chunk = joinChunks(chunk, buddyChunk);
         buddyChunk = getBuddyChunk(chunk);
     }
@@ -116,8 +116,10 @@ static MemoryManagerADT getMemoryManager() {
 }
 
 static uint8_t log2(uint64_t argument) {
-    uint8_t count = 0;
-    while (argument /= BASE) {
+    unsigned int count = 0;
+    uint64_t value = 1;
+    while (value < argument) {
+        value *= BASE;
         count++;
     }
     return count;
@@ -152,11 +154,10 @@ static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
 static void reorderChunks(uint8_t expIndexToAlloc) {
     MemoryManagerADT memoryManager = getMemoryManager();
     if (memoryManager->chunks[expIndexToAlloc] == NULL) { // No chunk of the exponent size, need to split bigger ones
-        uint8_t availableChunkIdx = FALSE;
         uint8_t possibleIndex;
-        for (possibleIndex = expIndexToAlloc + 1; possibleIndex < (memoryManager->maxExpOfTwo - 1) && !availableChunkIdx; possibleIndex++) {
+        for (possibleIndex = expIndexToAlloc + 1; possibleIndex < (memoryManager->maxExpOfTwo); possibleIndex++) {
             if (memoryManager->chunks[possibleIndex] != NULL) { // Found the closest available chunk
-                availableChunkIdx = TRUE;
+                break;
             }
         }
         
@@ -174,8 +175,8 @@ static void splitChunk(uint8_t chunkIndex) {
     void * adress = removeChunk(memoryManager->chunks[chunkIndex]);
 
     void * buddyAdress = adress + (1L << chunkIndex);
-    MemoryChunk * buddyChunk = createMemoryChunk(buddyAdress, chunkIndex, NULL);
-    memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(adress, chunkIndex, buddyChunk);
+    MemoryChunk * buddyChunk = createMemoryChunk(buddyAdress, chunkIndex - 1, NULL);
+    memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(adress, chunkIndex - 1, buddyChunk);
 }
 
 static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, MemoryChunk * next) {
@@ -194,7 +195,7 @@ static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, Me
 // Removes the first chunk of the exp and returns its adress
 static void * removeChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
-    uint8_t chunksIndex = chunk->exp - 1;
+    uint8_t chunksIndex = chunk->exp;
     MemoryChunk * firstExpChunk = memoryManager->chunks[chunksIndex];
 
     if (firstExpChunk->previousChunk != NULL) {
