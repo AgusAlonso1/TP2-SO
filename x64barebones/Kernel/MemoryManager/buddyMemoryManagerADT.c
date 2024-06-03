@@ -7,14 +7,13 @@
 #define TRUE 1
 #define FALSE 0
 
-typedef enum {
-    FREE,
-    IN_USE
-} ChunkState;
+#define FREE (uint8_t) 0
+#define IN_USE (uint8_t) 1
+
 
 typedef struct MemoryChunk { // Header of chunks with a size of 18 bytes -> MIN_EXP = 5 (32 bytes)
     uint8_t exp;
-    ChunkState state;
+    uint8_t state;
     struct MemoryChunk * previousChunk;
     struct MemoryChunk * nextChunk;
 } MemoryChunk;
@@ -41,7 +40,7 @@ static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, Me
 static void * removeChunk(MemoryChunk * chunk);
 
 
-MemoryManagerADT createMemoryManager(void * const firstAdress, uint64_t const availableMem) {
+MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
     memoryManager->maxExpOfTwo = log2(availableMem);
     memoryManager->firstAvailableAdress = firstAdress;
@@ -64,14 +63,14 @@ void *allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
 
-    if (expToAlloc > MAX_EXP) { // Desired size is bigger than the full available memory
+    if (expToAlloc >= MAX_EXP) { // Desired size is bigger than the full available memory
         return NULL;
     }
 
     if (expToAlloc < MIN_EXP ) { // Desired size is smaller than min chunk size
         expIndexToAlloc = MIN_EXP - 1;
     } else {
-        expIndexToAlloc = expToAlloc - 1;
+        expIndexToAlloc = expToAlloc;
     }
     MemoryManagerADT memoryManager = getMemoryManager();
 
@@ -85,11 +84,13 @@ void *allocMemory(const uint64_t size) {
 
     allocUpdateInfo(memoryManager->info, pow2(selectedChunk->exp));
 
-    return (void *) (selectedChunk + sizeof(MemoryChunk));
+    return (void *) selectedChunk + sizeof(MemoryChunk);
 }
 
-void freeMemory(const void * ptrToFree) {
+void freeMemory(void * ptrToFree) {
     MemoryChunk * chunk = (MemoryChunk *) (ptrToFree - sizeof(MemoryChunk));
+
+    
     if (chunk->state == FREE) {
         return;
     }
@@ -100,7 +101,7 @@ void freeMemory(const void * ptrToFree) {
     freeUpdateInfo(memoryManager->info, pow2(chunk->exp));
 
     MemoryChunk * buddyChunk = getBuddyChunk(chunk);
-    while (chunk->exp < memoryManager->maxExpOfTwo && buddyChunk->exp == FREE /*&& chunk->exp == buddyChunk->exp*/) {
+    while (chunk->exp < memoryManager->maxExpOfTwo && buddyChunk->state == FREE && chunk->exp == buddyChunk->exp) {
         // re assigned "chunk" and "buddyChunk" values to recursively check if its possible to join chunks up top
         chunk = joinChunks(chunk, buddyChunk);
         buddyChunk = getBuddyChunk(chunk);
@@ -140,7 +141,7 @@ static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk) {
 }
 
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
-    uintptr_t mask = (uintptr_t) (1L << (chunk->exp - 1));
+    uintptr_t mask = (uintptr_t) (1L << (chunk->exp));
     uintptr_t copyOfAddress = (uintptr_t) chunk;
 
     uintptr_t buddyAdress = copyOfAddress ^ mask;
@@ -152,14 +153,16 @@ static void reorderChunks(uint8_t expIndexToAlloc) {
     MemoryManagerADT memoryManager = getMemoryManager();
     if (memoryManager->chunks[expIndexToAlloc] == NULL) { // No chunk of the exponent size, need to split bigger ones
         uint8_t availableChunkIdx = FALSE;
-        for (uint8_t possibleIndex = expIndexToAlloc + 1; possibleIndex < MAX_EXP - 1 && !availableChunkIdx; possibleIndex++) {
+        uint8_t possibleIndex;
+        for (possibleIndex = expIndexToAlloc + 1; possibleIndex < (memoryManager->maxExpOfTwo - 1) && !availableChunkIdx; possibleIndex++) {
             if (memoryManager->chunks[possibleIndex] != NULL) { // Found the closest available chunk
                 availableChunkIdx = TRUE;
             }
         }
-        while (availableChunkIdx > expIndexToAlloc) { // Split all blocks from the first available to the desired one
-            splitChunk(availableChunkIdx);
-            availableChunkIdx--;
+        
+        while (possibleIndex > expIndexToAlloc) { // Split all blocks from the first available to the desired one
+            splitChunk(possibleIndex);
+            possibleIndex--;
         } 
     }
 

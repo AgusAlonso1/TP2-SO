@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <definitions.h>
 
-#define MAX_EXP 27 // 2^27 = 128 MB
+#define MAX_EXP 23 // 2^27 = 128 MB
 
-typedef struct MemoryManagerCDT *MemoryManagerADT;
+typedef struct MemoryManagerCDT * MemoryManagerADT;
 
-MemoryManagerADT createMemoryManager(void *const firstAdress, uint64_t const availableMem);
+MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availableMem);
 void *allocMemory(const uint64_t size);
-void freeMemory(const void * ptrToFree);
+void freeMemory(void * ptrToFree);
 
 // Despues mover de aca
 uint64_t pow2(uint64_t argument);

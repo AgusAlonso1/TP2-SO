@@ -8,6 +8,7 @@
 #include <processes.h>
 #include <interruptions.h>
 #include <scheduler.h>
+#include <test_util.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -57,8 +58,15 @@ int main() {
 	_cli(); // Disable interruptions
     loadIDT();
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
-	createScheduler();
+
+	//createScheduler();
 	_sti(); // Enable interruptions
+
+	char * argv1[] = {"3", NULL};
+	char * argv2[] = {"8388608", NULL};
+	//test_mm(1, argv1);
+	test_mm(1, argv2);
+	test_processes(1, argv1);
 
 	((EntryPoint)sampleCodeModuleAddress)();
 

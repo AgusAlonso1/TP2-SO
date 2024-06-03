@@ -19,7 +19,7 @@ typedef void (*wrp)(Function, char **);
 typedef struct ProcessCDT* ProcessADT;
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args);
-void setProcessState(ProcessADT process, uint64_t state);
+int setProcessState(ProcessADT process, uint64_t state);
 uint64_t getProcessState(ProcessADT process);
 void setProcessParentPid(ProcessADT process, uint32_t parentPid);
 uint32_t getProcessParentPid(ProcessADT process);
@@ -29,7 +29,7 @@ void setProcessPriority(ProcessADT process, uint32_t priority);
 uint32_t getProcessPriority(ProcessADT process);
 void setProcessPosition(ProcessADT process, uint32_t position);
 uint32_t getProcessPosition(ProcessADT process);
-void freeProcess(ProcessADT process);
+int freeProcess(ProcessADT process);
 ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process);
 void setProcessStack(ProcessADT process, void * stack);
 void * getProcessStack(ProcessADT process);

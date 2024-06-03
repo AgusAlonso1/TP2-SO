@@ -28,20 +28,23 @@ typedef struct ProcessCDT {
 void wrapper(Function function, char **args);
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args) {
+    int p = sizeof(ProcessCDT);
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
     process->watingPid = 0;
     process->inmortal = inmortal;
-    process->name =  allocMemory(sizeof(my_strlen(name))+1);
+    p = my_strlen(name)+1;
+    process->name =  allocMemory(p);
     my_strcopy(process->name, name);
     process->priority = priority;
     process->state = READY;
     process->position = position;   //foreground or background
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
-    char** arguments = allocMemory(sizeof(args));
-    argscopy(arguments, args);
+    //char** arguments = allocMemory(sizeof(char **));
+    char ** arguments = {"hola", NULL};
+    //argscopy(arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, arguments);
     process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
@@ -56,10 +59,14 @@ void wrapper(Function function, char **args) {
 }
 
 
-void setProcessState(ProcessADT process, uint64_t state) {
+int setProcessState(ProcessADT process, uint64_t state) {
+    if (process == NULL) {
+        return -1;
+    }
     if(process->state != state) {
         process->state = state;
     }
+    return 0;
 } 
 
 uint64_t getProcessState(ProcessADT process){
@@ -98,11 +105,15 @@ uint32_t getProcessPosition(ProcessADT process){
     return process->position;
 }
 
-void freeProcess(ProcessADT process){
+int freeProcess(ProcessADT process){
+    if (process == NULL) {
+        return -1;
+    }
     freeMemory(process->name);
     freeMemory(process->basePointer);
     freeMemory(process->deadChildren);
     freeMemory(process);
+    return 0;
 }
 
 

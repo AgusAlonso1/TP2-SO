@@ -144,21 +144,22 @@ picSlaveMask:
 
 ; Timer Tick
 _irq00Handler:
-	pushState
+    irqHandlerMaster 0
+	;pushState
 
-	mov rdi, 0          ; pasaje de parametro
-	call irqDispatcher
+	;mov rdi, 0          ; pasaje de parametro
+	;call irqDispatcher
 
-	mov rdi, rsp        ; Recibe como parametro el stack pointer del proceso que se va a dejar de ejecutar
-	call schedule       ; Llama al scheduler
-	mov rsp, rax        ; Devuelve el stack pointer del proceso que se va a ejecutar
+	;mov rdi, rsp        ; Recibe como parametro el stack pointer del proceso que se va a dejar de ejecutar
+	;call schedule       ; Llama al scheduler
+	;mov rsp, rax        ; Devuelve el stack pointer del proceso que se va a ejecutar
 
     ; send EOI
-	mov al, 20h
-	out 20h, al
+	;mov al, 20h
+	;out 20h, al
 
-	popState
-	iretq
+	;popState
+	;iretq
 
 ; Keyboard
 _irq01Handler:
