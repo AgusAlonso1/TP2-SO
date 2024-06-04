@@ -28,8 +28,7 @@ typedef struct MemoryManagerCDT {
 static uint8_t log2(uint64_t argument);
 //static uint64_t pow2(uint64_t argument);
 
-static MemoryManagerADT getMemoryManager();
-static void reorderChunks(uint8_t expIndexToAlloc);
+static int reorderChunks(uint8_t expIndexToAlloc);
 static void splitChunk(uint8_t chunkIndex);
 static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk);
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk);
@@ -39,6 +38,7 @@ static MemoryChunk * getBuddyChunk(MemoryChunk * chunk);
 static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, MemoryChunk * next);
 static void * removeChunk(MemoryChunk * chunk);
 
+MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 
 MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
@@ -74,7 +74,10 @@ void *allocMemory(const uint64_t size) {
     }
     MemoryManagerADT memoryManager = getMemoryManager();
 
-    reorderChunks(expIndexToAlloc);
+    if(!reorderChunks(expIndexToAlloc)){
+        return NULL;
+    }
+
     MemoryChunk * selectedChunk = memoryManager->chunks[expIndexToAlloc];
     removeChunk(selectedChunk);
 
@@ -111,7 +114,7 @@ void freeMemory(void * ptrToFree) {
 
 }
 
-static MemoryManagerADT getMemoryManager() {
+MemoryManagerADT getMemoryManager() {
     return (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 }
 
@@ -151,22 +154,31 @@ static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
     return (MemoryChunk *) buddyAdress;
 }
 
-static void reorderChunks(uint8_t expIndexToAlloc) {
+static int reorderChunks(uint8_t expIndexToAlloc) {
     MemoryManagerADT memoryManager = getMemoryManager();
+    char isPossible = 0;
     if (memoryManager->chunks[expIndexToAlloc] == NULL) { // No chunk of the exponent size, need to split bigger ones
         uint8_t possibleIndex;
         for (possibleIndex = expIndexToAlloc + 1; possibleIndex < (memoryManager->maxExpOfTwo); possibleIndex++) {
             if (memoryManager->chunks[possibleIndex] != NULL) { // Found the closest available chunk
-                break;
+                isPossible = 1;
+               break;
             }
         }
-        
-        while (possibleIndex > expIndexToAlloc) { // Split all blocks from the first available to the desired one
+
+        if(possibleIndex == memoryManager->maxExpOfTwo && memoryManager->chunks[memoryManager->maxExpOfTwo] != NULL){
+            isPossible = 1;
+        }
+
+        while (possibleIndex > expIndexToAlloc && isPossible) { // Split all blocks from the first available to the desired one
             splitChunk(possibleIndex);
             possibleIndex--;
         } 
+    }else {
+        isPossible = 1;
     }
 
+    return isPossible;
 }
 
 static void splitChunk(uint8_t chunkIndex) {
@@ -174,7 +186,7 @@ static void splitChunk(uint8_t chunkIndex) {
 
     void * adress = removeChunk(memoryManager->chunks[chunkIndex]);
 
-    void * buddyAdress = adress + (1L << chunkIndex);
+    void * buddyAdress = adress + (1L << (chunkIndex - 1));
     MemoryChunk * buddyChunk = createMemoryChunk(buddyAdress, chunkIndex - 1, NULL);
     memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(adress, chunkIndex - 1, buddyChunk);
 }

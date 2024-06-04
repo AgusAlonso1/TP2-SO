@@ -46,8 +46,13 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     // Set
     uint32_t i;
     for (i = 0; i < rq; i++)
-      if (mm_rqs[i].address)
-        memset(mm_rqs[i].address, i, mm_rqs[i].size);
+      if (mm_rqs[i].address){
+          while( mm_rqs[i].address < (void *) 0x500000){
+              ;
+          }
+          memset(mm_rqs[i].address, i, mm_rqs[i].size);
+      }
+
 
     initializeCursor(20, 20, 2);
     // Check
