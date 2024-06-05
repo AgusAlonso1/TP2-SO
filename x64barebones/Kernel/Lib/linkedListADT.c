@@ -35,8 +35,10 @@ void insert(LinkedListADT list, void *data) {
     if (list->first == NULL) {
         list->first = newNode;
     }
+    list->size++;
 }
 
+/*
 //elimina el primero
 void * remove(LinkedListADT list) {
     if (list->first == NULL) {
@@ -52,6 +54,7 @@ void * remove(LinkedListADT list) {
     list->size--;
     return data;
 }
+ */
 
 int isEmpty(LinkedListADT list) {
     return list->first == NULL;
