@@ -159,7 +159,7 @@ void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
 }
 
 void argscopy(char** arguments, char** args){
-    uint64_t  argc = my_atoi(args[0]); //supongo el primer argumetno es siempre argc
+    uint64_t  argc = stringArrayLen(args);
 
     arguments = allocMemory(sizeof(char *) * (argc + 1));
 
