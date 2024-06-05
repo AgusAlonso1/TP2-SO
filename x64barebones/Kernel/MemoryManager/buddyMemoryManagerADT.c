@@ -40,10 +40,10 @@ static void * removeChunk(MemoryChunk * chunk);
 
 MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 
-MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availableMem) {
+MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
     memoryManager->maxExpOfTwo = log2(availableMem);
-    memoryManager->firstAvailableAdress = firstAdress;
+    memoryManager->firstAvailableAdress = firstAddress;
 
     if (memoryManager->maxExpOfTwo < MIN_EXP) { // Max exp is lower than min possible exp.
         return NULL;
@@ -55,10 +55,11 @@ MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availabl
         memoryManager->chunks[current_exp] = NULL;
     }
 
-    memoryManager->chunks[memoryManager->maxExpOfTwo] = createMemoryChunk(firstAdress, memoryManager->maxExpOfTwo, NULL);
+    memoryManager->chunks[memoryManager->maxExpOfTwo] = createMemoryChunk(firstAddress, memoryManager->maxExpOfTwo, NULL);
     return memoryManager;
 }
 
+/*
 void *allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
@@ -89,6 +90,7 @@ void *allocMemory(const uint64_t size) {
 
     return (void *) selectedChunk + sizeof(MemoryChunk);
 }
+ */
 
 void freeMemory(void * ptrToFree) {
     MemoryChunk * chunk = (MemoryChunk *) (ptrToFree - sizeof(MemoryChunk));
@@ -174,7 +176,7 @@ static int reorderChunks(uint8_t expIndexToAlloc) {
             splitChunk(possibleIndex);
             possibleIndex--;
         } 
-    }else {
+    } else {
         isPossible = 1;
     }
 
@@ -213,7 +215,7 @@ static void * removeChunk(MemoryChunk * chunk) {
     if (firstExpChunk->previousChunk != NULL) {
         firstExpChunk->previousChunk->nextChunk = firstExpChunk->nextChunk;
     } else {
-        memoryManager->chunks[chunksIndex] = firstExpChunk->nextChunk; 
+        memoryManager->chunks[chunksIndex ] = firstExpChunk->nextChunk;
     }
 
     if (firstExpChunk->nextChunk != NULL) {
