@@ -57,7 +57,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
 
       for (rq = 0; rq < max_processes; rq++) {
         action = GetUniform(100) % 2;
-        ProcessADT tomi_se_la = p_rqs[rq].process;
+        ProcessADT tomi = p_rqs[rq].process;
         switch (action) {
           case 0:
             if (p_rqs[rq].state == RUNNING1 || p_rqs[rq].state == BLOCKED1) {
@@ -78,7 +78,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
                 return -1;
               }
               p_rqs[rq].state = BLOCKED1;
-              ProcessADT tomi_se_la = p_rqs[rq].process;
+              ProcessADT tomi = p_rqs[rq].process;
             }
             break;
         }
@@ -92,7 +92,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
             return -1;
           }
           p_rqs[rq].state = RUNNING1;
-          ProcessADT tomi_se_la = p_rqs[rq].process;
+          ProcessADT tomi = p_rqs[rq].process;
         }
     }
     break;
