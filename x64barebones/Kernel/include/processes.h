@@ -2,18 +2,17 @@
 #define PROCESS_H 
 
 #include <stdint.h>
-#include <memoryManager.h>
 #include <lib.h>
 #include <globals.h>
 #include <linkedListADT.h>
+#include <interruptions.h>
+//#include <memoryManager.h>
+#include <memoryasm.h>
 
 #define FOREGROUND 0
 #define BACKGROUND 1
 #define STACK_SIZE 4096
 
-
-
-typedef void (*wrp)(Function, char **);
 
 
 typedef struct ProcessCDT* ProcessADT;
@@ -36,10 +35,11 @@ void * getProcessStack(ProcessADT process);
 void setProcessReturnValue(ProcessADT process, int returnValue);
 uint64_t getProcessReturnValue(ProcessADT process);
 void argscopy(char** arguments, char** args);
-int getProcessMortality(ProcessADT process);
+char getProcessMortality(ProcessADT process);
 LinkedListADT getProcessDeadChildList(ProcessADT process);
-uint32_t getProcessWatingPid(ProcessADT process);
-void setProcessWaitingPid(ProcessADT process, uint32_t childPid); 
+uint32_t getProcessWaitingPid(ProcessADT process);
+void setProcessWaitingPid(ProcessADT process, uint32_t childPid);
+void wrapper(Function function, char **args);
 
 
 #endif

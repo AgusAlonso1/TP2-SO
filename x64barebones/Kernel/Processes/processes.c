@@ -2,8 +2,6 @@
 #include <stddef.h>
 #include <scheduler.h>
 
-extern void * _create_stack_frame(wrp wrapperFuntion, Function function, void * stackEnd, char ** args);
-
 /* Comentarios process:
  *
  */
@@ -12,7 +10,7 @@ extern void * _create_stack_frame(wrp wrapperFuntion, Function function, void * 
 typedef struct ProcessCDT {
     uint32_t pid;
     uint32_t parentPid;
-    uint32_t watingPid;
+    uint32_t waitingPid;
     char inmortal;
     char * name; //?uint32_t
     uint64_t priority; //?
@@ -25,26 +23,23 @@ typedef struct ProcessCDT {
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
 
-void wrapper(Function function, char **args);
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args) {
-    int p = sizeof(ProcessCDT);
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
-    process->watingPid = 0;
+    process->waitingPid = 0;
     process->inmortal = inmortal;
-    p = my_strlen(name)+1;
-    process->name =  allocMemory(p);
+    process->name =  allocMemory(my_strlen(name)+1);
     my_strcopy(process->name, name);
     process->priority = priority;
     process->state = READY;
     process->position = position;   //foreground or background
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
-    char** arguments;
+    char** arguments = NULL;
     argscopy(arguments, args);
-    process->stack = _create_stack_frame(&wrapper, function, stackEnd, arguments);
+    process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) arguments);
     process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
     return process;
@@ -151,16 +146,16 @@ LinkedListADT getProcessDeadChildList(ProcessADT process) {
     return process->deadChildren;
 }
 
-int getProcessMortality(ProcessADT process) {
+char getProcessMortality(ProcessADT process) {
     return process->inmortal;
 }
 
-uint32_t getProcessWatingPid(ProcessADT process) {
-    return process->watingPid;
+uint32_t getProcessWaitingPid(ProcessADT process) {
+    return process->waitingrPid;
 }
 
 void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
-    process->watingPid = childPid;
+    process->waitingPid = childPid;
 }
 
 void argscopy(char** arguments, char** args){
@@ -171,7 +166,7 @@ void argscopy(char** arguments, char** args){
     for(int i = 0; i < argc; i++){
         char * newArg = allocMemory(sizeof(char) * (my_strlen(args[i]) + 1));
         my_strcopy(newArg, args[i]);
-        arguments[i++] = newArg;
+        arguments[i] = newArg;
     }
     arguments[argc] = NULL;
 }
