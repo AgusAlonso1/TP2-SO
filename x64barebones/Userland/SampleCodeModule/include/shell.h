@@ -4,12 +4,15 @@
 #define AMOUNT_OF_COMMANDS 11
 
 // Shell manager
-void shell(char * command);
+void shell();
 
 // Checks if the command is valid
 int interpretCommand(char * command);
 
 // Executes the command
 void executeCommand(int indexCommand, char * flag);
+
+// Parses the command line to an array of arguments and marks if background and give pipe position
+void parseCommand(char* commandLine, char** args, int* background, int *pipePos);
 
 #endif

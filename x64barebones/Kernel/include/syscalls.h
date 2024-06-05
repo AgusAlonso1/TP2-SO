@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters);
+uint64_t syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters);
 
 #endif

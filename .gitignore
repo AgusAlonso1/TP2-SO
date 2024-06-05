@@ -5,8 +5,11 @@
 *.qcow2
 *.vmdk
 *.bash_history
+*.gdb_history
+*.elf
 x64barebones/run.sh
 x64barebones/build.sh
 x64barebones/runSound.sh
 .vscode
 x64barebones/task.json
+.gdbinit
