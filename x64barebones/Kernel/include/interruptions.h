@@ -23,4 +23,7 @@ extern void picSlaveMask(uint8_t mask);
 
 extern void haltcpu();
 
+extern void * _create_stack_frame(void * wrapper, void * rip , void * rsp, void ** args);
+
+
 #endif
