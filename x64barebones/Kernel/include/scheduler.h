@@ -43,6 +43,7 @@ ProcessCopyListADT getProcessCopy();                                            
 void exitProcess(int returnValue);
 ProcessSchedADT createProcessSched(ProcessADT process);
 void freeProcessSched(ProcessSchedADT processSched);
+void setPrioritySyscall(uint32_t pid, uint64_t priority);
 
 
 

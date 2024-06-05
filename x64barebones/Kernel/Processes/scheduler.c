@@ -1,20 +1,11 @@
 #include <scheduler.h>
 
 /* Comentarios scheduler:
- * Cree una libreria generica LinkedListADT, que si modificamos unas cosas podemos usarla en vez de la que tenemos ahora
-lo hice porque por un tema de includes, no podia tener una lista del tipo ProcessListADT en processes.c, entonces tiraba
-error en la parte de getProcessDeadChildList
- * Le agregue al scheduler cantidad de procesos, para que a la hora de hacer ps (copia de procesos) sea mas facil pasarselo
-al userland como un array que como una lista
- * Cree en globals un tipo processCopy, para que asi cuadno se lo pasemos a userland esta info pueda ser manipulada. De otra forma
-se nos es imposible acceder a la info del struct
- * En globals puse la definicion del tipo Function, mismo puse las funciones esas que tienen q ver con string que se usan
-tanto en kernel coo userland; tambn le agregue las definiciones los tipos ZOMBIE, READY, RUNNING, BLOCKED ahi
+ *
  */
 
 // TAREAS IMPORTANTES PENDIENTES
 //ver logica de backgournd y foreground
-//revisar primer caso schedule
 
 typedef struct SchedulerCDT{
     LinkedListADT processes[PRIORITY_LEVELS];
@@ -30,7 +21,7 @@ typedef struct ProcessSchedCDT{
     uint8_t  quantumWaiting;
 } ProcessSchedCDT;
 
-static int quantumLevel[5] = {0, 2, 3, 4, 5};
+static int quantumLevel[PRIORITY_LEVELS] = {0, 2, 3, 4, 5};
 static Node * getDeadChildNode(LinkedListADT list, uint32_t pid);
 
 void createScheduler() {
@@ -60,17 +51,7 @@ void * schedule(void * currentStackPointer) {
 
     ProcessADT processToRun = NULL;
     if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == ZOMBIE) {
-        uint64_t currentPriority;
-        if(sched->currentProcess != NULL) {
-            if (sched->killCurrentProcess && !getProcessMortality(sched->currentProcess)) {
-                killProcess(getProcessPid(sched->currentProcess));
-            } else {
-                currentPriority  = getProcessPriority(sched->currentProcess);
-                if (currentPriority != LEVEL1 && currentPriority != LEVEL4) {
-                    currentPriority--;
-                }
-            }
-        }
+
         uint8_t found = 0; 
         for(int i = LEVEL4; i > LEVEL0; i--) {
             Node * currentNode = getFirst(sched->processes[i]);
@@ -100,12 +81,27 @@ void * schedule(void * currentStackPointer) {
                 }
             }
         }
-        if(sched->currentProcess != NULL){
-            setPriority(sched->currentProcess, currentPriority);
+
+        if(sched->currentProcess != NULL) {
+            uint64_t currentPriority  = getProcessPriority(sched->currentProcess);
+            if (sched->killCurrentProcess && !getProcessMortality(sched->currentProcess)) {
+                killProcess(getProcessPid(sched->currentProcess));
+                sched->killCurrentProcess = 0;
+            } else {
+                if(currentPriority != LEVEL1 && currentPriority != LEVEL4) {
+                    currentPriority--;
+                }
+                setPriority(sched->currentProcess, currentPriority);
+                setProcessState(sched->currentProcess, READY);
+            }
         }
+
+
         sched->currentProcess = processToRun;
         sched->processQuantum = quantumLevel[getProcessPriority(processToRun)];
+        setProcessState(sched->currentProcess, RUNNING);
     }
+
     return getProcessStack(processToRun);
 }
 
@@ -363,4 +359,38 @@ void freeProcessSched(ProcessSchedADT processSched){
     freeMemory(processSched);
 }
 
+void setPrioritySyscall(uint32_t pid, uint64_t priority){
+    SchedulerADT sched = getScheduler();
+    if(sched->currentProcess != NULL && getProcessPid(sched->currentProcess) == pid){
+        if(getProcessPriority(sched->currentProcess) == priority){
+            return;
+        }
+        setProcessPriority(sched->currentProcess, priority);
+        yield();
+    }
 
+    Node * processNode = getProcessNode(pid);
+    if(processNode == NULL){
+        return;
+    }
+
+    ProcessSchedADT processSched = (ProcessSchedADT) processNode->data;
+    if(processSched == NULL){
+        return;
+    }
+
+    ProcessADT process = processSched->processData;
+    if(process == NULL){
+        return;
+    }
+    uint64_t processPriority = getProcessPriority(process);
+
+    if(processPriority == priority){
+        return;
+    }
+
+    freeMemory(processSched);
+    removeNode(sched->processes[getProcessPriority(process)], processNode);
+
+    setPriority(process, priority);
+}
