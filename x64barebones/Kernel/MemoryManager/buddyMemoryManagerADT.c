@@ -2,49 +2,48 @@
 #include <stdlib.h>
 #include <memoryInfoADT.h>
 
-#define BASE 2
+#define BASE (int) 2
 #define MIN_EXP 5 // 2^5 = 32 B
 #define TRUE 1
 #define FALSE 0
 
-typedef enum {
-    FREE,
-    IN_USE
-} ChunkState;
+#define FREE (uint8_t) 0
+#define IN_USE (uint8_t) 1
+
 
 typedef struct MemoryChunk { // Header of chunks with a size of 18 bytes -> MIN_EXP = 5 (32 bytes)
     uint8_t exp;
-    ChunkState state;
+    uint8_t state;
     struct MemoryChunk * previousChunk;
     struct MemoryChunk * nextChunk;
 } MemoryChunk;
 
 typedef struct MemoryManagerCDT {
     uint8_t maxExpOfTwo;
-    void * firstAvailableAdress;
-    MemoryChunk * chunks[MAX_EXP]; // Each position represents the power of two.
+    void * firstAvailableAddress;
+    MemoryChunk * chunks[MAX_EXP + 1]; // Each position represents the power of two.
     MemoryInfoADT info;
 } memoryManagerCDT;
 
 static uint8_t log2(uint64_t argument);
 //static uint64_t pow2(uint64_t argument);
 
-static MemoryManagerADT getMemoryManager();
-static void reorderChunks(uint8_t expIndexToAlloc);
+static int reorderChunks(uint8_t expIndexToAlloc);
 static void splitChunk(uint8_t chunkIndex);
 static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk);
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk);
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk);
 
 
-static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, MemoryChunk * next);
+static MemoryChunk * createMemoryChunk(void * destinationAddress, uint8_t exp, MemoryChunk * next);
 static void * removeChunk(MemoryChunk * chunk);
 
+MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 
-MemoryManagerADT createMemoryManager(void * const firstAdress, uint64_t const availableMem) {
+MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
     memoryManager->maxExpOfTwo = log2(availableMem);
-    memoryManager->firstAvailableAdress = firstAdress;
+    memoryManager->firstAvailableAddress = firstAddress;
 
     if (memoryManager->maxExpOfTwo < MIN_EXP) { // Max exp is lower than min possible exp.
         return NULL;
@@ -52,30 +51,34 @@ MemoryManagerADT createMemoryManager(void * const firstAdress, uint64_t const av
 
     createMemoryInfo(memoryManager->info, availableMem);
 
-    for (uint8_t current_exp = 0; current_exp < MAX_EXP; current_exp++) { // Initialize all chunks in NULL
+    for (uint8_t current_exp = 0; current_exp <= MAX_EXP; current_exp++) { // Initialize all chunks in NULL
         memoryManager->chunks[current_exp] = NULL;
     }
 
-    memoryManager->chunks[memoryManager->maxExpOfTwo - 1] = createMemoryChunk(firstAdress, memoryManager->maxExpOfTwo, NULL);
+    memoryManager->chunks[memoryManager->maxExpOfTwo] = createMemoryChunk(firstAddress, memoryManager->maxExpOfTwo, NULL);
     return memoryManager;
 }
+
 
 void *allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
 
-    if (expToAlloc > MAX_EXP) { // Desired size is bigger than the full available memory
+    if (expToAlloc >= MAX_EXP) { // Desired size is bigger than the full available memory
         return NULL;
     }
 
     if (expToAlloc < MIN_EXP ) { // Desired size is smaller than min chunk size
         expIndexToAlloc = MIN_EXP - 1;
     } else {
-        expIndexToAlloc = expToAlloc - 1;
+        expIndexToAlloc = expToAlloc;
     }
     MemoryManagerADT memoryManager = getMemoryManager();
 
-    reorderChunks(expIndexToAlloc);
+    if(!reorderChunks(expIndexToAlloc)){
+        return NULL;
+    }
+
     MemoryChunk * selectedChunk = memoryManager->chunks[expIndexToAlloc];
     removeChunk(selectedChunk);
 
@@ -85,11 +88,13 @@ void *allocMemory(const uint64_t size) {
 
     allocUpdateInfo(memoryManager->info, pow2(selectedChunk->exp));
 
-    return (void *) (selectedChunk + sizeof(MemoryChunk));
+    return (void *) selectedChunk + sizeof(MemoryChunk);
 }
 
-void freeMemory(const void * ptrToFree) {
+void freeMemory(void * ptrToFree) {
     MemoryChunk * chunk = (MemoryChunk *) (ptrToFree - sizeof(MemoryChunk));
+
+    
     if (chunk->state == FREE) {
         return;
     }
@@ -100,23 +105,25 @@ void freeMemory(const void * ptrToFree) {
     freeUpdateInfo(memoryManager->info, pow2(chunk->exp));
 
     MemoryChunk * buddyChunk = getBuddyChunk(chunk);
-    while (chunk->exp < memoryManager->maxExpOfTwo && buddyChunk->exp == FREE /*&& chunk->exp == buddyChunk->exp*/) {
-        // re assigned "chunk" and "buddyChunk" values to recursively check if its possible to join chunks up top
+    while (chunk->exp < memoryManager->maxExpOfTwo && buddyChunk->state == FREE && chunk->exp == buddyChunk->exp) {
+        // re-assigned "chunk" and "buddyChunk" values to recursively check if its possible to join chunks up top
         chunk = joinChunks(chunk, buddyChunk);
         buddyChunk = getBuddyChunk(chunk);
     }
     // After the final join, we place the new free block in its new slot
-    memoryManager->chunks[chunk->exp - 1] = createMemoryChunk((void *) chunk, chunk->exp, memoryManager->chunks[chunk->exp - 1]);
+    memoryManager->chunks[chunk->exp] = createMemoryChunk((void *) chunk, chunk->exp, memoryManager->chunks[chunk->exp]);
 
 }
 
-static MemoryManagerADT getMemoryManager() {
+MemoryManagerADT getMemoryManager() {
     return (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 }
 
 static uint8_t log2(uint64_t argument) {
-    uint8_t count = 0;
-    while (argument /= BASE) {
+    unsigned int count = 0;
+    uint64_t value = 1;
+    while (value < argument) {
+        value *= BASE;
         count++;
     }
     return count;
@@ -140,43 +147,55 @@ static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk) {
 }
 
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
-    uintptr_t mask = (uintptr_t) (1L << (chunk->exp - 1));
-    uintptr_t copyOfAddress = (uintptr_t) chunk;
+    MemoryManagerADT memoryManager = getMemoryManager();
+    uint64_t relativePos = (uint64_t) ((void *) chunk - memoryManager->firstAvailableAddress);
+    uint64_t mask = (1L << (chunk->exp)); // Bit Mask to swap bit value in exp position
+    uint64_t copyOfAddress = (uint64_t) memoryManager->firstAvailableAddress + (relativePos ^ mask);
 
-    uintptr_t buddyAdress = copyOfAddress ^ mask;
+    MemoryChunk * buddyAddress = (MemoryChunk *) copyOfAddress;
 
-    return (MemoryChunk *) buddyAdress;
+    return buddyAddress;
 }
 
-static void reorderChunks(uint8_t expIndexToAlloc) {
+static int reorderChunks(uint8_t expIndexToAlloc) {
     MemoryManagerADT memoryManager = getMemoryManager();
+    char isPossible = 0;
     if (memoryManager->chunks[expIndexToAlloc] == NULL) { // No chunk of the exponent size, need to split bigger ones
-        uint8_t availableChunkIdx = FALSE;
-        for (uint8_t possibleIndex = expIndexToAlloc + 1; possibleIndex < MAX_EXP - 1 && !availableChunkIdx; possibleIndex++) {
+        uint8_t possibleIndex;
+        for (possibleIndex = expIndexToAlloc + 1; possibleIndex < (memoryManager->maxExpOfTwo); possibleIndex++) {
             if (memoryManager->chunks[possibleIndex] != NULL) { // Found the closest available chunk
-                availableChunkIdx = TRUE;
+                isPossible = 1;
+               break;
             }
         }
-        while (availableChunkIdx > expIndexToAlloc) { // Split all blocks from the first available to the desired one
-            splitChunk(availableChunkIdx);
-            availableChunkIdx--;
+
+        if(possibleIndex == memoryManager->maxExpOfTwo && memoryManager->chunks[memoryManager->maxExpOfTwo] != NULL){
+            isPossible = 1;
+        }
+
+        while (possibleIndex > expIndexToAlloc && isPossible) { // Split all blocks from the first available to the desired one
+            splitChunk(possibleIndex);
+            possibleIndex--;
         } 
+    } else {
+        isPossible = 1;
     }
 
+    return isPossible;
 }
 
 static void splitChunk(uint8_t chunkIndex) {
     MemoryManagerADT memoryManager = getMemoryManager();
 
-    void * adress = removeChunk(memoryManager->chunks[chunkIndex]);
+    void * address = removeChunk(memoryManager->chunks[chunkIndex]);
 
-    void * buddyAdress = adress + (1L << chunkIndex);
-    MemoryChunk * buddyChunk = createMemoryChunk(buddyAdress, chunkIndex, NULL);
-    memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(adress, chunkIndex, buddyChunk);
+    void * buddyAddress = address + (1L << (chunkIndex - 1));
+    MemoryChunk * buddyChunk = createMemoryChunk(buddyAddress, chunkIndex - 1, NULL);
+    memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(address, chunkIndex - 1, buddyChunk);
 }
 
-static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, MemoryChunk * next) {
-    MemoryChunk * newChunk = (MemoryChunk *) destinationAdress;
+static MemoryChunk * createMemoryChunk(void * destinationAddress, uint8_t exp, MemoryChunk * next) {
+    MemoryChunk * newChunk = (MemoryChunk *) destinationAddress;
     newChunk->exp = exp;
     newChunk->state = FREE;
     newChunk->previousChunk = NULL;
@@ -188,16 +207,16 @@ static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, Me
     return newChunk;
 }
 
-// Removes the first chunk of the exp and returns its adress
+// Removes the first chunk of the exp and returns its address
 static void * removeChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
-    uint8_t chunksIndex = chunk->exp - 1;
+    uint8_t chunksIndex = chunk->exp;
     MemoryChunk * firstExpChunk = memoryManager->chunks[chunksIndex];
 
     if (firstExpChunk->previousChunk != NULL) {
         firstExpChunk->previousChunk->nextChunk = firstExpChunk->nextChunk;
     } else {
-        memoryManager->chunks[chunksIndex] = firstExpChunk->nextChunk; 
+        memoryManager->chunks[chunksIndex ] = firstExpChunk->nextChunk;
     }
 
     if (firstExpChunk->nextChunk != NULL) {

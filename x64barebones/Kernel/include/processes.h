@@ -2,10 +2,11 @@
 #define PROCESS_H 
 
 #include <stdint.h>
-#include <memoryManager.h>
 #include <lib.h>
 #include <globals.h>
 #include <linkedListADT.h>
+#include <interruptions.h>
+#include <memoryManager.h>
 
 #define FOREGROUND 0
 #define BACKGROUND 1
@@ -13,13 +14,10 @@
 
 
 
-typedef void (*wrp)(Function, char **);
-
-
 typedef struct ProcessCDT* ProcessADT;
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args);
-void setProcessState(ProcessADT process, uint64_t state);
+int setProcessState(ProcessADT process, uint64_t state);
 uint64_t getProcessState(ProcessADT process);
 void setProcessParentPid(ProcessADT process, uint32_t parentPid);
 uint32_t getProcessParentPid(ProcessADT process);
@@ -29,17 +27,18 @@ void setProcessPriority(ProcessADT process, uint32_t priority);
 uint32_t getProcessPriority(ProcessADT process);
 void setProcessPosition(ProcessADT process, uint32_t position);
 uint32_t getProcessPosition(ProcessADT process);
-void freeProcess(ProcessADT process);
+int freeProcess(ProcessADT process);
 ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process);
 void setProcessStack(ProcessADT process, void * stack);
 void * getProcessStack(ProcessADT process);
 void setProcessReturnValue(ProcessADT process, int returnValue);
 uint64_t getProcessReturnValue(ProcessADT process);
 void argscopy(char** arguments, char** args);
-int getProcessMortality(ProcessADT process);
+char getProcessMortality(ProcessADT process);
 LinkedListADT getProcessDeadChildList(ProcessADT process);
-uint32_t getProcessWatingPid(ProcessADT process);
-void setProcessWaitingPid(ProcessADT process, uint32_t childPid); 
+uint32_t getProcessWaitingPid(ProcessADT process);
+void setProcessWaitingPid(ProcessADT process, uint32_t childPid);
+void wrapper(Function function, char **args);
 
 
 #endif

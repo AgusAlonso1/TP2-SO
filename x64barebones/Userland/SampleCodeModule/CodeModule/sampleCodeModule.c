@@ -28,11 +28,19 @@ int main(void) {
 
     saveReference(&shellReference);
 
+    /*
+    defaultTheme();
+
+    int cursorX = MIN_X, cursorY = MIN_Y, cursorScale = 1;
+    call_c_init(cursorX, cursorY, cursorScale);
     terminal();
+    */
+    shell();
 
     return 0;
 }
 
+/*
 void terminal() {
     defaultTheme();
 
@@ -40,7 +48,6 @@ void terminal() {
 
     int cursorX = MIN_X, cursorY = MIN_Y, cursorScale = 1;
     call_c_init(cursorX, cursorY, cursorScale);
-
 
     while (1) {
         char  commandBuffer[BUFFER_SIZE] = {0};
@@ -71,16 +78,9 @@ void terminal() {
         call_c_move(ENTER);
         shell(commandBuffer);
     }
-}
 
-
-// Prints shell header and returns the y index of the corresponding header.
-int printShellHeader() {
-    uint32_t n;
-    call_write((uint8_t *) "user> ", &n);
-    call_c_get_y((int *)&n);
-    return n;
 }
+ */
 
 void exceptionHandler(uint64_t exceptionNumber, char * errorMessage) {
     setTheme(6);
