@@ -23,7 +23,7 @@ typedef struct MemoryManagerCDT {
     void * firstAvailableAddress;
     MemoryChunk * chunks[MAX_EXP + 1]; // Each position represents the power of two.
     MemoryInfoADT info;
-} memoryManagerCDT;
+} MemoryManagerCDT;
 
 static uint8_t log2(uint64_t argument);
 //static uint64_t pow2(uint64_t argument);
@@ -59,8 +59,7 @@ MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availab
     return memoryManager;
 }
 
-/*
-void *allocMemory(const uint64_t size) {
+void * allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
 
@@ -114,7 +113,6 @@ void freeMemory(void * ptrToFree) {
     memoryManager->chunks[chunk->exp] = createMemoryChunk((void *) chunk, chunk->exp, memoryManager->chunks[chunk->exp]);
 
 }
-*/
 
 MemoryManagerADT getMemoryManager() {
     return (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
