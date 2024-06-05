@@ -59,7 +59,7 @@ MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availab
     return memoryManager;
 }
 
-
+/*
 void *allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
@@ -114,6 +114,7 @@ void freeMemory(void * ptrToFree) {
     memoryManager->chunks[chunk->exp] = createMemoryChunk((void *) chunk, chunk->exp, memoryManager->chunks[chunk->exp]);
 
 }
+*/
 
 MemoryManagerADT getMemoryManager() {
     return (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;

@@ -9,8 +9,8 @@
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
 MemoryManagerADT createMemoryManager(void * firstAdress, uint64_t const availableMem);
-void *allocMemory(const uint64_t size);
-void freeMemory(void * ptrToFree);
+//void *allocMemory(const uint64_t size);
+//void freeMemory(void * ptrToFree);
 MemoryManagerADT getMemoryManager();
 
 // Despues mover de aca

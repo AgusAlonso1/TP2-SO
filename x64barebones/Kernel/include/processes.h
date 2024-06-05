@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 #include <lib.h>
-#include <globals.h>
+#include "../../Shared/include/globals.h"
 #include <linkedListADT.h>
 #include <interruptions.h>
-#include <memoryManager.h>
+//#include <memoryManager.h>
+#include <memoryasm.h>
 
 #define FOREGROUND 0
 #define BACKGROUND 1

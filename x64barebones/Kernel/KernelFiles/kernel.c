@@ -4,7 +4,7 @@
 #include <moduleLoader.h>
 #include <idtManager.h>
 #include <videoDriver.h>
-#include <memoryManager.h>
+//#include <memoryManager.h>
 #include <processes.h>
 #include <interruptions.h>
 #include <scheduler.h>

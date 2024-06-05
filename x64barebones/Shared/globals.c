@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include <globals.h>
+#include "../Shared/include/globals.h"
 
 typedef struct ProcessCopyListCDT {
     uint64_t length;

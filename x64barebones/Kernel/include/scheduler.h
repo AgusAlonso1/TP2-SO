@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <definitions.h>
 #include <processes.h>
+#include <memoryasm.h>
 
 #define PRIORITY_LEVELS 5
 #define SUCCESS 0

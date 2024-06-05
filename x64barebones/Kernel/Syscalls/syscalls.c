@@ -7,7 +7,9 @@
 #include <timer.h>
 #include <interruptions.h>
 #include <sound.h>
-#include <memoryManager.h>
+//#include <memoryManager.h>
+#include <memoryasm.h>
+
 
 typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE}SysID;
 
@@ -237,7 +239,7 @@ static void sys_beep(uint32_t frequency) {
 }
 
 static void * sys_malloc(uint64_t size) {
-    return allocMemory(size);
+    return allocMemory();
 }
 
 static void sys_free(void * ptrToFree) {
