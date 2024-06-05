@@ -1,4 +1,4 @@
-GLOBAL allocMemory
+GLOBAL allocMemoryDummy
 GLOBAL free
 section .text
 
@@ -8,7 +8,7 @@ section .text
 ;=========================================================
 
 
-allocMemory:
+allocMemoryDummy:
     push rbp
 	mov rbp, rsp
 
