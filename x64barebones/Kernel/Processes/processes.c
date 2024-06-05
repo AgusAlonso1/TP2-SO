@@ -151,7 +151,7 @@ char getProcessMortality(ProcessADT process) {
 }
 
 uint32_t getProcessWaitingPid(ProcessADT process) {
-    return process->waitingrPid;
+    return process->waitingPid;
 }
 
 void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
