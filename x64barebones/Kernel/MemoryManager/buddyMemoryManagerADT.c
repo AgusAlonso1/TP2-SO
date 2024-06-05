@@ -112,7 +112,7 @@ void freeMemory(void * ptrToFree) {
         buddyChunk = getBuddyChunk(chunk);
     }
     // After the final join, we place the new free block in its new slot
-    memoryManager->chunks[chunk->exp - 1] = createMemoryChunk((void *) chunk, chunk->exp, memoryManager->chunks[chunk->exp - 1]);
+    memoryManager->chunks[chunk->exp] = createMemoryChunk((void *) chunk, chunk->exp, memoryManager->chunks[chunk->exp]);
 
 }
 
@@ -148,12 +148,14 @@ static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk) {
 }
 
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
-    uintptr_t mask = (uintptr_t) (1L << (chunk->exp));
-    uintptr_t copyOfAddress = (uintptr_t) chunk;
+    MemoryManagerADT memoryManager = getMemoryManager();
+    uint64_t relativePos = (uint64_t) ((void *) chunk - memoryManager->firstAvailableAdress);
+    uint64_t mask = (1L << (chunk->exp)); // Bit Mask to swap bit value in exp position
+    uint64_t copyOfAddress = (uint64_t) memoryManager->firstAvailableAdress + (relativePos ^ mask);
 
-    uintptr_t buddyAdress = copyOfAddress ^ mask;
+    MemoryChunk * buddyAdress = (MemoryChunk *) copyOfAddress;
 
-    return (MemoryChunk *) buddyAdress;
+    return buddyAdress;
 }
 
 static int reorderChunks(uint8_t expIndexToAlloc) {

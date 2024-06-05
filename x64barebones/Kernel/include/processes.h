@@ -6,8 +6,7 @@
 #include <globals.h>
 #include <linkedListADT.h>
 #include <interruptions.h>
-//#include <memoryManager.h>
-#include <memoryasm.h>
+#include <memoryManager.h>
 
 #define FOREGROUND 0
 #define BACKGROUND 1
