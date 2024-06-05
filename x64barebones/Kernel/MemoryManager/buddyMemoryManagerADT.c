@@ -20,7 +20,7 @@ typedef struct MemoryChunk { // Header of chunks with a size of 18 bytes -> MIN_
 
 typedef struct MemoryManagerCDT {
     uint8_t maxExpOfTwo;
-    void * firstAvailableAdress;
+    void * firstAvailableAddress;
     MemoryChunk * chunks[MAX_EXP + 1]; // Each position represents the power of two.
     MemoryInfoADT info;
 } memoryManagerCDT;
@@ -35,7 +35,7 @@ static MemoryChunk * getBuddyChunk(MemoryChunk * chunk);
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk);
 
 
-static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, MemoryChunk * next);
+static MemoryChunk * createMemoryChunk(void * destinationAddress, uint8_t exp, MemoryChunk * next);
 static void * removeChunk(MemoryChunk * chunk);
 
 MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
@@ -43,7 +43,7 @@ MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
     memoryManager->maxExpOfTwo = log2(availableMem);
-    memoryManager->firstAvailableAdress = firstAddress;
+    memoryManager->firstAvailableAddress = firstAddress;
 
     if (memoryManager->maxExpOfTwo < MIN_EXP) { // Max exp is lower than min possible exp.
         return NULL;
@@ -59,7 +59,7 @@ MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availab
     return memoryManager;
 }
 
-/*
+
 void *allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
@@ -90,7 +90,6 @@ void *allocMemory(const uint64_t size) {
 
     return (void *) selectedChunk + sizeof(MemoryChunk);
 }
- */
 
 void freeMemory(void * ptrToFree) {
     MemoryChunk * chunk = (MemoryChunk *) (ptrToFree - sizeof(MemoryChunk));
@@ -149,13 +148,13 @@ static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk) {
 
 static MemoryChunk * getBuddyChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
-    uint64_t relativePos = (uint64_t) ((void *) chunk - memoryManager->firstAvailableAdress);
+    uint64_t relativePos = (uint64_t) ((void *) chunk - memoryManager->firstAvailableAddress);
     uint64_t mask = (1L << (chunk->exp)); // Bit Mask to swap bit value in exp position
-    uint64_t copyOfAddress = (uint64_t) memoryManager->firstAvailableAdress + (relativePos ^ mask);
+    uint64_t copyOfAddress = (uint64_t) memoryManager->firstAvailableAddress + (relativePos ^ mask);
 
-    MemoryChunk * buddyAdress = (MemoryChunk *) copyOfAddress;
+    MemoryChunk * buddyAddress = (MemoryChunk *) copyOfAddress;
 
-    return buddyAdress;
+    return buddyAddress;
 }
 
 static int reorderChunks(uint8_t expIndexToAlloc) {
@@ -188,15 +187,15 @@ static int reorderChunks(uint8_t expIndexToAlloc) {
 static void splitChunk(uint8_t chunkIndex) {
     MemoryManagerADT memoryManager = getMemoryManager();
 
-    void * adress = removeChunk(memoryManager->chunks[chunkIndex]);
+    void * address = removeChunk(memoryManager->chunks[chunkIndex]);
 
-    void * buddyAdress = adress + (1L << (chunkIndex - 1));
-    MemoryChunk * buddyChunk = createMemoryChunk(buddyAdress, chunkIndex - 1, NULL);
-    memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(adress, chunkIndex - 1, buddyChunk);
+    void * buddyAddress = address + (1L << (chunkIndex - 1));
+    MemoryChunk * buddyChunk = createMemoryChunk(buddyAddress, chunkIndex - 1, NULL);
+    memoryManager->chunks[chunkIndex - 1] = createMemoryChunk(address, chunkIndex - 1, buddyChunk);
 }
 
-static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, MemoryChunk * next) {
-    MemoryChunk * newChunk = (MemoryChunk *) destinationAdress;
+static MemoryChunk * createMemoryChunk(void * destinationAddress, uint8_t exp, MemoryChunk * next) {
+    MemoryChunk * newChunk = (MemoryChunk *) destinationAddress;
     newChunk->exp = exp;
     newChunk->state = FREE;
     newChunk->previousChunk = NULL;
@@ -208,7 +207,7 @@ static MemoryChunk * createMemoryChunk(void * destinationAdress, uint8_t exp, Me
     return newChunk;
 }
 
-// Removes the first chunk of the exp and returns its adress
+// Removes the first chunk of the exp and returns its address
 static void * removeChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
     uint8_t chunksIndex = chunk->exp;
