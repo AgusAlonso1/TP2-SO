@@ -10,7 +10,7 @@ void shell();
 int interpretCommand(char * command);
 
 // Executes the command
-void executeCommand(int indexCommand, char * flag);
+int executeCommand(char** arguments, int background, int pipePos, int argslen);
 
 // Parses the command line to an array of arguments and marks if background and give pipe position
 void parseCommand(char* commandLine, char** args, int* background, int *pipePos);

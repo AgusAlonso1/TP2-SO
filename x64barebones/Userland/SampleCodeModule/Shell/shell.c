@@ -5,6 +5,7 @@
 #include <logo.h>
 #include <themes.h>
 #include <references.h>
+#include <syscallFunctions.h>
 
 #define CHARACTER_COLOR 0xB0CA07
 #define TAB_SIZE 4
@@ -17,6 +18,8 @@
 #define HEIGHT_FONT 16
 #define MAX_ARGUMENTS 7
 #define BUFFER_SIZE 256
+#define ERROR 0
+#define SUCCESS 1
 
 int printShellHeader();
 
@@ -37,19 +40,23 @@ void shell() {
         commandLine[0] = 0;
         int background;
         int pipePos;
+        int argslen;
         scanf("%S", commandLine);
 
-        parseCommand(commandLine, arguments, &background, &pipePos);
+        parseCommand(commandLine, arguments, &background, &pipePos, &argslen);
 
-        if(*arguments[0] == 0){
+        if(argslen == 0){
             return;
         }
 
+        /*
         int id = interpretCommand(arguments[0]);
         char flag = 0;
         executeCommand(id, &flag);
+        */
 
-        if(flag == 0) {
+        char flag = executeCommand(arguments, background, pipePos, argslen);
+        if(flag == ERROR) {
             printf("Error: command not found\n");
         }
     }
@@ -57,7 +64,7 @@ void shell() {
 
 int interpretCommand(char * command) {
     int index = -1;
-    for (int i = 0; i < AMOUNT_OF_COMMANDS; i++) {
+    for (int i = 0; i < AMOUNT_OF_COMMANDS && command != NULL; i++) {
         if (strcmp(command, commands[i]) == 0) {
             return i;
         }
@@ -65,6 +72,7 @@ int interpretCommand(char * command) {
     return index;
 }
 
+/*
 void executeCommand(int indexCommand, char * flag) {
     if (indexCommand == -1 ) {
         *flag = 0;
@@ -73,6 +81,7 @@ void executeCommand(int indexCommand, char * flag) {
     commandsReferences[indexCommand]();
     *flag = 1;
 }
+*/
 
 // Prints shell header and returns the y index of the corresponding header.
 int printShellHeader() {
@@ -82,7 +91,7 @@ int printShellHeader() {
     return n;
 }
 
-void parseCommand(char* commandLine, char** args, int* background, int *pipePos){
+void parseCommand(char* commandLine, char** args, int* background, int *pipePos, int *argslen){
     *background = 0;
     *pipePos = -1;
 
@@ -100,8 +109,10 @@ void parseCommand(char* commandLine, char** args, int* background, int *pipePos)
             if (*cursor == '|') {
                 *pipePos = i;
             }
-            if (*cursor == '&') {
+            if (*cursor == '&') {      //donde encuentra este, ahi se termina el comando
                 *background = 1;
+                cursor++;
+                break;
             }
         } else if (*cursor == ' ' || *cursor == '\t') {
             if (cursor != token_start) {
@@ -118,5 +129,54 @@ void parseCommand(char* commandLine, char** args, int* background, int *pipePos)
     }
 
     args[i] = NULL;
+    *argslen = i;
+}
+
+int executeCommand(char** arguments, int background, int pipePos, int argslen){
+    char * command1 = arguments[0];
+    char * command2 = NULL;
+
+    if(pipePos != 0){
+        command2 = arguments[pipePos + 1];
+    }
+
+    int id1 = interpretCommand(command1);
+    int id2 = interpretCommand(command2);
+
+    if(id1 != -1){
+        char arguments1[MAX_ARGUMENTS];
+        uint32_t  pid1
+        for(int i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
+            arguments1[j] = arguments[i];
+        }
+        arguments1[j] = NULL;
+        if(id2 != -1){
+            char arguments2[MAX_ARGUMENTS];
+            for(int i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
+                arguments2[j] = arguments[i];
+            }
+            arguments2[j] = NULL;
+            //aca falta logica de file descriptor
+             pid1 = call_create_process(command1, 0, 3, (Function) commandsReferences[id1](), arguments1, call_get_parent_pid());
+            uint32_t  pid2 = call_create_process(command2, !background, 3, (Function) commandsReferences[id2](), arguments2, call_get_parent_pid());
+            if(!background && pid1 != -1 && pid2 != -1){
+                call_waitpid(pid1);
+                call_waitpid(pid2);
+            } else{
+                return ERROR;
+            }
+        } else {
+            pid1 = call_create_process(command1, !background, 3, (Function) commandsReferences[id1](), arguments1, call_get_parent_pid());
+            if(!background && pid1 != -1){
+                call_waitpid(pid1);
+            } else{
+                return ERROR;
+            }
+        }
+    } else {
+        return ERROR;
+    }
+
+    return SUCCESS;
 }
 
