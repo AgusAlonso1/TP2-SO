@@ -3,8 +3,25 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <globals.h>
 
+typedef int (*Function)(int, char **);
+
+#define RUNNING 0
+#define READY 1
+#define BLOCKED 2
+#define ZOMBIE 3
+
+typedef struct ProcessCopy {
+    uint32_t pid;
+    char * name;
+    uint64_t priority;
+    uint64_t state;
+    void * stack;
+    void * basePointer;
+    char position;
+} ProcessCopy;
+
+typedef struct ProcessCopyListCDT * ProcessCopyListADT;
 
 
 typedef enum {WRITE=0, DELETE, ENTER, RELATIVE_ENTER, TAB}actionOfCursor;
@@ -33,7 +50,7 @@ void call_get_ticks(unsigned long long * ticks);
 void call_beep(uint32_t frequency);
 void * call_malloc(uint64_t size);
 void call_free(void * ptr);
-uint32_t call_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid);
+uint32_t call_create_process(char* name, char position, Function function, char **args, uint32_t parentPid);
 void call_kill_process(uint32_t pid);
 ProcessCopyListADT call_get_process_copy();
 uint32_t call_get_pid();

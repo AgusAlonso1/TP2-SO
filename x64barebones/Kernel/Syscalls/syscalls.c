@@ -42,7 +42,7 @@ static void sys_get_ticks(unsigned long long * ticks);
 static void sys_beep(uint32_t frequency);
 static void * sys_malloc(uint64_t size);
 static void sys_free(void * ptrToFree);
-static uint32_t sys_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid);
+static uint32_t sys_create_process(char* name, char position, Function function,  char **args, uint32_t parentPid);
 static void sys_kill_process(uint32_t pid);
 static ProcessCopyListADT sys_get_processes_copy();
 static uint32_t sys_get_pid();
@@ -52,87 +52,81 @@ static uint64_t sys_set_state(uint32_t pid, uint64_t state);
 static uint64_t sys_waitpid(uint32_t pid);
 
 
-uint64_t syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
-    uint64_t rdi,rsi,rdx,rcx,r8,r9;     //Save registers with respective order for each syscall logic legiablitity
-    rdi = otherRegisters[0];
-    rsi = otherRegisters[1];
-    rdx = otherRegisters[2];
-    rcx = otherRegisters[3];
-    r8 = otherRegisters[4];
-    r9 = otherRegisters[5];
-    switch(rax) {
+uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
+    switch(rdi) {
         case SYS_READ :
-            sys_read((uint8_t *) rdi, (uint32_t) rsi, (uint32_t *) rdx);
+            sys_read((uint8_t *) rsi, (uint32_t) rdx, (uint32_t *) rcx);
             break;
         case SYS_WRITE :
-            sys_write((uint8_t *) rdi, (uint32_t *) rsi);
+            sys_write((uint8_t *) rsi, (uint32_t *) rdx);
             break;
         case DRAW_C :
-            sys_draw_char((uint8_t) rdi);
+            sys_draw_char((uint8_t) rsi);
             break;
         case DELETE_C :
             sys_delete_char();
             break;
         case TIME :
-            sys_time((uint8_t **) rdi);
+            sys_time((uint8_t **) rsi);
             break;
         case THEME :
-            sys_shell_theme((uint32_t *) rdi);
+            sys_shell_theme((uint32_t *) rsi);
             break;
         case SET_EXC :
-            sys_set_exception_handler((uint64_t) rdi, (exceptionHandler) rsi);
+            sys_set_exception_handler((uint64_t) rsi, (exceptionHandler) rdx);
             break;
         case C_GET_X :
-            sys_get_cursor_x((int *) rdi);
+            sys_get_cursor_x((int *) rsi);
             break;
         case C_GET_Y :
-            sys_get_cursor_y((int *) rdi);
+            sys_get_cursor_y((int *) rsi);
             break;
         case C_GET_S :
-            sys_get_cursor_scale((int *) rdi);
+            sys_get_cursor_scale((int *) rsi);
             break;
         case C_SET_S :
-            sys_set_cursor_scale((int) rdi);
+            sys_set_cursor_scale((int) rsi);
             break;
         case C_MOVE :
-            sys_move_cursor((actionOfCursor) rdi);
+            sys_move_cursor((actionOfCursor) rsi);
             break;
         case C_INIT :
-            sys_init_cursor((int) rdi, (int) rsi, (int) rdx);
+            sys_init_cursor((int) rsi, (int) rdx, (int) rcx);
             break;
         case SET_COLORS :
-            sys_set_colors((uint32_t) rdi, (uint32_t) rsi);
+            sys_set_colors((uint32_t) rsi, (uint32_t) rdx);
             break;
         case GET_REGS :
             sys_get_registers();
             break;
         case DRAW_SQUARE:
-            sys_draw_square((uint32_t) rdi, (uint32_t) rsi, (uint32_t) rdx, (uint32_t) rcx);
+            sys_draw_square((uint32_t) rsi, (uint32_t) rdx, (uint32_t) rcx, (uint32_t) r8);
             break;
         case COLOR_SCREEN :
-            sys_color_screen((uint32_t) rdi);
+            sys_color_screen((uint32_t) rsi);
             break;
         case DRAW_CIRCLE :
-            sys_draw_circle((uint32_t) rdi, (uint32_t) rsi, (uint32_t) rdx, (uint32_t) rcx, (uint32_t) r8);
+            sys_draw_circle((uint32_t) rsi, (uint32_t) rdx, (uint32_t) rcx, (uint32_t) r8, (uint32_t) r9);
+            break;
         case CLEAR_SCREEN :
             sys_clear_screen();
             break;
         case SLEEP :
-            sys_sleep((unsigned long long) rdi);
+            sys_sleep((unsigned long long) rsi);
             break;
         case GET_TICKS :
-            sys_get_ticks((unsigned long long *) rdi);
+            sys_get_ticks((unsigned long long *) rsi);
             break;
         case BEEP :
-            sys_beep((uint32_t) rdi);
+            sys_beep((uint32_t) rsi);
         case MALLOC:
-            return (uint64_t) sys_malloc((uint64_t) rdi);
+            return (uint64_t) sys_malloc((uint64_t) rsi);
         case FREE:
-            sys_free((void*) rdi);
+            sys_free((void*) rsi);
         case CREATE_PROCESS:
-            return (uint64_t) sys_create_process((char*) rdi, (char) rsi, (uint64_t) rdx, (Function) rcx, (char**) r8, (uint32_t) r9);
+            return (uint64_t) sys_create_process((char*) rsi, (char) rdx, (Function) rcx, (char**) r8, (uint32_t) r9);
         case KILL_PROCESS:
-            sys_kill_process((uint32_t) rdi);
+            sys_kill_process((uint32_t) rsi);
         case GET_PROCESSES_COPY:
             return (uint64_t) sys_get_processes_copy();
         case GET_PID:
@@ -140,11 +134,11 @@ uint64_t syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
         case GET_PARENT_PID:
             return (uint64_t) sys_get_parent_pid();
         case SET_PRIORITY:
-            sys_set_priority((uint32_t) rdi, (uint64_t) rsi);
+            sys_set_priority((uint32_t) rsi, (uint64_t) rdx);
         case SET_STATE:
-            return sys_set_state((uint32_t) rdi, (uint64_t) rsi);
+            return sys_set_state((uint32_t) rsi, (uint64_t) rdx);
         case WAITPID:
-            return sys_waitpid((uint32_t) rdi);
+            return sys_waitpid((uint32_t) rsi);
         default :
             break;
     }
@@ -271,8 +265,8 @@ static void sys_free(void * ptrToFree) {
     return freeMemory(ptrToFree);
 }
 
-static uint32_t sys_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid){
-    return createProcessFromSched(name, position, priority, function, args, parentPid);
+static uint32_t sys_create_process(char* name, char position, Function function, char **args, uint32_t parentPid){
+    return createProcessFromSched((char*) name, (char) position, 3, (Function) function,(char**) args, (uint32_t)parentPid);
 }
 
 static void sys_kill_process(uint32_t pid){
