@@ -27,7 +27,7 @@ typedef struct SchedulerCDT* SchedulerADT;
 void createScheduler();                                                         //create scheduler
 SchedulerADT getScheduler();
 void * schedule(void * currentStackPointer);                                    //schedule process ---> cambia de proceso running(se ejecuta cuando timer tick)
-void createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid);                      //create process ----> se crea un proceso
+uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid);                     //create process ----> se crea un proceso
 void listProcess(ProcessADT process);
 void unListFirstProcess(SchedulerADT sched, uint64_t priority);
 uint64_t waitProcessPid(uint32_t pid);                           //waitpid -----> block al padre y vemos si bajamos prioridad

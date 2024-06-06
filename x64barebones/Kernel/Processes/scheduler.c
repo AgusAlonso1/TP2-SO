@@ -109,16 +109,19 @@ SchedulerADT getScheduler() {
     return (SchedulerADT) SCHEDULER_ADDRESS;
 }
 
-void createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid) {
+uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid) {
     SchedulerADT sched = getScheduler();
-    uint32_t  currentPid = sched->pidCounter;
     ProcessADT newProcess = NULL;
 
     newProcess = createProcess(parentPid, sched->pidCounter++, name, priority, READY, position, function, args);
 
-    listProcess(newProcess);
-    sched->processQty++;
+    if(newProcess != NULL){
+        listProcess(newProcess);
+        sched->processQty++;
+        return getProcessPid(newProcess);
+    }
 
+    return -1;
 }
 
 void listProcess(ProcessADT process) {
