@@ -12,7 +12,7 @@
 #include <scheduler.h>
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, SET_STATE}SysID;
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, SET_STATE, WAITPID}SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -42,13 +42,14 @@ static void sys_get_ticks(unsigned long long * ticks);
 static void sys_beep(uint32_t frequency);
 static void * sys_malloc(uint64_t size);
 static void sys_free(void * ptrToFree);
-static void sys_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid);
+static uint32_t sys_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid);
 static void sys_kill_process(uint32_t pid);
 static ProcessCopyListADT sys_get_processes_copy();
-static uint64_t sys_get_pid();
-static uint64_t sys_get_parent_pid();
+static uint32_t sys_get_pid();
+static uint32_t sys_get_parent_pid();
 static void sys_set_priority(uint32_t pid, uint64_t priority);
 static uint64_t sys_set_state(uint32_t pid, uint64_t state);
+static uint64_t sys_waitpid(uint32_t pid);
 
 
 uint64_t syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
@@ -129,19 +130,21 @@ uint64_t syscallsDispatcher(uint64_t rax, uint64_t *otherRegisters) {
         case FREE:
             sys_free((void*) rdi);
         case CREATE_PROCESS:
-            sys_create_process((char*) rdi, (char) rsi, (uint64_t) rdx, (Function) rcx, (char**) r8, (uint32_t) r9);
+            return (uint64_t) sys_create_process((char*) rdi, (char) rsi, (uint64_t) rdx, (Function) rcx, (char**) r8, (uint32_t) r9);
         case KILL_PROCESS:
             sys_kill_process((uint32_t) rdi);
         case GET_PROCESSES_COPY:
             return (uint64_t) sys_get_processes_copy();
         case GET_PID:
-            return sys_get_pid();
+            return (uint64_t) sys_get_pid();
         case GET_PARENT_PID:
-            return sys_get_parent_pid();
+            return (uint64_t) sys_get_parent_pid();
         case SET_PRIORITY:
             sys_set_priority((uint32_t) rdi, (uint64_t) rsi);
         case SET_STATE:
             return sys_set_state((uint32_t) rdi, (uint64_t) rsi);
+        case WAITPID:
+            return sys_waitpid((uint32_t) rdi);
         default :
             break;
     }
@@ -268,8 +271,8 @@ static void sys_free(void * ptrToFree) {
     return freeMemory(ptrToFree);
 }
 
-static void sys_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid){
-    createProcessFromSched(name, position, priority, function, args, parentPid);
+static uint32_t sys_create_process(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid){
+    return createProcessFromSched(name, position, priority, function, args, parentPid);
 }
 
 static void sys_kill_process(uint32_t pid){
@@ -280,11 +283,11 @@ static ProcessCopyListADT sys_get_processes_copy(){
     return getProcessCopy();
 }
 
-static uint64_t sys_get_pid(){
+static uint32_t sys_get_pid(){
     return getCurrentPid();
 }
 
-static uint64_t sys_get_parent_pid(){
+static uint32_t sys_get_parent_pid(){
     return getCurrentParentPid();
 }
 
@@ -294,4 +297,8 @@ static void sys_set_priority(uint32_t pid, uint64_t priority){
 
 static uint64_t sys_set_state(uint32_t pid, uint64_t state){
     return setState(pid, state);
+}
+
+static uint64_t sys_waitpid(uint32_t pid){
+    return waitProcessPid(pid);
 }

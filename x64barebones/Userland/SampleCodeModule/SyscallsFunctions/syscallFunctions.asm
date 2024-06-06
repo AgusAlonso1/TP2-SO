@@ -22,6 +22,15 @@ GLOBAL call_get_ticks
 GLOBAL call_beep
 GLOBAL call_malloc
 GLOBAL call_free
+GLOBAL call_create_process
+GLOBAL call_kill_process
+GLOBAL call_get_process_copy
+GLOBAL call_get_pid
+GLOBAL call_get_parent_pid
+GLOBAL call_set_priority
+GLOBAL call_set_state
+GLOBAL call_waitpid
+
 
 section .text
 
@@ -409,3 +418,122 @@ call_free:
     pop rbp
     ret
 
+call_create_process:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 24
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_kill_process:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 25
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_get_process_copy:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 26
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_get_pid:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 27
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_get_parent_pid:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 28
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_set_priority:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 29
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_set_state:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 30
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_waitpid:
+    push rbp
+    mov rbp, rsp
+
+    pushAll
+
+    mov rax, 31
+    int 80h
+
+    popAll
+
+    mov rsp, rbp
+    pop rbp
+    ret

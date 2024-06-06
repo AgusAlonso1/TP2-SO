@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <lib.h>
-#include "../../Shared/include/globals.h"
+#include <globals.h>
 #include <linkedListADT.h>
 #include <interruptions.h>
 //#include <memoryManager.h>
