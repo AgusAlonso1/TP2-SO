@@ -25,7 +25,7 @@ uint64_t my_atoi(char *s) {
     }
     return (factor * acum);
 }
-//esta desps ponerla en algun otro lugar, no aca
+
 void my_strcopy(char* destination, char* string) {
     if(destination == 0){
         return;
