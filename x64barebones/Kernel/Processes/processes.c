@@ -11,7 +11,7 @@ typedef struct ProcessCDT {
     uint32_t pid;
     uint32_t parentPid;
     uint32_t waitingPid;
-    char inmortal;
+    char immortal;
     char * name; //?uint32_t
     uint64_t priority; //?
     uint64_t state;
@@ -24,12 +24,12 @@ typedef struct ProcessCDT {
 } ProcessCDT;
 
 
-ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char inmortal, char position, Function function, char **args) {
+ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args) {
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
     process->waitingPid = 0;
-    process->inmortal = inmortal;
+    process->immortal = immortal;
     process->name =  allocMemory(my_strlen(name)+1);
     my_strcopy(process->name, name);
     process->priority = priority;
@@ -147,7 +147,7 @@ LinkedListADT getProcessDeadChildList(ProcessADT process) {
 }
 
 char getProcessMortality(ProcessADT process) {
-    return process->inmortal;
+    return process->immortal;
 }
 
 uint32_t getProcessWaitingPid(ProcessADT process) {
