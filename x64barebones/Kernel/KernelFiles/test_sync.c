@@ -11,6 +11,7 @@
 
 
 #define TOTAL_PAIR_PROCESSES 2
+#define SEM_ID 77
 
 int64_t global; // shared memory
 
@@ -22,24 +23,24 @@ void slowInc(int64_t *p, int64_t inc) {
 }
 
 int my_process_inc(int argc, char *argv[]) {
-  uint64_t n = 10;
-  int8_t inc = -1;
-  int8_t use_sem = 1;
-  uint64_t semId;
+  uint32_t p = getCurrentPid();
+  uint64_t n;
+  int8_t inc;
+  int8_t use_sem;
   uint32_t hola;
 
   if (argc != 3)
     return -1;
 
-  // if ((n = satoi(argv[0])) <= 0)
-  //   return -1;
-  // if ((inc = satoi(argv[1])) == 0)
-  //   return -1;
-  // if ((use_sem = satoi(argv[2])) < 0)
-  //   return -1;
+  if ((n = satoi(argv[0])) <= 0)
+    return -1;
+  if ((inc = satoi(argv[1])) == 0)
+    return -1;
+  if ((use_sem = satoi(argv[2])) < 0)
+    return -1;
 
   if (use_sem)
-    if ((semId = semOpen(1)) < 0) {
+    if ((semOpen(1, SEM_ID)) < 0) {
       drawStringOnCursor((uint8_t *)"test_sync: ERROR opening semaphore\n", &hola);
       return -1;
     }
@@ -47,17 +48,17 @@ int my_process_inc(int argc, char *argv[]) {
   uint64_t i;
   for (i = 0; i < n; i++) {
     if (use_sem)
-      semWait(semId);
+      semWait(SEM_ID);
     slowInc(&global, inc);
     if (use_sem)
-      semPost(semId);
+      semPost(SEM_ID);
   }
 
   if (use_sem)
-    semClose(semId);
+    semClose(SEM_ID);
 
   drawStringOnCursor((uint8_t *) "Succes", &hola);
-  sleep(3000);
+
   return 0;
 }
 
@@ -75,8 +76,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = createProcessFromSched("my_process_inc", 0, 3, &my_process_inc,argvDec , 0);
-    pids[i + TOTAL_PAIR_PROCESSES] = createProcessFromSched("my_process_dec", 0, 3, &my_process_inc ,argvInc, 0);
+    pids[i] = createProcessFromSched("my_process_inc", 0, 3, &my_process_inc,argvInc , 0);
+    pids[i + TOTAL_PAIR_PROCESSES] = createProcessFromSched("my_process_dec", 0, 3, &my_process_inc ,argvDec, 0);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
