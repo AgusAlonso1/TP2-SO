@@ -14,6 +14,10 @@ void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopy * processLis
     processCopy->processCopyList = processList;
 }
 
+uint64_t getProcessCopyListLength(ProcessCopyListADT processCopy) {
+   return processCopy->length;
+}
+
 uint32_t getProcessCopyListSize() {
     return sizeof(ProcessCopyListCDT);
 }

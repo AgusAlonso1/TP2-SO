@@ -9,6 +9,8 @@ typedef int (*Function)(int, char **);
 #define BLOCKED 2
 #define ZOMBIE 3
 
+char *states[] = {"RUNNING", "READY", "BLOCKED", "ZOMBIE"};
+
 typedef struct ProcessCopy {
     uint32_t pid;
     char * name;
@@ -22,6 +24,7 @@ typedef struct ProcessCopy {
 typedef struct ProcessCopyListCDT * ProcessCopyListADT;
 
 void setProcessCopyListLength(ProcessCopyListADT processCopy, uint64_t length);
+uint64_t getProcessCopyListLength(ProcessCopyListADT processCopy);
 void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopy * processLis);
 
 int my_strlen(const char * s);
