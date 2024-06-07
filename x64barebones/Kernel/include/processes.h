@@ -34,7 +34,7 @@ void setProcessStack(ProcessADT process, void * stack);
 void * getProcessStack(ProcessADT process);
 void setProcessReturnValue(ProcessADT process, int returnValue);
 uint64_t getProcessReturnValue(ProcessADT process);
-void argscopy(char** arguments, char** args);
+void argscopy(char*** arguments, char** args);
 char getProcessMortality(ProcessADT process);
 LinkedListADT getProcessDeadChildList(ProcessADT process);
 uint32_t getProcessWaitingPid(ProcessADT process);

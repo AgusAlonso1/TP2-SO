@@ -20,6 +20,7 @@ typedef struct ProcessCDT {
     char position;  //Background (1) or Foreground (0)
     uint64_t returnValue;  //no se si inicializarlo o dejarlo asi
     LinkedListADT deadChildren;
+    char ** arguments;
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
 
@@ -37,9 +38,9 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->position = position;   //foreground or background
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
-    char** arguments = NULL;
-    argscopy(arguments, args);
-    process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) arguments);
+    process->arguments = NULL;
+    argscopy(&process->arguments, args);
+    process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) process->arguments);
     process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
     return process;
@@ -103,6 +104,12 @@ int freeProcess(ProcessADT process){
     if (process == NULL) {
         return -1;
     }
+    if (process->arguments != NULL) {
+        for (int i = 0; process->arguments[i] != NULL; i++) {
+            freeMemory(process->arguments[i]);
+        }
+        freeMemory(process->arguments);
+    }
     freeMemory(process->name);
     freeMemory(process->basePointer);
     freeMemory(process->deadChildren);
@@ -158,17 +165,32 @@ void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
     process->waitingPid = childPid;
 }
 
-void argscopy(char** arguments, char** args){
-    uint64_t  argc = stringArrayLen(args);
-
-    arguments = allocMemory(sizeof(char *) * (argc + 1));
-
-    for(int i = 0; i < argc; i++){
-        char * newArg = allocMemory(sizeof(char) * (my_strlen(args[i]) + 1));
-        my_strcopy(newArg, args[i]);
-        arguments[i] = newArg;
+void argscopy(char ***arguments, char **args) {
+    if (args == NULL) {
+        *arguments = NULL;
+        return;
     }
-    arguments[argc] = NULL;
+
+    uint64_t argc = stringArrayLen(args);
+
+    *arguments = allocMemory(sizeof(char *) * (argc + 1));
+    if (*arguments == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < argc; i++) {
+        (*arguments)[i] = allocMemory(sizeof(char) * (my_strlen(args[i]) + 1));
+        if ((*arguments)[i] == NULL) {
+            for (uint64_t j = 0; j < i; j++) {
+                freeMemory((*arguments)[j]);
+            }
+            freeMemory(*arguments);
+            *arguments = NULL;
+            return;
+        }
+        my_strcopy((*arguments)[i], args[i]);
+    }
+    (*arguments)[argc] = NULL;
 }
 
 
