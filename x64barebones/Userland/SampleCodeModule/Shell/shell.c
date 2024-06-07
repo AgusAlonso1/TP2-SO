@@ -23,8 +23,8 @@
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca"};
-void (* commandsReferences[])() = {man, time, registers, snakeNewGame, div0, invalidOp, clear, zoomIn, zoomOut, theme, printBoca};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop"};
+void (* commandsReferences[])() = {man, time, registers, snakeNewGame, div0, invalidOp, clear, zoomIn, zoomOut, theme, printBoca, loop};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];
@@ -170,6 +170,9 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
                 return ERROR;
             }
         } else {
+            printf("command1: %s\n", command1);
+            printf("arguments1: %s\n", arguments1[0]);
+            printf("background: %c\n", background);
             pid1 = call_create_process(command1, !background,(Function) commandsReferences[id1], arguments1, parentPid);
             if(!background && pid1 != -1){
                 call_waitpid(pid1);

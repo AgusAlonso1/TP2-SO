@@ -1,7 +1,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#define AMOUNT_OF_COMMANDS 11
+#define AMOUNT_OF_COMMANDS 12
 
 // Shell manager
 void shell();
