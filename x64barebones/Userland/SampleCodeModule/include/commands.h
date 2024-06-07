@@ -23,4 +23,6 @@ void zoomIn();
 
 void zoomOut();
 
+int loop(int argc, char** argv);
+
 #endif
