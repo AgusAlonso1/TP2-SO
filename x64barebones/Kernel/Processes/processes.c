@@ -38,7 +38,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
     char** arguments = NULL;
-    argscopy(arguments, args);
+    argscopy(&arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) arguments);
     process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
@@ -158,17 +158,17 @@ void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
     process->waitingPid = childPid;
 }
 
-void argscopy(char** arguments, char** args){
+void argscopy(char*** arguments, char** args){
     uint64_t  argc = stringArrayLen(args);
 
-    arguments = allocMemory(sizeof(char *) * (argc + 1));
+    *arguments = (char **) allocMemory(sizeof(char *) * (argc + 1));
 
     for(int i = 0; i < argc; i++){
-        char * newArg = allocMemory(sizeof(char) * (my_strlen(args[i]) + 1));
+        char * newArg = (char *) allocMemory(sizeof(char) * (my_strlen(args[i]) + 1));
         my_strcopy(newArg, args[i]);
-        arguments[i] = newArg;
+        (*arguments)[i] = newArg;
     }
-    arguments[argc] = NULL;
+    (*arguments)[argc] = NULL;
 }
 
 

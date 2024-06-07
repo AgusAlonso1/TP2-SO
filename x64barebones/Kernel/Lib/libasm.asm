@@ -7,6 +7,8 @@ GLOBAL poolChar
 GLOBAL outPortSpeaker
 GLOBAL inPortSpeaker
 GLOBAL forceTimerTick
+GLOBAL enter_region
+GLOBAL leave_region
 
 
 
@@ -108,5 +110,18 @@ forceTimerTick:
     int 0x20
     ret
 
+
+enter_region:
+    mov rax, 1
+    xchg rax, [rdi] ;rdi=lock
+    ret
+
+leave_region:
+    mov qword [rdi], 0 ;devuelvo lock=0 
+    ret
+
+
+;lock = 0 -> disponible
+;lock = 1 -> ocupado
 
 
