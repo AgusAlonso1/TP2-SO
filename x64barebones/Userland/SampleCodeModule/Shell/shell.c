@@ -125,10 +125,11 @@ void parseCommand(char* commandLine, char** args, int* background, int *pipePos,
     }
 
     if (cursor != token_start) {
-        args[i++] = token_start;
+        args[i] = token_start;
+        i++;
     }
 
-    args[i] = NULL;
+    args[i++] = NULL;
     *argslen = i;
 }
 
@@ -136,29 +137,32 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
     char * command1 = arguments[0];
     char * command2 = NULL;
 
-    if(pipePos != 0){
+    if(pipePos != -1){
         command2 = arguments[pipePos + 1];
     }
 
     int id1 = interpretCommand(command1);
     int id2 = interpretCommand(command2);
 
+    uint32_t parentPid = (uint32_t) call_get_pid();
+
     if(id1 != -1){
-        char arguments1[MAX_ARGUMENTS];
-        uint32_t  pid1
-        for(int i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
+        char * arguments1[MAX_ARGUMENTS];
+        uint32_t  pid1;
+        int i, j;
+        for(i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
             arguments1[j] = arguments[i];
         }
         arguments1[j] = NULL;
         if(id2 != -1){
-            char arguments2[MAX_ARGUMENTS];
+            char * arguments2[MAX_ARGUMENTS];
             for(int i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
                 arguments2[j] = arguments[i];
             }
             arguments2[j] = NULL;
             //aca falta logica de file descriptor
-             pid1 = call_create_process(command1, 0, 3, (Function) commandsReferences[id1](), arguments1, call_get_parent_pid());
-            uint32_t  pid2 = call_create_process(command2, !background, 3, (Function) commandsReferences[id2](), arguments2, call_get_parent_pid());
+            pid1 = call_create_process(command1, 0, (Function) commandsReferences[id1], arguments1, parentPid);
+            uint32_t  pid2 = call_create_process(command2, !background, (Function) commandsReferences[id2], arguments2, parentPid);
             if(!background && pid1 != -1 && pid2 != -1){
                 call_waitpid(pid1);
                 call_waitpid(pid2);
@@ -166,7 +170,7 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
                 return ERROR;
             }
         } else {
-            pid1 = call_create_process(command1, !background, 3, (Function) commandsReferences[id1](), arguments1, call_get_parent_pid());
+            pid1 = call_create_process(command1, !background,(Function) commandsReferences[id1], arguments1, parentPid);
             if(!background && pid1 != -1){
                 call_waitpid(pid1);
             } else{
