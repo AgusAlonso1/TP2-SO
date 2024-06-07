@@ -23,7 +23,7 @@
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps"};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill"};
 int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, char **)) man,
                                                                 (int (*)(int, char **)) time,
                                                                 (int (*)(int, char **)) registers,
@@ -34,7 +34,7 @@ int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, ch
                                                                 (int (*)(int, char **)) zoomIn,
                                                                 (int (*)(int, char **)) zoomOut,
                                                                 (int (*)(int, char **)) theme,
-                                                                (int (*)(int, char **)) printBoca, loop, ps};
+                                                                (int (*)(int, char **)) printBoca, loop, ps, kill};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];
@@ -59,12 +59,6 @@ void shell() {
             return;
         }
 
-        /*
-        int id = interpretCommand(arguments[0]);
-        char flag = 0;
-        executeCommand(id, &flag);
-        */
-
         char flag = executeCommand(arguments, background, pipePos, argslen);
         if(flag == ERROR) {
             printf("Error: command not found\n");
@@ -82,18 +76,7 @@ int interpretCommand(char * command) {
     return index;
 }
 
-/*
-void executeCommand(int indexCommand, char * flag) {
-    if (indexCommand == -1 ) {
-        *flag = 0;
-        return;
-    }
-    commandsReferences[indexCommand]();
-    *flag = 1;
-}
-*/
 
-// Prints shell header and returns the y index of the corresponding header.
 int printShellHeader() {
     uint32_t n;
     call_write((uint8_t *) "user> ", &n);
