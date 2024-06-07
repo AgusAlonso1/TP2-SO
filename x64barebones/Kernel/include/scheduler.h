@@ -11,6 +11,7 @@
 #define SUCCESS 0
 #define ERROR -1
 #define IDLE 0
+#define SHELL 1
 
 enum levels {
     LEVEL0 = 0,
@@ -31,9 +32,9 @@ uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Fu
 void listProcess(ProcessADT process);
 void unListFirstProcess(SchedulerADT sched, uint64_t priority);
 uint64_t waitProcessPid(uint32_t pid);                           //waitpid -----> block al padre y vemos si bajamos prioridad
-void setPriority(ProcessADT process, uint64_t priority);                        //cambiar prioridad de un proceso
+uint64_t setPriority(uint32_t pid, uint64_t priority);                       //cambiar prioridad de un proceso
 void yield();                                                                   //yield -----> renunciar al CPU (setear el quantum del proceso en 0 y forzar un timer tick)
-void killProcess(uint32_t pid);                                                 //kill ------> mata al proceso
+uint64_t killProcess(uint32_t pid);                                                //kill ------> mata al proceso
 Node * getProcessNode(uint32_t pid);
 uint16_t setState(uint32_t pid, uint64_t state);                                //cambiar estado ----> cambia el estado del proceso
 void exitProcess(int ret);                                                      //exit de la wrapper de proceso (maneja la terminacion de un proceso)
@@ -43,8 +44,7 @@ ProcessCopyListADT getProcessCopy();                                            
 void exitProcess(int returnValue);
 ProcessSchedADT createProcessSched(ProcessADT process);
 void freeProcessSched(ProcessSchedADT processSched);
-void setPrioritySyscall(uint32_t pid, uint64_t priority);
-
+ProcessADT getCurrentProcess();
 
 
 
