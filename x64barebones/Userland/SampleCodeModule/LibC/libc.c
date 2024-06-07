@@ -207,6 +207,14 @@ int printf(const char* string, ...){
                     j += my_strlen(buffAux);
                     break;
                 }
+                case 'p': {
+                    uintptr_t num = (uintptr_t)va_arg(v, void*);
+                    itoa(num, buffAux, 16);
+                    for (int k = 0; buffAux[k] != '\0'; k++) {
+                        buffer[j++] = buffAux[k];
+                    }
+                    break;
+                }
             }
         }else{
             buffer[j++] = string[i];            // si no es nada especial, copio el string normal en el buffer a devolver
