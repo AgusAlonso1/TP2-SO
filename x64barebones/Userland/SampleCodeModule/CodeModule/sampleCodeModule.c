@@ -27,60 +27,10 @@ int main(void) {
     call_set_exception_handler(6, exceptionHandler);
 
     saveReference(&shellReference);
-
-    /*
-    defaultTheme();
-
-    int cursorX = MIN_X, cursorY = MIN_Y, cursorScale = 1;
-    call_c_init(cursorX, cursorY, cursorScale);
-    terminal();
-    */
     shell();
 
     return 0;
 }
-
-/*
-void terminal() {
-    defaultTheme();
-
-    char c;
-
-    int cursorX = MIN_X, cursorY = MIN_Y, cursorScale = 1;
-    call_c_init(cursorX, cursorY, cursorScale);
-
-    while (1) {
-        char  commandBuffer[BUFFER_SIZE] = {0};
-        int yIndex, position;
-        yIndex = printShellHeader();
-        position = 0;
-
-        while((c=getChar()) != '\n') {
-            call_c_get_x(&cursorX); // X position of cursor
-            call_c_get_y(&cursorY); // Y position of cursor
-            call_c_get_scale(&cursorScale); // Scale of cursor
-            if (c == 8) { // Backspace key
-                if ( (cursorY != yIndex) || (cursorX > MIN_X + (HEADER_SIZE * WIDTH_FONT * cursorScale))) {
-                    position--;
-                    call_delete_char();
-                }
-            } else if (c == 9) { // Tab key
-                for (int i = 0; i < TAB_SIZE; i++) {
-                    commandBuffer[position++] = ' ';
-                    call_draw_char(' ');
-                }
-            } else if( c != 27 ) { // Any other key not including ESC key (27)
-                commandBuffer[position++] = c;
-                call_draw_char(c);
-            }
-        } // When "enter" key is pressed, leaves typing loop.
-        commandBuffer[position] = '\0';
-        call_c_move(ENTER);
-        shell(commandBuffer);
-    }
-
-}
- */
 
 void exceptionHandler(uint64_t exceptionNumber, char * errorMessage) {
     setTheme(6);
