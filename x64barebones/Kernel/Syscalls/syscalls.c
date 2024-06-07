@@ -44,7 +44,7 @@ static void * sys_malloc(uint64_t size);
 static void sys_free(void * ptrToFree);
 static uint32_t sys_create_process(char* name, char position, Function function,  char **args, uint32_t parentPid);
 static void sys_kill_process(uint32_t pid);
-static ProcessCopyListADT sys_get_processes_copy();
+static ProcessCopyList * sys_get_processes_copy();
 static uint32_t sys_get_pid();
 static uint32_t sys_get_parent_pid();
 static void sys_set_priority(uint32_t pid, uint64_t priority);
@@ -119,14 +119,17 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             break;
         case BEEP :
             sys_beep((uint32_t) rsi);
+            break;
         case MALLOC:
             return (uint64_t) sys_malloc((uint64_t) rsi);
         case FREE:
             sys_free((void*) rsi);
+            break;
         case CREATE_PROCESS:
             return (uint64_t) sys_create_process((char*) rsi, (char) rdx, (Function) rcx, (char**) r8, (uint32_t) r9);
         case KILL_PROCESS:
             sys_kill_process((uint32_t) rsi);
+            break;
         case GET_PROCESSES_COPY:
             return (uint64_t) sys_get_processes_copy();
         case GET_PID:
@@ -135,6 +138,7 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return (uint64_t) sys_get_parent_pid();
         case SET_PRIORITY:
             sys_set_priority((uint32_t) rsi, (uint64_t) rdx);
+            break;
         case SET_STATE:
             return sys_set_state((uint32_t) rsi, (uint64_t) rdx);
         case WAITPID:
@@ -273,7 +277,7 @@ static void sys_kill_process(uint32_t pid){
     killProcess(pid);
 }
 
-static ProcessCopyListADT sys_get_processes_copy(){
+static ProcessCopyList * sys_get_processes_copy(){
     return getProcessCopy();
 }
 
