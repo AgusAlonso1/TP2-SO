@@ -286,7 +286,7 @@ static uint32_t sys_get_parent_pid(){
 }
 
 static void sys_set_priority(uint32_t pid, uint64_t priority){
-    setPrioritySyscall(pid, priority);
+    setPriority(pid, priority);
 }
 
 static uint64_t sys_set_state(uint32_t pid, uint64_t state){
