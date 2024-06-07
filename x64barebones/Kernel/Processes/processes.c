@@ -19,7 +19,6 @@ typedef struct ProcessCDT {
     void * basePointer;
     char position;  //Background (1) or Foreground (0)
     uint64_t returnValue;  //no se si inicializarlo o dejarlo asi
-    LinkedListADT deadChildren;
     char ** arguments;
     //uint64_t fileDescriptors[3];
 } ProcessCDT;
@@ -41,7 +40,6 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->arguments = NULL;
     argscopy(&process->arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) process->arguments);
-    process->deadChildren = createLinkedList();
     //process->fileDescriptors[0] =
     return process;
 }
@@ -112,7 +110,6 @@ int freeProcess(ProcessADT process){
     }
     freeMemory(process->name);
     freeMemory(process->basePointer);
-    freeMemory(process->deadChildren);
     freeMemory(process);
     return 0;
 }
