@@ -23,8 +23,8 @@
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop"};
-void (* commandsReferences[])() = {man, time, registers, snakeNewGame, div0, invalidOp, clear, zoomIn, zoomOut, theme, printBoca, loop};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps"};
+void (* commandsReferences[])() = {man, time, registers, snakeNewGame, div0, invalidOp, clear, zoomIn, zoomOut, theme, printBoca, loop, ps};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];
@@ -137,7 +137,7 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
     char * command1 = arguments[0];
     char * command2 = NULL;
 
-    if(pipePos != -1){
+    if(pipePos > 0){
         command2 = arguments[pipePos + 1];
     }
 
@@ -160,7 +160,6 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
                 arguments2[j] = arguments[i];
             }
             arguments2[j] = NULL;
-            //aca falta logica de file descriptor
             pid1 = call_create_process(command1, 0, (Function) commandsReferences[id1], arguments1, parentPid);
             uint32_t  pid2 = call_create_process(command2, !background, (Function) commandsReferences[id2], arguments2, parentPid);
             if(!background && pid1 != -1 && pid2 != -1){
@@ -172,7 +171,7 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
         } else {
             printf("command1: %s\n", command1);
             printf("arguments1: %s\n", arguments1[0]);
-            printf("background: %c\n", background);
+            printf("background: %d\n", background);
             pid1 = call_create_process(command1, !background,(Function) commandsReferences[id1], arguments1, parentPid);
             if(!background && pid1 != -1){
                 call_waitpid(pid1);

@@ -25,4 +25,6 @@ void zoomOut();
 
 int loop(int argc, char** argv);
 
+void ps(int argc, char** argv);
+
 #endif
