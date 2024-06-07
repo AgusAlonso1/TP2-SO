@@ -1,7 +1,6 @@
 #ifndef LINKED_LIST_ADT_H
 #define LINKED_LIST_ADT_H
 
-#include <stdint.h>
 //#include <processes.h>
 
 typedef struct LinkedListCDT * LinkedListADT;
