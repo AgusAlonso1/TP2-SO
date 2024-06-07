@@ -30,6 +30,7 @@ GLOBAL call_get_parent_pid
 GLOBAL call_set_priority
 GLOBAL call_set_state
 GLOBAL call_waitpid
+GLOBAL call_free_process_copy
 
 
 section .text
@@ -660,6 +661,24 @@ call_waitpid:   ;call_waitpid(uint32_t pid);
     push rsi
 
     mov rsi, rdi        ; rsi -> pid
+    mov rdi, 31
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_free_process_copy:   ;call_free_process_copy(ProcessCopyList * pcl);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi        ; rsi -> pcl
     mov rdi, 31
     int 80h
 

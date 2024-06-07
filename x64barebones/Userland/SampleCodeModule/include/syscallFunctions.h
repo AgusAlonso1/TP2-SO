@@ -33,12 +33,13 @@ void call_beep(uint32_t frequency);
 void * call_malloc(uint64_t size);
 void call_free(void * ptr);
 uint32_t call_create_process(char* name, char position, Function function, char **args, uint32_t parentPid);
-void call_kill_process(uint32_t pid);
+uint64_t call_kill_process(uint32_t pid);
 ProcessCopyList * call_get_process_copy();
 uint32_t call_get_pid();
 uint32_t call_get_parent_pid();
 void call_set_priority(uint32_t pid, uint64_t priority);
 uint64_t call_set_state(uint32_t pid, uint64_t state);
 uint64_t call_waitpid(uint32_t pid);
+void call_free_process_copy(ProcessCopyList * processCopyList);
 
 #endif
