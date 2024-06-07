@@ -51,7 +51,7 @@ void * initializeKernelBinary() {
 int idle(int argc, char **argv){
     char * args[] = {"2", "shell", NULL};   // el 2 es el argc
     uint32_t currentPid = getCurrentPid();
-    createProcessFromSched("shell", 1, LEVEL4, (Function) sampleCodeModuleAddress, args, currentPid);
+    createProcessFromSched("shell", 1, LEVEL4, (Function) sampleCodeModuleAddress, args, currentPid, 1);
 
     while (1){
         _hlt();
@@ -69,7 +69,7 @@ int main() {
 //CREATE PIPEMASTER
 
 	char * args[] = {"2", "idle", NULL};
-    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE);
+    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE, 1);
 
     loadIDT();
     _sti(); // Enable interruptions

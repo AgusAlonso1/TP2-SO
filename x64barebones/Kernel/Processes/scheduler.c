@@ -10,7 +10,6 @@
 typedef struct SchedulerCDT{
     LinkedListADT allProcesses;
     LinkedListADT processes[PRIORITY_LEVELS];
-    ProcessADT currentProcess;
     uint32_t currentPid;
     uint32_t pidCounter;
     uint16_t processQuantum;
@@ -44,10 +43,10 @@ void * schedule(void * currentStackPointer) {
     SchedulerADT sched = getScheduler();
 
     uint64_t currentState = BLOCKED;
-    ProcessADT currentProcess = getCurrentProcess();
-    if(currentProcess != NULL){
-        setProcessStack(currentProcess, currentStackPointer);
-        currentState = getProcessState(currentProcess);
+    ProcessADT oldProcess = getCurrentProcess();
+    if(oldProcess != NULL){
+        setProcessStack(oldProcess, currentStackPointer);
+        currentState = getProcessState(oldProcess);
     }
 
     if(sched->processQuantum > 0) {
@@ -91,8 +90,6 @@ void * schedule(void * currentStackPointer) {
             }
         }
 
-        ProcessADT oldProcess = getCurrentProcess();
-
         if(oldProcess != NULL) {
             uint64_t oldProcessPriority  = getProcessPriority(oldProcess);
             if(oldProcessPriority != LEVEL1 && getProcessPid(oldProcess) != SHELL) {
@@ -123,14 +120,15 @@ SchedulerADT getScheduler() {
     return (SchedulerADT) SCHEDULER_ADDRESS;
 }
 
-uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid) {
+uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality) {
     SchedulerADT sched = getScheduler();
     ProcessADT newProcess = NULL;
 
-    newProcess = createProcess(parentPid, sched->pidCounter++, name, priority, 0, position, function, args);
+    newProcess = createProcess(parentPid, sched->pidCounter++, name, priority, mortality, position, function, args);
 
     if(newProcess != NULL){
-        listProcess(newProcess);
+        ProcessSchedADT processSched = createProcessSched(newProcess);
+        listProcess(processSched);
         insert(sched->allProcesses, newProcess);
         sched->processQty++;
         return getProcessPid(newProcess);
@@ -139,15 +137,15 @@ uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Fu
     return -1;
 }
 
-void listProcess(ProcessADT process) {
+void listProcess(ProcessSchedADT processSched) {
     SchedulerADT sched = getScheduler();
-    if(process == NULL){
+    if(processSched == NULL){
         return;
     }
-    ProcessSchedADT processSched = createProcessSched(process);
-    uint32_t priority = getProcessPriority(process);
+    uint32_t priority = getProcessPriority(processSched->processData);
     insert(sched->processes[priority], processSched);
 }
+
 
 uint64_t setPriority(uint32_t pid, uint64_t priority){
     SchedulerADT sched = getScheduler();
@@ -169,10 +167,9 @@ uint64_t setPriority(uint32_t pid, uint64_t priority){
 
     ProcessADT process = processSched->processData;
     removeNode(sched->processes[oldPriority], processNode);
-    freeProcessSched(processSched);
 
     setProcessPriority(process, priority);
-    listProcess(process);
+    listProcess(processSched);
 
     return SUCCESS;
 }
@@ -198,22 +195,46 @@ uint64_t killProcess(uint32_t pid){
 
     ProcessADT processToKill = processSched->processData;
 
+    Node * current = getFirst(sched->allProcesses);
+    while(current != NULL){
+        if(getProcessParentPid(current->data) == pid){
+            Node * aux = current;
+            current = current->next;
+            if(getProcessState(aux->data) != ZOMBIE){
+                Node * node = getProcessNode(getProcessPid(aux->data));
+                if(node != NULL && node->data != NULL){
+                    freeProcessSched(node->data);
+                    removeNode(sched->processes[getProcessPriority(processToKill)], node);
+                }
+            }
+            removeFromAllProcesses(getProcessPid(aux->data));
+        } else{
+            current = current->next;
+        }
+    }
+
     Node * parent = getProcessNode(getProcessParentPid(processToKill));
     if(parent != NULL && parent->data != NULL) {
         ProcessSchedADT parentProcessSched = (ProcessSchedADT) parent->data;
-        if(parentProcessSched->processData != NULL){
-            if(getProcessState(parentProcessSched->processData) != ZOMBIE){
-                if(getProcessWaitingPid(parentProcessSched->processData) == getProcessPid(processToKill) && getProcessState(parentProcessSched->processData) == BLOCKED) {
+        if(parentProcessSched->processData != NULL) {
+            if (getProcessState(parentProcessSched->processData) != ZOMBIE) {
+                if (getProcessWaitingPid(parentProcessSched->processData) == getProcessPid(processToKill) &&
+                    getProcessState(parentProcessSched->processData) == BLOCKED) {
                     setState(getProcessPid(parentProcessSched->processData), READY);
+                } else{
+                    freeProcessSched(processSched);
+                    removeNode(sched->processes[getProcessPriority(processToKill)], processNode);
                     setProcessState(processToKill, ZOMBIE);
                 }
+            } else {    //aca ni me caliento en ponerlo ZOMBIE, total lo voy a eliminar de todos lados
+                freeProcessSched(processSched);
+                removeNode(sched->processes[getProcessPriority(processToKill)], processNode);
+                removeFromAllProcesses(pid);
             }
         }
-    } else {
-        freeProcessSched(processSched);
-        removeNode(sched->processes[getProcessPriority(processToKill)], processNode);
-        removeFromAllProcesses(pid);
     }
+
+
 
     if(sched->currentPid == pid){
         yield();
@@ -247,8 +268,7 @@ uint16_t setState(uint32_t pid, uint64_t state) {
     if(state == BLOCKED){
         removeNode(sched->processes[getProcessPriority(processSched->processData)],processNode);
         setProcessPriority(processSched->processData, LEVEL4);
-        listProcess(processSched->processData);
-        freeProcessSched(processSched);
+        listProcess(processSched);
     } else if(oldState == BLOCKED){
         sched->processQuantum = 0;
     }
@@ -321,7 +341,9 @@ uint64_t waitProcessPid(uint32_t pid) {
     }
     uint64_t toReturn = getProcessReturnValue(childProcess);
 
-    killProcess(pid);
+    setProcessState(childProcess, ZOMBIE);
+    freeProcessSched(processSched);
+    removeNode(sched->processes[getProcessPriority(childProcess)], childNode);
 
     return toReturn;
 }
@@ -333,7 +355,7 @@ ProcessCopyList * getProcessCopy(){
     int index = 0;
 
     Node * currentNode = getFirst(sched->allProcesses);
-    while(currentNode != NULL && currentNode->data != NULL) {
+    while(index < sched->processQty) {
         ProcessADT process = currentNode->data;
         copyProcess(&processCopyArray[index], process);
         index++;
@@ -342,8 +364,22 @@ ProcessCopyList * getProcessCopy(){
     processListCopies->length = index;
     processListCopies->processCopyList = processCopyArray;
 
+
     return processListCopies;
 }
+void freeProcessCopy(ProcessCopyList * processCopyList){
+    SchedulerADT sched = getScheduler();
+
+    Node * currentNode = getFirst(sched->allProcesses);
+    int i = 0;
+    while(i < processCopyList->length) {
+        freeMemory(processCopyList->processCopyList[i].name);
+    }
+
+    freeMemory(processCopyList->processCopyList);
+    freeMemory(processCopyList);
+}
+
 
 ProcessSchedADT createProcessSched(ProcessADT process){
     ProcessSchedADT processSched = allocMemory(sizeof (ProcessSchedCDT));
@@ -387,6 +423,5 @@ void removeFromAllProcesses(uint32_t pid){
         sched->processQty--;
         freeProcess(process);
     }
-
 }
 
