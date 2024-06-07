@@ -146,10 +146,6 @@ uint64_t getProcessReturnValue(ProcessADT process) {
     return process->returnValue;
 }
 
-LinkedListADT getProcessDeadChildList(ProcessADT process) {
-    return process->deadChildren;
-}
-
 char getProcessMortality(ProcessADT process) {
     return process->immortal;
 }
