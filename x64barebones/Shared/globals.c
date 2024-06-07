@@ -20,7 +20,7 @@ uint32_t getProcessCopyListSize() {
 
 int stringArrayLen(char **args) {
     int len = 0;
-    while (args[len] != NULL) {
+    while (args != NULL && args[len] != NULL) {
         len++;
     }
     return len;
