@@ -59,6 +59,12 @@ int my_process_inc(int argc, char *argv[]) {
 
   drawStringOnCursor((uint8_t *) "Succes", &hola);
 
+  uint32_t len;
+
+  uint8_t buffer[30];
+  intToString(global, (char *)buffer);
+  drawStringOnCursor(buffer, &len);
+
   return 0;
 }
 

@@ -8,7 +8,7 @@ extern void leave_region(uint8_t *lock);
 
 typedef struct Semaphore {
     uint64_t id;
-    uint64_t value;
+    int64_t value;
     uint8_t lock;
     LinkedListADT processBlockedPids;
 } Semaphore;
@@ -40,7 +40,7 @@ static Node * getSemNodeById( uint64_t semId, SemaphoreListADT list ) {
 
 static uint64_t createSemaphore(uint64_t value, uint64_t semId) {
     SemaphoreListADT semaphoresList = getSemaphoreManager();
-    Semaphore * newSem = allocMemory(sizeof(semaphoresList));
+    Semaphore * newSem = allocMemory(sizeof(Semaphore));
     newSem->id = semId ;
     newSem->value = value;
     newSem->lock = 0;
@@ -82,6 +82,7 @@ void createSemaphoreManager() {
 }
 
 uint64_t semOpen(uint64_t value, uint64_t semId) {
+    uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semaphoresList = getSemaphoreManager();
 
     while (enter_region(&(semaphoresList->globalLock))) {
@@ -100,6 +101,7 @@ uint64_t semOpen(uint64_t value, uint64_t semId) {
 }
 
 uint64_t semWait(uint64_t semId) {
+    uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
     Node * semNode = getSemNodeById(semId, semList);
 
@@ -128,6 +130,7 @@ uint64_t semWait(uint64_t semId) {
 }
 
 uint64_t semPost(uint64_t semId) {
+    uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
     Node * semNode = getSemNodeById(semId, semList);
 
@@ -146,20 +149,27 @@ uint64_t semPost(uint64_t semId) {
 }
 
 uint8_t semClose(uint64_t semId) {
+    uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
-    Node * semNode = getSemNodeById(semId, semList);
 
+    while (enter_region(&(semList->globalLock))) {
+        yield();
+    }
+
+    Node * semNode = getSemNodeById(semId, semList);
     if(semNode == NULL) {
+        leave_region(&(semList->globalLock));
         return 1;
     }
 
     Semaphore * sem = semNode->data;
-
     if(sem == NULL) {
+        leave_region(&(semList->globalLock));
         return -1;
     }
 
     if(getListSize(sem->processBlockedPids) != 0){
+        leave_region(&(semList->globalLock));
         return -1; //processes wating for sem
     }
 
@@ -167,6 +177,8 @@ uint8_t semClose(uint64_t semId) {
     removeNode(semList->semaphores, semNode);
     freeMemory(sem);
     freeMemory(semNode);
+
+    leave_region(&(semList->globalLock));
 
     return 1;
 }

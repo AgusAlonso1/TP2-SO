@@ -72,7 +72,7 @@ int main() {
 
 	char * args[] = {"2", "idle", NULL};
     createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE);
-    char *argv[] = {"10", "1", NULL};
+    char *argv[] = {"4", "1", NULL};
     test_sync(2, argv);
     loadIDT();
     _sti(); // Enable interruptions

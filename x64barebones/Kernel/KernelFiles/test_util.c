@@ -52,6 +52,30 @@ int64_t satoi(char *str) {
   return res * sign;
 }
 
+void intToString(int number, char *string) {
+    int i = 0, j, temp;
+    char buffer[20]; // Buffer temporal para almacenar los caracteres
+
+    // Manejar el caso especial de 0
+    if (number == 0) {
+        string[i++] = '0';
+        string[i] = '\0';
+        return;
+    }
+
+    // Extraer los dígitos del número y almacenarlos en el buffer en orden inverso
+    while (number != 0) {
+        buffer[i++] = (number % 10) + '0';
+        number /= 10;
+    }
+
+    // Invertir los caracteres del buffer al string final
+    for (j = 0; j < i; j++) {
+        string[j] = buffer[i - j - 1];
+    }
+    string[i] = '\0'; // Añadir el carácter nulo al final de la cadena
+}
+
 // Dummies
 void bussy_wait(uint64_t n) {
   uint64_t i;
