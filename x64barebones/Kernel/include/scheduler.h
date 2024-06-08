@@ -40,12 +40,12 @@ void exitProcess(int ret);                                                      
 uint32_t getCurrentPid();                                                              //getpid -----> usa getpid del process
 uint32_t getCurrentParentPid();                                                     //getppid ------> usa getppid del process
 ProcessCopyList * getProcessCopy();                                           //ps -----> hacer copia de la process info en el momento ese
-void exitProcess(int returnValue);
 ProcessSchedADT createProcessSched(ProcessADT process);
 void freeProcessSched(ProcessSchedADT processSched);
 ProcessADT getCurrentProcess();
 void removeFromAllProcesses(uint32_t pid);
 void freeProcessCopy(ProcessCopyList * processCopyList);
+uint64_t block(uint32_t pid);
 
 
 

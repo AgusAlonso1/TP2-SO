@@ -425,3 +425,26 @@ void removeFromAllProcesses(uint32_t pid){
     }
 }
 
+uint64_t block(uint32_t pid){
+    Node * node = getProcessNode(pid);
+    uint64_t ret = SUCCESS;
+    if(node != NULL && node->data != NULL){
+        ProcessSchedADT processSched = (ProcessSchedADT) node->data;
+        if(processSched->processData != NULL){
+            uint64_t state = getProcessState(processSched->processData);
+            if(state == BLOCKED){
+                ret = setState(pid, READY);
+                if(ret == SUCCESS){
+                    ret = BLOCK_UNBLOCK;
+                }
+            } else {
+                ret = setState(pid, BLOCKED);
+                if(ret == SUCCESS){
+                    ret = UNBLOCK_BLOCK;
+                }
+            }
+        }
+    }
+    return ret;
+}
+
