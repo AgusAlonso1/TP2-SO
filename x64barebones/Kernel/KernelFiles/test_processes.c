@@ -40,7 +40,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
 
     // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
-      p_rqs[rq].process = createProcess(0, rq, "endless_loop", 3, 0, 0, &endless_loop, argvAux);
+    //  p_rqs[rq].process = createProcess(0, rq, "endless_loop", 3, 0, 0, &endless_loop, argvAux);
       p_rqs[rq].pid = getProcessPid(p_rqs[rq].process);
       int p = p_rqs[rq].pid; 
       if (p_rqs[rq].pid == -1) {
