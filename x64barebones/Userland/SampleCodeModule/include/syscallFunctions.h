@@ -3,25 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-
-typedef int (*Function)(int, char **);
-
-#define RUNNING 0
-#define READY 1
-#define BLOCKED 2
-#define ZOMBIE 3
-
-typedef struct ProcessCopy {
-    uint32_t pid;
-    char * name;
-    uint64_t priority;
-    uint64_t state;
-    void * stack;
-    void * basePointer;
-    char position;
-} ProcessCopy;
-
-typedef struct ProcessCopyListCDT * ProcessCopyListADT;
+#include <globals.h>
 
 
 typedef enum {WRITE=0, DELETE, ENTER, RELATIVE_ENTER, TAB}actionOfCursor;
@@ -51,12 +33,13 @@ void call_beep(uint32_t frequency);
 void * call_malloc(uint64_t size);
 void call_free(void * ptr);
 uint32_t call_create_process(char* name, char position, Function function, char **args, uint32_t parentPid);
-void call_kill_process(uint32_t pid);
-ProcessCopyListADT call_get_process_copy();
+uint64_t call_kill_process(uint32_t pid);
+ProcessCopyList * call_get_process_copy();
 uint32_t call_get_pid();
 uint32_t call_get_parent_pid();
-void call_set_priority(uint32_t pid, uint64_t priority);
-uint64_t call_set_state(uint32_t pid, uint64_t state);
+uint64_t call_set_priority(uint32_t pid, uint64_t priority);
+uint64_t call_block(uint32_t pid);
 uint64_t call_waitpid(uint32_t pid);
+void call_free_process_copy(ProcessCopyList * processCopyList);
 
 #endif

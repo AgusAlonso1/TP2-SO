@@ -52,9 +52,13 @@ int64_t satoi(char *str) {
   return res * sign;
 }
 
+
+#include <stdio.h>
+
 void intToString(int number, char *string) {
-    int i = 0, j, temp;
+    int i = 0, j;
     char buffer[20]; // Buffer temporal para almacenar los caracteres
+    int isNegative = 0;
 
     // Manejar el caso especial de 0
     if (number == 0) {
@@ -63,10 +67,21 @@ void intToString(int number, char *string) {
         return;
     }
 
+    // Manejar el signo negativo
+    if (number < 0) {
+        isNegative = 1;
+        number = -number; // Hacer el número positivo para extraer los dígitos
+    }
+
     // Extraer los dígitos del número y almacenarlos en el buffer en orden inverso
     while (number != 0) {
         buffer[i++] = (number % 10) + '0';
         number /= 10;
+    }
+
+    // Añadir el signo negativo si es necesario
+    if (isNegative) {
+        buffer[i++] = '-';
     }
 
     // Invertir los caracteres del buffer al string final
@@ -75,6 +90,7 @@ void intToString(int number, char *string) {
     }
     string[i] = '\0'; // Añadir el carácter nulo al final de la cadena
 }
+
 
 // Dummies
 void bussy_wait(uint64_t n) {

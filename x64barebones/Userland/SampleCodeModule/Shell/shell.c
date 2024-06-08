@@ -23,8 +23,18 @@
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca"};
-void (* commandsReferences[])() = {man, time, registers, snakeNewGame, div0, invalidOp, clear, zoomIn, zoomOut, theme, printBoca};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill", "nice", "block"};
+int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, char **)) man,
+                                                                (int (*)(int, char **)) time,
+                                                                (int (*)(int, char **)) registers,
+                                                                (int (*)(int, char **)) snakeNewGame,
+                                                                (int (*)(int, char **)) div0,
+                                                                (int (*)(int, char **)) invalidOp,
+                                                                (int (*)(int, char **)) clear,
+                                                                (int (*)(int, char **)) zoomIn,
+                                                                (int (*)(int, char **)) zoomOut,
+                                                                (int (*)(int, char **)) theme,
+                                                                (int (*)(int, char **)) printBoca, loop, ps, kill, nice, block};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];
@@ -49,12 +59,6 @@ void shell() {
             return;
         }
 
-        /*
-        int id = interpretCommand(arguments[0]);
-        char flag = 0;
-        executeCommand(id, &flag);
-        */
-
         char flag = executeCommand(arguments, background, pipePos, argslen);
         if(flag == ERROR) {
             printf("Error: command not found\n");
@@ -72,18 +76,7 @@ int interpretCommand(char * command) {
     return index;
 }
 
-/*
-void executeCommand(int indexCommand, char * flag) {
-    if (indexCommand == -1 ) {
-        *flag = 0;
-        return;
-    }
-    commandsReferences[indexCommand]();
-    *flag = 1;
-}
-*/
 
-// Prints shell header and returns the y index of the corresponding header.
 int printShellHeader() {
     uint32_t n;
     call_write((uint8_t *) "user> ", &n);
@@ -137,7 +130,7 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
     char * command1 = arguments[0];
     char * command2 = NULL;
 
-    if(pipePos != -1){
+    if(pipePos > 0){
         command2 = arguments[pipePos + 1];
     }
 
@@ -160,7 +153,6 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
                 arguments2[j] = arguments[i];
             }
             arguments2[j] = NULL;
-            //aca falta logica de file descriptor
             pid1 = call_create_process(command1, 0, (Function) commandsReferences[id1], arguments1, parentPid);
             uint32_t  pid2 = call_create_process(command2, !background, (Function) commandsReferences[id2], arguments2, parentPid);
             if(!background && pid1 != -1 && pid2 != -1){

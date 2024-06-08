@@ -6,8 +6,9 @@
 #include <globals.h>
 #include <linkedListADT.h>
 #include <interruptions.h>
-//#include <memoryManager.h>
-#include <memoryasm.h>
+#include <libString.h>
+#include <memoryManager.h>
+
 
 #define FOREGROUND 0
 #define BACKGROUND 1
@@ -36,7 +37,6 @@ void setProcessReturnValue(ProcessADT process, int returnValue);
 uint64_t getProcessReturnValue(ProcessADT process);
 void argscopy(char*** arguments, char** args);
 char getProcessMortality(ProcessADT process);
-LinkedListADT getProcessDeadChildList(ProcessADT process);
 uint32_t getProcessWaitingPid(ProcessADT process);
 void setProcessWaitingPid(ProcessADT process, uint32_t childPid);
 void wrapper(Function function, char **args);

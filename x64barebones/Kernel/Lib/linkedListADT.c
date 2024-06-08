@@ -1,6 +1,6 @@
 #include <linkedListADT.h>
-#include <stdlib.h>
 #include <processes.h>
+#include <stddef.h>
 
 typedef struct LinkedListCDT {
     Node * first;
@@ -88,6 +88,6 @@ Node * getFirst(LinkedListADT list) {
     return list->first;
 }
 
-uint64_t getListSize(LinkedListADT list) {
+int getListSize(LinkedListADT list) {
     return list->size;
 }

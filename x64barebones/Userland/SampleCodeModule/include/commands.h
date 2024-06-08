@@ -23,4 +23,14 @@ void zoomIn();
 
 void zoomOut();
 
+int loop(int argc, char** argv);
+
+int ps(int argc, char** argv);
+
+int kill(int argc, char** argv);
+
+int nice(int argc, char** argv);
+
+int block(int argc, char** argv);
+
 #endif

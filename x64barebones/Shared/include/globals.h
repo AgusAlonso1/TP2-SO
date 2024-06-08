@@ -8,6 +8,9 @@ typedef int (*Function)(int, char **);
 #define READY 1
 #define BLOCKED 2
 #define ZOMBIE 3
+#define BLOCK_UNBLOCK 4
+#define UNBLOCK_BLOCK 5
+
 
 typedef struct ProcessCopy {
     uint32_t pid;
@@ -19,18 +22,10 @@ typedef struct ProcessCopy {
     char position;
 } ProcessCopy;
 
-typedef struct ProcessCopyListCDT * ProcessCopyListADT;
+typedef struct ProcessCopyList {
+    uint64_t length;
+    ProcessCopy * processCopyList;
+} ProcessCopyList;
 
-void setProcessCopyListLength(ProcessCopyListADT processCopy, uint64_t length);
-void setProcessCopyList(ProcessCopyListADT processCopy, ProcessCopy * processLis);
-
-int my_strlen(const char * s);
-void my_strcopy(char * destination, char* string);
-uint64_t my_atoi(char *s);
-
-int stringArrayLen(char **args);
-
-// Seria mas prolijo retornar diractamente el puntero, pero tengo que incluir mas cosas asi que mientras solo retorno el tamano
-uint32_t getProcessCopyListSize();
 
 #endif

@@ -140,7 +140,7 @@ uint64_t semPost(uint64_t semId) {
         return -1;
     }
 
-    enter_region(&sem->lock);
+    spinLock(sem);
 
     sem->value++;
 

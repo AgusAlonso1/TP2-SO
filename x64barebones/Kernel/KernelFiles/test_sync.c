@@ -68,7 +68,8 @@ int my_process_inc(int argc, char *argv[]) {
   return 0;
 }
 
-uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
+uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
+  uint32_t test_pid = getCurrentPid();
   initializeCursor(20,20, 2);
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
@@ -82,8 +83,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = createProcessFromSched("my_process_inc", 0, 3, &my_process_inc,argvInc , 0);
-    pids[i + TOTAL_PAIR_PROCESSES] = createProcessFromSched("my_process_dec", 0, 3, &my_process_inc ,argvDec, 0);
+    pids[i] = createProcessFromSched("my_process_inc", 0, 3, &my_process_inc,argvInc , test_pid, 0);
+    pids[i + TOTAL_PAIR_PROCESSES] = createProcessFromSched("my_process_dec", 0, 3, &my_process_inc ,argvDec, test_pid, 0);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {

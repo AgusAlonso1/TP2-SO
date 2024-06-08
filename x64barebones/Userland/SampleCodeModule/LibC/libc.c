@@ -11,6 +11,7 @@
 #define LEFT_1 2
 #define RIGHT_1 3
 
+
 int strcmp(const char * s1, const char * s2) {
     int i = 0;
     while(s1[i] != 0  && s2[i] != 0){
@@ -60,43 +61,6 @@ static int readFromKeyboard(char * buffer) {
     return i;
 }
 
-/*
-static int intToString(int num, char *str) {
-    int i = 0, j=0;
-    char isNegative = 0;
-    char aux[10];
-
-    // if negative flag to add sign
-    if (num < 0) {
-        isNegative = 1;
-        num = -num;
-    }
-
-    if (num == 0) {
-        str[i] = '0';
-        i++;
-    }
-
-    while (num != 0) {
-        aux[j] = (num % 10) + '0';
-        num = num / 10;
-        j++;
-    }
-
-    if (isNegative) {
-        str[i] = '-';
-        i++;
-    }
-
-    for (j = j - 1; j >= 0; j--) {
-        str[i] = aux[j];
-        i++;
-    }
-    str[i] = '\0';
-
-    return i;
-}
-*/
 
 static int strConcat(char *str1, char *str2){
     int i = my_strlen(str1);
@@ -109,63 +73,7 @@ static int strConcat(char *str1, char *str2){
     return i;
 }
 
-/*
-static int stringToInt(char * num){
-    char isNegative = 0;
-    int i = 0;
-    int res = 0;
 
-    if(num[0] == '-'){
-        isNegative = 1;
-        i++;
-    }
-
-    while(num[i] != '\0'){
-        res = res*10 + num[i] - '0';
-        i++;
-    }
-
-    if(isNegative){
-        res = -res;
-    }
-
-    return res;
-}
- */
-
-/*
-int printf(const char * format, ...){
-    va_list variables;
-
-    va_start(variables, format);
-
-    char str[DIM];
-    int index = 0, fmtPos = 0;
-
-    while(format[fmtPos] != '\0'){
-        if(format[fmtPos] == '%'){
-            fmtPos++;
-            switch(format[fmtPos]){
-                case 'd': //int
-                    index += intToString(va_arg(variables,int),str+index);
-                    break;
-                case 's': //string
-                    index+=strConcat(str,va_arg(variables,char*));
-                    break;
-                default:
-                    break;
-            }
-            fmtPos++;
-        }else{
-            str[index] = format[fmtPos++];
-            index++;
-        }
-    }
-    str[index] = '\0';
-    va_end(variables);
-    return putString(str);
-}
-*/
 
 int printf(const char* string, ...){
     va_list v;
@@ -207,6 +115,14 @@ int printf(const char* string, ...){
                     j += my_strlen(buffAux);
                     break;
                 }
+                case 'p': {
+                    uintptr_t num = (uintptr_t)va_arg(v, void*);
+                    itoa(num, buffAux, 16);
+                    for (int k = 0; buffAux[k] != '\0'; k++) {
+                        buffer[j++] = buffAux[k];
+                    }
+                    break;
+                }
             }
         }else{
             buffer[j++] = string[i];            // si no es nada especial, copio el string normal en el buffer a devolver
@@ -229,44 +145,6 @@ int randNbr(int fromIncluded, int toIncluded) {
     call_get_ticks(&currentTicks);
     return (fromIncluded + (currentTicks % (toIncluded)));
 }
-
-/*
-void scanf(const char * format, ...) {
-    va_list variables;
-    va_start(variables, format);
-
-    char str[DIM];
-    char buffer[BUFFER_DIM];
-    int index = 0, fmtPos = 0;
-
-     while(format[fmtPos] != '\0'){
-        if(format[fmtPos] == '%'){
-            printf(str);
-            fmtPos++;
-            switch(format[fmtPos]){
-                case 'd': //int
-                    readFromKeyboard(buffer);
-                    int * number;
-                    number = va_arg(variables, int*);
-                    *number = stringToInt(buffer);
-                    break;
-                case 's': //string
-                    readFromKeyboard(buffer);
-                    char ** string;
-                    string = va_arg(variables, char**);
-                    *string = buffer;
-                    break;
-                default:
-                    break;
-            }
-            fmtPos++;
-        }else{
-            str[index] = format[fmtPos++];
-            index++;
-        }
-    }
-}
- */
 
 void printChar(char c){
     call_draw_char(c);
@@ -353,6 +231,8 @@ int scanf(const char* fmt, ...){
     va_end(v);
     return params;
 }
+
+
 
 void itoa(int value, char* buff, int base){
     int i = 0;
