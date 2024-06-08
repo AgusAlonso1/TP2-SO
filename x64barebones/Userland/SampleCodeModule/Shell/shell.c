@@ -1,5 +1,4 @@
 #include <shell.h>
-#include <stdint.h>
 #include <libc.h>
 #include <commands.h>
 #include <logo.h>
@@ -59,7 +58,7 @@ void shell() {
             return;
         }
 
-        char flag = executeCommand(arguments, background, pipePos, argslen);
+        int flag = executeCommand(arguments, background, pipePos, argslen);
         if(flag == ERROR) {
             printf("Error: command not found\n");
         }
@@ -84,13 +83,13 @@ int printShellHeader() {
     return n;
 }
 
-void parseCommand(char* commandLine, char** args, int* background, int *pipePos, int *argslen){
+void parseCommand(char* commandline, char** args, int* background, int *pipePos, int *argslen){
     *background = 0;
     *pipePos = -1;
 
     int i = 0;
-    char* token_start = commandLine;
-    char* cursor = commandLine;
+    char* token_start = commandline;
+    char* cursor = commandline;
 
     while (*cursor != '\0') {
         if (*cursor == '|' || *cursor == '&') {
@@ -126,12 +125,23 @@ void parseCommand(char* commandLine, char** args, int* background, int *pipePos,
     *argslen = i;
 }
 
-int executeCommand(char** arguments, int background, int pipePos, int argslen){
+
+// si hay un pipe y no hay nada despues ---> ERROR
+/*
+int executeFunction(int indexCommand, int argc, char **argv) {
+    if (indexCommand == -1 ) {
+        return ERROR;
+    }
+    return commandsReferences[indexCommand](argc, argv);
+}
+ */
+
+int executeCommand(char** args, int background, int pipePos, int argslen){
     char * command1 = arguments[0];
     char * command2 = NULL;
 
     if(pipePos > 0){
-        command2 = arguments[pipePos + 1];
+        command2 = args[pipePos + 1];
     }
 
     int id1 = interpretCommand(command1);
@@ -139,40 +149,99 @@ int executeCommand(char** arguments, int background, int pipePos, int argslen){
 
     uint32_t parentPid = (uint32_t) call_get_pid();
 
+    int toReturn = ERROR;
+
     if(id1 != -1){
         char * arguments1[MAX_ARGUMENTS];
-        uint32_t  pid1;
         int i, j;
         for(i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
-            arguments1[j] = arguments[i];
+            arguments1[j] = args[i];
         }
         arguments1[j] = NULL;
+
         if(id2 != -1){
             char * arguments2[MAX_ARGUMENTS];
-            for(int i = 1, j = 0; i < argslen && i != pipePos; i++, j++){
-                arguments2[j] = arguments[i];
+            int k, m;
+            for(k = pipePos + 2, m = 0; k < argslen && k != pipePos; k++, m++){
+                arguments2[m] = args[k];
             }
-            arguments2[j] = NULL;
-            pid1 = call_create_process(command1, 0, (Function) commandsReferences[id1], arguments1, parentPid);
-            uint32_t  pid2 = call_create_process(command2, !background, (Function) commandsReferences[id2], arguments2, parentPid);
-            if(!background && pid1 != -1 && pid2 != -1){
-                call_waitpid(pid1);
-                call_waitpid(pid2);
-            } else{
-                return ERROR;
-            }
+            arguments2[m] = NULL;
+            toReturn = createPipedProcess(command1, arguments1, command2, arguments2, parentPid, background, id1, id2);
         } else {
-            pid1 = call_create_process(command1, !background,(Function) commandsReferences[id1], arguments1, parentPid);
-            if(!background && pid1 != -1){
-                call_waitpid(pid1);
-            } else{
-                return ERROR;
-            }
+            toReturn = createProcess(command1, arguments1, parentPid, background, id1);
         }
-    } else {
-        return ERROR;
     }
 
+    return toReturn;
+}
+
+int createPipedProcess(char* command1, char** arguments1, char* command2, char** arguments2, uint32_t parentPid, int background, int id1, int id2){
+    int fileDescriptors1[CANT_FILE_DESCRIPTORS];
+    int fileDescriptors2[CANT_FILE_DESCRIPTORS];
+
+    uint64_t pipeId = call_get_pipe_id();
+
+    fileDescriptors1[WRITE_FD] = pipeId;
+    //  fileDescriptors1[ERROR_FD] = STDERR;
+
+    fileDescriptors2[WRITE_FD] = STDOUT;
+    fileDescriptors2[READ_FD] = pipeId;
+    //  fileDescriptors2[ERROR_FD] = STDERR;
+
+    uint32_t pid1;
+    uint32_t pid2;
+    if(background){
+        fileDescriptors1[READ_FD] = DEV_NULL;
+        pid1 = call_create_process_background(command1, (Function) commandsReferences[id1], arguments1, (uint32_t)parentPid,  fileDescriptors1);
+        pid2 = call_create_process_background(command2, (Function) commandsReferences[id2], arguments2, (uint32_t)parentPid,  fileDescriptors2);
+        if(pid1 == -1 || pid2 == -1){
+            return ERROR;
+        }
+    } else {
+        fileDescriptors1[READ_FD] = STDIN;
+        pid1 = call_create_process_foreground(command1, (Function) commandsReferences[id1], arguments1, (uint32_t)parentPid,  fileDescriptors1);
+        pid2 = call_create_process_foreground(command2, commandsReferences[id2], arguments2, (uint32_t)parentPid,  fileDescriptors2);
+        if(pid1 != -1 && pid2 != -1){
+            call_waitpid(pid1);
+            call_waitpid(pid2);
+        } else{
+            return ERROR;
+        }
+    }
     return SUCCESS;
 }
 
+int createProcess(char* command1, char** arguments1, uint32_t parentPid, int background, int id1){
+    int fileDescriptors[CANT_FILE_DESCRIPTORS];
+    if(background){
+        fileDescriptors[READ_FD] = DEV_NULL;
+        fileDescriptors[WRITE_FD] = STDOUT;
+      //  fileDescriptors[ERROR_FD] = STDERR;
+        call_create_process_background(command1,(Function) commandsReferences[id1], arguments1, (uint32_t) parentPid,  fileDescriptors);
+    } else {
+        fileDescriptors[READ_FD] = STDIN;
+        fileDescriptors[WRITE_FD] = STDOUT;
+        //  fileDescriptors[ERROR_FD] = STDERR;
+        uint32_t pid1 = call_create_process_foreground(command1,(Function) commandsReferences[id1], arguments1, (uint32_t) parentPid, fileDescriptors);
+
+        if(pid1 != -1){
+            call_waitpid(pid1);
+        } else {
+            return ERROR;
+        }
+    }
+    return SUCCESS;
+}
+
+/*
+int producer(){
+    printf("Hola soy el que escribio...\n");
+    return SUCCESS;
+}
+
+int consumer(){
+    char* buf[30] = {0};
+    scanf("%S", buf);   //imprime en pantalla lo que esta en buf
+    return SUCCESS;
+}
+*/
