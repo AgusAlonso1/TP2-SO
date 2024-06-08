@@ -3,10 +3,10 @@
 #define GET_INDEX(index) ((index) % MAX_BUFFER_LEN)
 
 typedef struct PipeCDT {
-    uint64_t id;
+    int id;
     char buffer[MAX_BUFFER_LEN];
-    uint32_t writePid;
-    uint32_t readPid;
+    int writePid;
+    int readPid;
 //  sem_t semWrite;  //semaforo para escribir, se inicializa en MAX_BUFFER_LEN
 //  sem_t semRead;  //semaforo para leer, se incializa en 0
     uint64_t writePos;
@@ -15,13 +15,20 @@ typedef struct PipeCDT {
 
 typedef struct PipeMasterCDT{
     LinkedListADT pipes;
+    uint64_t idCount;
     uint64_t pipesQty;
 } PipeMasterCDT;
 
 void createPipeMaster() {
     PipeMasterADT pMaster = (PipeMasterADT) PIPE_MASTER_ADDRESS;
     pMaster->pipes = createLinkedList();
+    pMaster->idCount = CANT_FILE_DESCRIPTORS + 1;
     pMaster->pipesQty = 0;
+}
+
+uint64_t getPipeId(){
+    PipeMasterADT pMaster = getPipeMaster();
+    return pMaster->idCount++;
 }
 
 PipeMasterADT getPipeMaster() {
@@ -30,7 +37,9 @@ PipeMasterADT getPipeMaster() {
 
 PipeADT createPipe(uint64_t id) {
     PipeADT pipe = allocMemory(sizeof (PipeCDT));
-
+    if(pipe == NULL){
+        return NULL;
+    }
     pipe->id = id;
     int i = 0;
     while(i < MAX_BUFFER_LEN){      //lo hice en un while porque por alguna razon no le gustaban los parentesis del for ???
@@ -58,6 +67,7 @@ Node * getPipeNodeById(uint64_t id) {
             found = FOUND;
             pipeNode = currentNode;
         }
+        currentNode = currentNode->next;
     }
     return pipeNode;
 }
@@ -66,12 +76,16 @@ uint16_t pipeOpen(uint64_t id, char mode) {     //aca no hay pid; el pid es el d
     return pipeOpenAnonymous(id, mode, getCurrentPid());
 }
 
-uint16_t pipeOpenAnonymous(uint64_t id, char mode, uint32_t pid) {  // si no esta creado lo creo y lo meto a la lista
+uint16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {  // si no esta creado lo creo y lo meto a la lista
     PipeMasterADT pMaster = getPipeMaster();
+
+    if(id < CANT_FILE_DESCRIPTORS + 1){         //si es de las entradas estandar no hacemos nada
+        return SUCCESS;
+    }
+
     Node * pipeNode = getPipeNodeById(id);
     PipeADT pipe;
 
-    //si no existe uno con ese id lo creamos y lo metemos en la lista
     if(pipeNode == NULL) {
         pipe = createPipe(id);
         if(pipe == NULL){
@@ -83,12 +97,12 @@ uint16_t pipeOpenAnonymous(uint64_t id, char mode, uint32_t pid) {  // si no est
         pipe = (PipeADT) pipeNode->data;
     }
 
-    if(mode == READ){
+    if(mode == READ_MODE){
         if(pipe->readPid != NOT_DEFINED){
             return ERROR;
         }
         pipe->readPid = pid;
-    } else if(mode == WRITE){
+    } else if(mode == WRITE_MODE){
         if(pipe->writePid != NOT_DEFINED){
             return ERROR;
         }
@@ -101,7 +115,7 @@ uint16_t pipeClose(uint64_t id) {       //aca no hay pid; el pid es el del proce
     return pipeCloseAnonymous(id, getCurrentPid());
 }
 
-uint16_t pipeCloseAnonymous(uint64_t id, uint32_t pid) {
+uint16_t pipeCloseAnonymous(int id, uint32_t pid) {
     PipeMasterADT pMaster = getPipeMaster();
     Node * pipeNode = getPipeNodeById(id);
     PipeADT pipe;
@@ -160,7 +174,7 @@ uint16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
 }
 
 
-uint16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len) {
+uint16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * readBytes) {
     Node * pipeNode = getPipeNodeById(id);
     PipeADT pipe;
 
@@ -185,6 +199,12 @@ uint16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len) {
         buffer[i] = pipe->buffer[GET_INDEX(pipe->readPos)];
         pipe->readPos++;
         i++;
+
+        if(buffer[i] == '\0'){
+            *readBytes = 0;
+        } else{
+            *readBytes = i;
+        }
 
         // semPost(pipe->semWrite):       //semaforo para marcar que hay lugar para escribir
     }
