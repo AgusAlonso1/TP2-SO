@@ -18,7 +18,7 @@ $(MODULE):$(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT)
 	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 -no-pie $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_SHARED) -o ../$(MODULEELF)
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I../../Shared/include -c $< -o $@
 
 %.o: %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
