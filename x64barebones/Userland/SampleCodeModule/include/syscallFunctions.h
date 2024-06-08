@@ -37,7 +37,7 @@ uint64_t call_kill_process(uint32_t pid);
 ProcessCopyList * call_get_process_copy();
 uint32_t call_get_pid();
 uint32_t call_get_parent_pid();
-void call_set_priority(uint32_t pid, uint64_t priority);
+uint64_t call_set_priority(uint32_t pid, uint64_t priority);
 uint64_t call_set_state(uint32_t pid, uint64_t state);
 uint64_t call_waitpid(uint32_t pid);
 void call_free_process_copy(ProcessCopyList * processCopyList);

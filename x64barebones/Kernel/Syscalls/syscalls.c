@@ -47,7 +47,7 @@ static uint64_t sys_kill_process(uint32_t pid);
 static ProcessCopyList * sys_get_processes_copy();
 static uint32_t sys_get_pid();
 static uint32_t sys_get_parent_pid();
-static void sys_set_priority(uint32_t pid, uint64_t priority);
+static uint64_t sys_set_priority(uint32_t pid, uint64_t priority);
 static uint64_t sys_set_state(uint32_t pid, uint64_t state);
 static uint64_t sys_waitpid(uint32_t pid);
 static void sys_free_process_copy(ProcessCopyList * processCopyList);
@@ -137,8 +137,7 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
         case GET_PARENT_PID:
             return (uint64_t) sys_get_parent_pid();
         case SET_PRIORITY:
-            sys_set_priority((uint32_t) rsi, (uint64_t) rdx);
-            break;
+            return sys_set_priority((uint32_t) rsi, (uint64_t) rdx);
         case SET_STATE:
             return sys_set_state((uint32_t) rsi, (uint64_t) rdx);
         case WAITPID:
@@ -292,7 +291,7 @@ static uint32_t sys_get_parent_pid(){
     return getCurrentParentPid();
 }
 
-static void sys_set_priority(uint32_t pid, uint64_t priority){
+static uint64_t sys_set_priority(uint32_t pid, uint64_t priority){
     setPriority(pid, priority);
 }
 
