@@ -46,7 +46,7 @@ ProcessADT getCurrentProcess();
 void removeFromAllProcesses(uint32_t pid);
 void freeProcessCopy(ProcessCopyList * processCopyList);
 uint64_t block(uint32_t pid);
-
+uint64_t isProcessAlive(uint32_t pid);
 
 
 

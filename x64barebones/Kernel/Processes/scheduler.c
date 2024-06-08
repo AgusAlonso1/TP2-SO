@@ -448,3 +448,15 @@ uint64_t block(uint32_t pid){
     return ret;
 }
 
+uint64_t isProcessAlive(uint32_t pid){
+    Node * node = getProcessNode(pid);
+    if(node == NULL || node->data == NULL){
+        return ERROR;
+    }
+    ProcessSchedADT processSched = (ProcessSchedADT) node->data;
+    if(processSched->processData == NULL || getProcessState(processSched->processData) == ZOMBIE){
+        return ERROR;
+    }
+    return SUCCESS;
+}
+
