@@ -8,6 +8,8 @@ typedef int (*Function)(int, char **);
 #define READY 1
 #define BLOCKED 2
 #define ZOMBIE 3
+#define BLOCK_UNBLOCK 4
+#define UNBLOCK_BLOCK 5
 
 
 typedef struct ProcessCopy {
