@@ -153,12 +153,24 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 
 // Syscall Read - ID = 0
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes) {
-    readFromKeyboard(buf, count, readBytes);
+    // get current process fd
+    // get current pid
+    // if(fd[READ] == STDIN){
+        readFromKeyboard(buf, count, readBytes);
+    //} else {
+    //  pipeRead(fd[READ], pid, buf, count)
+    // }
 }
 
 // Syscall Write - ID = 1
 static void sys_write(uint8_t * buf, uint32_t * count) {
-    drawStringOnCursor(buf, count);
+    // get current process fd
+    // get current pid
+    // if(fd[READ] == STDOUT){
+        drawStringOnCursor(buf, count);
+    //} else {
+    //  pipeWrite(fd[WRITE], pid, buf, count)
+    // }
 }
 
 // Syscall Draw char - ID = 2
