@@ -23,7 +23,7 @@
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill"};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill", "nice"};
 int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, char **)) man,
                                                                 (int (*)(int, char **)) time,
                                                                 (int (*)(int, char **)) registers,
@@ -34,7 +34,7 @@ int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, ch
                                                                 (int (*)(int, char **)) zoomIn,
                                                                 (int (*)(int, char **)) zoomOut,
                                                                 (int (*)(int, char **)) theme,
-                                                                (int (*)(int, char **)) printBoca, loop, ps, kill};
+                                                                (int (*)(int, char **)) printBoca, loop, ps, kill, nice};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];

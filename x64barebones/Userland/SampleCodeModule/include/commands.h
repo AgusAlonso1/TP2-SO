@@ -29,4 +29,6 @@ int ps(int argc, char** argv);
 
 int kill(int argc, char** argv);
 
+int nice(int argc, char** argv);
+
 #endif
