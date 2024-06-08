@@ -151,11 +151,11 @@ uint64_t setPriority(uint32_t pid, uint64_t priority){
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
-    if(processNode == NULL || processNode->data == NULL || priority >= PRIORITY_LEVELS){
+    if(processNode == NULL || processNode->data == NULL || priority >= PRIORITY_LEVELS || pid == SHELL){
         return ERROR;
     }
     ProcessSchedADT processSched = (ProcessSchedADT) processNode->data;
-    if(processSched->processData == NULL){
+    if(processSched->processData == NULL || getProcessState(processSched->processData) == ZOMBIE){
         return ERROR;
     }
 
@@ -165,10 +165,10 @@ uint64_t setPriority(uint32_t pid, uint64_t priority){
         return SUCCESS;
     }
 
-    ProcessADT process = processSched->processData;
     removeNode(sched->processes[oldPriority], processNode);
 
-    setProcessPriority(process, priority);
+    processSched->quantumWaiting = 0;
+    setProcessPriority(processSched->processData, priority);
     listProcess(processSched);
 
     return SUCCESS;
