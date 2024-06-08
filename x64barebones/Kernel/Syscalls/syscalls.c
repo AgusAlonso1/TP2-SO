@@ -12,7 +12,7 @@
 #include <scheduler.h>
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, SET_STATE, WAITPID, FREE_PROCESS_COPY}SysID;
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY}SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -48,7 +48,7 @@ static ProcessCopyList * sys_get_processes_copy();
 static uint32_t sys_get_pid();
 static uint32_t sys_get_parent_pid();
 static uint64_t sys_set_priority(uint32_t pid, uint64_t priority);
-static uint64_t sys_set_state(uint32_t pid, uint64_t state);
+static uint64_t sys_block(uint32_t pid);
 static uint64_t sys_waitpid(uint32_t pid);
 static void sys_free_process_copy(ProcessCopyList * processCopyList);
 
@@ -138,8 +138,8 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return (uint64_t) sys_get_parent_pid();
         case SET_PRIORITY:
             return sys_set_priority((uint32_t) rsi, (uint64_t) rdx);
-        case SET_STATE:
-            return sys_set_state((uint32_t) rsi, (uint64_t) rdx);
+        case BLOCK:
+            return sys_block((uint32_t) rsi);
         case WAITPID:
             return sys_waitpid((uint32_t) rsi);
         case FREE_PROCESS_COPY:
@@ -295,8 +295,8 @@ static uint64_t sys_set_priority(uint32_t pid, uint64_t priority){
     setPriority(pid, priority);
 }
 
-static uint64_t sys_set_state(uint32_t pid, uint64_t state){
-    return setState(pid, state);
+static uint64_t sys_block(uint32_t pid){
+    return block(pid);
 }
 
 static uint64_t sys_waitpid(uint32_t pid){

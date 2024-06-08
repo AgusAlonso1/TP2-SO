@@ -28,7 +28,7 @@ GLOBAL call_get_process_copy
 GLOBAL call_get_pid
 GLOBAL call_get_parent_pid
 GLOBAL call_set_priority
-GLOBAL call_set_state
+GLOBAL call_block
 GLOBAL call_waitpid
 GLOBAL call_free_process_copy
 
@@ -632,20 +632,17 @@ call_set_priority:  ;call_set_priority(uint32_t pid, uint64_t priority);
     pop rbp
     ret
 
-call_set_state:     ;call_set_state(uint32_t pid, uint64_t state);
+call_block:     ;call_set_state(uint32_t pid, uint64_t state);
     push rbp
     mov rbp, rsp
 
     push rdi
     push rsi
-    push rdx
 
-    mov rdx, rsi        ; rdx -> state
     mov rsi, rdi        ; rsi -> pid
     mov rdi, 30
     int 80h
 
-    pop rdx
     pop rsi
     pop rdi
 
