@@ -8,8 +8,9 @@
 #include <memoryManager.h>
 
 #define PRIORITY_LEVELS 5
-#define SUCCESS 0
-#define ERROR (-1)
+#define ERROR 0
+#define SUCCESS 1
+
 #define IDLE 0
 #define SHELL 1
 
@@ -28,7 +29,7 @@ typedef struct SchedulerCDT* SchedulerADT;
 void createScheduler();                                                         //create scheduler
 SchedulerADT getScheduler();
 void * schedule(void * currentStackPointer);                                    //schedule process ---> cambia de proceso running(se ejecuta cuando timer tick)
-uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality);                 //create process ----> se crea un proceso
+uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);                //create process ----> se crea un proceso
 void listProcess(ProcessSchedADT processSched);
 uint64_t waitProcessPid(uint32_t pid);                           //waitpid -----> block al padre y vemos si bajamos prioridad
 uint64_t setPriority(uint32_t pid, uint64_t priority);                       //cambiar prioridad de un proceso
@@ -47,6 +48,10 @@ void removeFromAllProcesses(uint32_t pid);
 void freeProcessCopy(ProcessCopyList * processCopyList);
 uint64_t block(uint32_t pid);
 uint64_t isProcessAlive(uint32_t pid);
+uint64_t getCurrentReadFileDescriptor();
+uint64_t getCurrentWriteFileDescriptor();
+uint64_t getCurrentErrorFileDescriptor();
+
 
 
 

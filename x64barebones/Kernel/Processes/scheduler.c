@@ -120,11 +120,11 @@ SchedulerADT getScheduler() {
     return (SchedulerADT) SCHEDULER_ADDRESS;
 }
 
-uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality) {
+uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
     SchedulerADT sched = getScheduler();
     ProcessADT newProcess = NULL;
 
-    newProcess = createProcess(parentPid, sched->pidCounter++, name, priority, mortality, position, function, args);
+    newProcess = createProcess(parentPid, sched->pidCounter++, name, priority, mortality, position, function, args, fileDescriptors);
 
     if(newProcess != NULL){
         ProcessSchedADT processSched = createProcessSched(newProcess);
@@ -368,12 +368,10 @@ ProcessCopyList * getProcessCopy(){
     return processListCopies;
 }
 void freeProcessCopy(ProcessCopyList * processCopyList){
-    SchedulerADT sched = getScheduler();
-
-    Node * currentNode = getFirst(sched->allProcesses);
     int i = 0;
     while(i < processCopyList->length) {
         freeMemory(processCopyList->processCopyList[i].name);
+        i++;
     }
 
     freeMemory(processCopyList->processCopyList);
@@ -460,3 +458,17 @@ uint64_t isProcessAlive(uint32_t pid){
     return SUCCESS;
 }
 
+uint64_t getCurrentReadFileDescriptor(){
+    ProcessADT current = getCurrentProcess();
+    return getProcessReadFileDescriptor(current);
+}
+
+uint64_t getCurrentWriteFileDescriptor(){
+    ProcessADT current = getCurrentProcess();
+    return getProcessWriteFileDescriptor(current);
+}
+
+uint64_t getCurrentErrorFileDescriptor(){
+    ProcessADT current = getCurrentProcess();
+    return getProcessErrorFileDescriptor(current);
+}
