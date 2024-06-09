@@ -105,11 +105,10 @@ void * schedule(void * currentStackPointer) {
         sched->processQuantum = quantumLevel[getProcessPriority(processToRun)];
         setProcessState(processToRun, RUNNING);
 
-        if(sched->killForegroundProcess && !getProcessMortality(processToRun) && getProcessPosition(oldProcess) == FOREGROUND){
-           killProcess(getProcessPid(oldProcess));
-           sched->killForegroundProcess = 0;
+        if(sched->killForegroundProcess  && getProcessPosition(processToRun) == FOREGROUND){
+            sched->killForegroundProcess = 0;
+            killProcess(getProcessPid(processToRun));
         }
-
     }
 
     return getProcessStack(processToRun);
@@ -231,8 +230,6 @@ int64_t killProcess(uint32_t pid){
             }
         }
     }
-
-
 
     if(sched->currentPid == pid){
         yield();

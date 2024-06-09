@@ -91,7 +91,6 @@ void keyHandler(uint64_t * registers) {
     }
     
     if( controlPressed && number == C) {
-        drawStringOnCursor((uint8_t *)"Ctrl + C", &size_ctrl);
         killForegroundProcess();
     }
 

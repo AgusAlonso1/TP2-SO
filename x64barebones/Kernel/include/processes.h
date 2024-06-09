@@ -10,8 +10,8 @@
 #include <memoryManager.h>
 
 
-#define FOREGROUND 0
-#define BACKGROUND 1
+#define FOREGROUND 1
+#define BACKGROUND 0
 #define STACK_SIZE 4096
 
 

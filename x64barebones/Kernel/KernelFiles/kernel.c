@@ -71,7 +71,7 @@ int main() {
 
 	char * args[] = {"2", "idle", NULL};
     int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
-    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
+    createProcessFromSched("idle", 0, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
 
     loadIDT();
     _sti(); // Enable interruptions
