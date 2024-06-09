@@ -31,6 +31,7 @@ GLOBAL call_set_priority
 GLOBAL call_block
 GLOBAL call_waitpid
 GLOBAL call_free_process_copy
+GLOBAL call_get_mem_info
 
 
 section .text
@@ -680,6 +681,21 @@ call_free_process_copy:   ;call_free_process_copy(ProcessCopyList * pcl);
     int 80h
 
     pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_get_mem_info:        ;call_get_mem_info();
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+
+    mov rdi, 33
+    int 80h
+
     pop rdi
 
     mov rsp, rbp

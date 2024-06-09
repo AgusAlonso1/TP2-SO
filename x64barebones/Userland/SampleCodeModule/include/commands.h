@@ -33,4 +33,6 @@ int nice(int argc, char** argv);
 
 int block(int argc, char** argv);
 
+int minfo(int argc, char** argv);
+
 #endif

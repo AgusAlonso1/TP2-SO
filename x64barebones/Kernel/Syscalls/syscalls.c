@@ -12,7 +12,7 @@
 #include <scheduler.h>
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY}SysID;
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, GET_MEM_INFO} SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -51,6 +51,7 @@ static uint64_t sys_set_priority(uint32_t pid, uint64_t priority);
 static uint64_t sys_block(uint32_t pid);
 static uint64_t sys_waitpid(uint32_t pid);
 static void sys_free_process_copy(ProcessCopyList * processCopyList);
+static uint64_t sys_get_mem_info();
 
 
 uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
@@ -144,6 +145,9 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return sys_waitpid((uint32_t) rsi);
         case FREE_PROCESS_COPY:
             sys_free_process_copy((ProcessCopyList *) rsi);
+            break;
+        case GET_MEM_INFO:
+            return sys_get_mem_info();
             break;
         default :
             break;
@@ -317,4 +321,8 @@ static uint64_t sys_waitpid(uint32_t pid){
 
 static void sys_free_process_copy(ProcessCopyList * processCopyList){
     freeProcessCopy(processCopyList);
+}
+
+static uint64_t sys_get_mem_info() {
+    // Me falta merge
 }
