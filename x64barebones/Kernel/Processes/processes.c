@@ -1,6 +1,7 @@
 #include <processes.h>
 #include <stddef.h>
 #include <scheduler.h>
+#include <pipeMaster.h>
 
 /* Comentarios process:
  *
@@ -20,11 +21,11 @@ typedef struct ProcessCDT {
     char position;  //Background (1) or Foreground (0)
     uint64_t returnValue;  //no se si inicializarlo o dejarlo asi
     char ** arguments;
-    //uint64_t fileDescriptors[3];
+    uint64_t fileDescriptors[CANT_FILE_DESCRIPTORS];
 } ProcessCDT;
 
 
-ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args) {
+ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
     ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
     process->pid = pid;
     process->parentPid = parentPid;
@@ -40,7 +41,14 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->arguments = NULL;
     argscopy(&process->arguments, args);
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) process->arguments);
-    //process->fileDescriptors[0] =
+    process->fileDescriptors[READ_FD] = fileDescriptors[READ_FD];
+    process->fileDescriptors[WRITE_FD] = fileDescriptors[WRITE_FD];
+ //   process->fileDescriptors[ERROR_FD] = fileDescriptors[ERROR_FD];
+
+    pipeOpenAnonymous(process->fileDescriptors[READ_FD], READ_MODE, pid);
+    pipeOpenAnonymous(process->fileDescriptors[WRITE_FD], WRITE_MODE, pid);
+  //  pipeOpenAnonymous(process->fileDescriptors[ERROR_FD], WRITE_MODE, pid);
+
     return process;
 }
 
@@ -110,6 +118,8 @@ int freeProcess(ProcessADT process){
     }
     freeMemory(process->name);
     freeMemory(process->basePointer);
+    pipeCloseAnonymous(process->fileDescriptors[READ_FD], process->pid);
+    pipeCloseAnonymous(process->fileDescriptors[WRITE_FD], process->pid);
     freeMemory(process);
     return 0;
 }
@@ -157,6 +167,19 @@ uint32_t getProcessWaitingPid(ProcessADT process) {
 void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
     process->waitingPid = childPid;
 }
+
+uint64_t getProcessReadFileDescriptor(ProcessADT process){
+    return process->fileDescriptors[READ_FD];
+}
+
+uint64_t getProcessWriteFileDescriptor(ProcessADT process){
+    return process->fileDescriptors[WRITE_FD];
+}
+
+uint64_t getProcessErrorFileDescriptor(ProcessADT process){
+    return process->fileDescriptors[ERROR_FD];
+}
+
 
 void argscopy(char ***arguments, char **args) {
     if (args == NULL) {

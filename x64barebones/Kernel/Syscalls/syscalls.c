@@ -7,12 +7,14 @@
 #include <timer.h>
 #include <interruptions.h>
 #include <sound.h>
-//#include <memoryManager.h>
+#include <memoryManager.h>
+#include <pipeMaster.h>
 #include <memoryasm.h>
 #include <scheduler.h>
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, GET_MEM_INFO} SysID;
+
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO}SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -42,7 +44,7 @@ static void sys_get_ticks(unsigned long long * ticks);
 static void sys_beep(uint32_t frequency);
 static void * sys_malloc(uint64_t size);
 static void sys_free(void * ptrToFree);
-static uint32_t sys_create_process(char* name, char position, Function function,  char **args, uint32_t parentPid);
+static uint32_t sys_create_process_foreground(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);
 static uint64_t sys_kill_process(uint32_t pid);
 static ProcessCopyList * sys_get_processes_copy();
 static uint32_t sys_get_pid();
@@ -51,7 +53,14 @@ static uint64_t sys_set_priority(uint32_t pid, uint64_t priority);
 static uint64_t sys_block(uint32_t pid);
 static uint64_t sys_waitpid(uint32_t pid);
 static void sys_free_process_copy(ProcessCopyList * processCopyList);
+static uint32_t sys_create_process_background(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);
+static uint64_t sys_get_pipe_id();
+static int16_t sys_pipe_open(int id, char mode);
+static int16_t sys_pipe_close(int id);
+static int16_t sys_pipe_write(int id, char* msg, int len);
+static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes);
 static uint64_t sys_get_mem_info();
+
 
 
 uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
@@ -125,10 +134,10 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
         case MALLOC:
             return (uint64_t) sys_malloc((uint64_t) rsi);
         case FREE:
-            sys_free((void*) rsi);
+            sys_free((void *) rsi);
             break;
-        case CREATE_PROCESS:
-            return (uint64_t) sys_create_process((char*) rsi, (char) rdx, (Function) rcx, (char**) r8, (uint32_t) r9);
+        case CREATE_PROCESS_FOREGROUND:
+            return (uint64_t) sys_create_process_foreground((char *) rsi, (Function) rdx, (char **) rcx, (uint32_t) r8,(const int *) r9);
         case KILL_PROCESS:
             return sys_kill_process((uint32_t) rsi);
         case GET_PROCESSES_COPY:
@@ -146,6 +155,18 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
         case FREE_PROCESS_COPY:
             sys_free_process_copy((ProcessCopyList *) rsi);
             break;
+        case CREATE_PROCESS_BACKGROUND:
+            return (uint64_t) sys_create_process_background((char *) rsi, (Function) rdx, (char **) rcx, (uint32_t) r8,(const int *) r9);
+        case GET_PIPE_ID:
+            return sys_get_pipe_id();
+        case PIPE_OPEN:
+            return sys_pipe_open((int) rsi, (char) rdx);
+        case PIPE_CLOSE:
+            return sys_pipe_close((int) rsi);
+        case PIPE_WRITE:
+            return sys_pipe_write((int) rsi, (char *) rdx, (int) rcx);
+        case PIPE_READ:
+            return sys_pipe_read((int) rsi, (char *) rdx, (int) rcx, (uint32_t *) r8);
         case GET_MEM_INFO:
             return sys_get_mem_info();
             break;
@@ -157,24 +178,27 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 
 // Syscall Read - ID = 0
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes) {
-    // get current process fd
-    // get current pid
-    // if(fd[READ] == STDIN){
+    uint32_t pid = getCurrentPid();
+    int64_t fd = getCurrentReadFileDescriptor();
+
+    if(fd == STDIN){
         readFromKeyboard(buf, count, readBytes);
-    //} else {
-    //  pipeRead(fd[READ], pid, buf, count)
-    // }
+    } else if(fd != DEV_NULL) {
+        pipeRead(fd, pid, (char *) buf, (int) count, readBytes);
+    }
 }
 
 // Syscall Write - ID = 1
 static void sys_write(uint8_t * buf, uint32_t * count) {
-    // get current process fd
-    // get current pid
-    // if(fd[READ] == STDOUT){
+    uint32_t pid = getCurrentPid();
+    uint64_t fd = getCurrentWriteFileDescriptor();
+
+    if(fd == STDOUT || fd == STDERR){
         drawStringOnCursor(buf, count);
-    //} else {
-    //  pipeWrite(fd[WRITE], pid, buf, count)
-    // }
+    } else if(fd != DEV_NULL){
+      int len = my_strlen((char *) buf);
+      pipeWrite(fd, pid, (char *) buf, len);
+    }
 }
 
 // Syscall Draw char - ID = 2
@@ -287,8 +311,8 @@ static void sys_free(void * ptrToFree) {
     return freeMemory(ptrToFree);
 }
 
-static uint32_t sys_create_process(char* name, char position, Function function, char **args, uint32_t parentPid){
-    return createProcessFromSched((char*) name, (char) position, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0);
+static uint32_t sys_create_process_foreground(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]){
+    return createProcessFromSched((char*) name, (char) 1, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
 }
 
 static uint64_t sys_kill_process(uint32_t pid){
@@ -308,7 +332,7 @@ static uint32_t sys_get_parent_pid(){
 }
 
 static uint64_t sys_set_priority(uint32_t pid, uint64_t priority){
-    setPriority(pid, priority);
+    return setPriority(pid, priority);
 }
 
 static uint64_t sys_block(uint32_t pid){
@@ -321,6 +345,30 @@ static uint64_t sys_waitpid(uint32_t pid){
 
 static void sys_free_process_copy(ProcessCopyList * processCopyList){
     freeProcessCopy(processCopyList);
+}
+
+static uint32_t sys_create_process_background(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
+    return createProcessFromSched((char*) name, (char) 0, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
+}
+
+static uint64_t sys_get_pipe_id(){
+    return getPipeId();
+}
+
+static int16_t sys_pipe_open(int id, char mode) {
+    return pipeOpen(id, mode);
+}
+
+static int16_t sys_pipe_close(int id) {
+    return pipeClose(id);
+}
+
+static int16_t sys_pipe_write(int id, char* msg, int len){
+    return pipeWrite(id, getCurrentPid(), msg, len);
+}
+
+static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes){
+    return pipeRead(id, getCurrentPid(), buffer, len, readBytes);
 }
 
 static uint64_t sys_get_mem_info() {

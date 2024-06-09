@@ -16,10 +16,12 @@
 
 
 
+
+
 typedef struct ProcessCDT* ProcessADT;
 
-ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args);
-int setProcessState(ProcessADT process, uint64_t state);
+ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);
+        int setProcessState(ProcessADT process, uint64_t state);
 uint64_t getProcessState(ProcessADT process);
 void setProcessParentPid(ProcessADT process, uint32_t parentPid);
 uint32_t getProcessParentPid(ProcessADT process);
@@ -40,6 +42,9 @@ char getProcessMortality(ProcessADT process);
 uint32_t getProcessWaitingPid(ProcessADT process);
 void setProcessWaitingPid(ProcessADT process, uint32_t childPid);
 void wrapper(Function function, char **args);
+uint64_t getProcessReadFileDescriptor(ProcessADT process);
+uint64_t getProcessWriteFileDescriptor(ProcessADT process);
+uint64_t getProcessErrorFileDescriptor(ProcessADT process);
 
 
 #endif
