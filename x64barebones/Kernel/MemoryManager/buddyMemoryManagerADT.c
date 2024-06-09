@@ -8,12 +8,17 @@
 
 #define BASE 2
 
+#pragma pack(push)
+#pragma pack(1)
+
 typedef struct MemoryChunk { // Header of chunks with a size of 18 bytes -> MIN_EXP = 5 (32 bytes)
     uint8_t exp;
     uint8_t state;
     struct MemoryChunk * previousChunk;
     struct MemoryChunk * nextChunk;
 } MemoryChunk;
+
+#pragma pack(pop)
 
 typedef struct MemoryManagerCDT {
     uint8_t maxExpOfTwo;
