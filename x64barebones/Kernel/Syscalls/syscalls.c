@@ -11,11 +11,10 @@
 #include <pipeMaster.h>
 #include <memoryasm.h>
 #include <scheduler.h>
+//#include <semaphores.h>
 
 
-
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO}SysID;
-
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO, SEM_OPEN, SEM_CLOSE, SEM_WAIT, SEM_POST, YIELD}SysID;
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
 //static void sys_write(uint8_t * buf, uint32_t x, uint32_t y, uint32_t scale, uint32_t * count);
@@ -60,6 +59,11 @@ static int16_t sys_pipe_close(int id);
 static int16_t sys_pipe_write(int id, char* msg, int len);
 static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes);
 static uint64_t sys_get_mem_info();
+static int64_t sys_sem_open(uint64_t value, uint64_t semId);
+static int8_t sys_sem_close(uint64_t semId);
+static uint64_t sys_sem_wait(uint64_t semId);
+static uint64_t sys_sem_post(uint64_t semId);
+static void sys_yield();
 
 
 
@@ -169,6 +173,17 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return sys_pipe_read((int) rsi, (char *) rdx, (int) rcx, (uint32_t *) r8);
         case GET_MEM_INFO:
             return sys_get_mem_info();
+            break;
+        case SEM_OPEN:
+            return sys_sem_open(rsi, rdx);
+        case SEM_CLOSE:
+            return sys_sem_close(rsi);
+        case SEM_WAIT:
+            return sys_sem_wait(rsi);
+        case SEM_POST:
+            return sys_sem_post(rsi);
+        case YIELD:
+            sys_yield();
             break;
         default :
             break;
@@ -373,4 +388,24 @@ static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes
 
 static uint64_t sys_get_mem_info() {
     // Me falta merge
+}
+
+static int64_t sys_sem_open(uint64_t value, uint64_t semId) {
+    //return semOpen(value, semId);
+}
+
+static int8_t sys_sem_close(uint64_t semId) {
+    //return semClose(semId);
+}
+
+static uint64_t sys_sem_wait(uint64_t semId) {
+    //return semWait(semId);
+}
+
+static uint64_t sys_sem_post(uint64_t semId) {
+    //return semPost(semId);
+}
+
+static void sys_yield(){
+    yield();
 }

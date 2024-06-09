@@ -38,6 +38,11 @@ GLOBAL call_pipe_close
 GLOBAL call_pipe_write
 GLOBAL call_pipe_read
 GLOBAL call_get_mem_info
+GLOBAL call_sem_open
+GLOBAL call_sem_close
+GLOBAL call_sem_wait
+GLOBAL call_sem_post
+GLOBAL call_yield
 
 
 section .text
@@ -835,6 +840,96 @@ call_get_mem_info:        ;call_get_mem_info();
     push rdi
 
     mov rdi, 39
+    int 80h
+
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_sem_open:
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+
+    mov rdx, rsi
+    mov rsi, rdi
+    mov rdi, 40
+    int 80h
+
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_sem_close:
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi
+    mov rdi, 41
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_sem_wait:
+     push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi
+    mov rdi, 42
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_sem_post:
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi
+    mov rdi, 43
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_yield:
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+
+    mov rdi, 44
     int 80h
 
     pop rdi
