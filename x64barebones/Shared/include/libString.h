@@ -13,7 +13,7 @@ int abs(int value);
 void printChar(char c);
 int wordlen(char* s);
 int atoi(char* value);
-static int strConcat(char *str1, char *str2);
+// static int strConcat(char *str1, char *str2);
 
 
 #endif

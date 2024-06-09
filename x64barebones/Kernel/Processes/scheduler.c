@@ -105,8 +105,9 @@ void * schedule(void * currentStackPointer) {
         sched->processQuantum = quantumLevel[getProcessPriority(processToRun)];
         setProcessState(processToRun, RUNNING);
 
-        if(sched->killForegroundProcess && !getProcessMortality(processToRun)){
+        if(sched->killForegroundProcess && !getProcessMortality(processToRun) && getProcessPosition(oldProcess) == FOREGROUND){
            killProcess(getProcessPid(oldProcess));
+           sched->killForegroundProcess = 0;
         }
 
     }

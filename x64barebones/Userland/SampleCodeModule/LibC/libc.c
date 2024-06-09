@@ -51,27 +51,27 @@ char getChar(){
     return c;
 }
 
-static int readFromKeyboard(char * buffer) {
-    int i=0;
-    char c = '\0';
-    while (c != ' ' && c != '\t' && c != '\n' && i < BUFFER_DIM) {
-        c = getChar();
-        buffer[i++] = c;
-    }
-    return i;
-}
+// static int readFromKeyboard(char * buffer) {
+//     int i=0;
+//     char c = '\0';
+//     while (c != ' ' && c != '\t' && c != '\n' && i < BUFFER_DIM) {
+//         c = getChar();
+//         buffer[i++] = c;
+//     }
+//     return i;
+// }
 
 
-static int strConcat(char *str1, char *str2){
-    int i = my_strlen(str1);
-    int j = 0;
-    while(str2[j] != '\0'){
-        str1[i] = str2[j];
-        i++;
-        j++;
-    }
-    return i;
-}
+// static int strConcat(char *str1, char *str2){
+//     int i = my_strlen(str1);
+//     int j = 0;
+//     while(str2[j] != '\0'){
+//         str1[i] = str2[j];
+//         i++;
+//         j++;
+//     }
+//     return i;
+// }
 
 
 

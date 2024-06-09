@@ -4,6 +4,7 @@
 #include <scheduler.h>
 
 static char shiftPressed = 0;
+static char controlPressed = 0;
 static char capsLockPressed = 0;
 static char altPressed = 0;
 static char buffer[BUFFER_SIZE];
@@ -83,16 +84,23 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
 
 void keyHandler(uint64_t * registers) {
     uint64_t number = getKeyNumber();
+    uint32_t size_ctrl;
 
     if( shiftPressed && number == LEFT_ALT_PRESSED){
         updateRegs(registers);
     }
-
-    if( shiftPressed && number == LEFT_ALT_PRESSED){
+    
+    if( controlPressed && number == C) {
+        drawStringOnCursor((uint8_t *)"Ctrl + C", &size_ctrl);
         killForegroundProcess();
     }
-    
+
     if(number == CTRL_PRESSED){ // if ctrl is pressed, do nothing
+        controlPressed = 1;
+        return;
+    }
+    if(number == CTRL_RELEASED){
+        controlPressed = 0;
         return;
     }
 
@@ -105,6 +113,7 @@ void keyHandler(uint64_t * registers) {
         shiftPressed = 0;   // if shift is released, turn it off
         return;
     }
+
     if(number == CAPS_LOCK_PRESSED){
         capsLockPressed = 1 - capsLockPressed; // if caps lock is pressed, turn it off
         return;
