@@ -75,9 +75,10 @@ uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   global = 0;
 
   uint64_t i;
+  int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = createProcessFromSched("my_process_inc", 0, 3, &my_process_inc,argvInc , test_pid, 0);
-    pids[i + TOTAL_PAIR_PROCESSES] = createProcessFromSched("my_process_dec", 0, 3, &my_process_inc ,argvDec, test_pid, 0);
+    pids[i] = createProcessFromSched("my_process_inc", 0, 3, &my_process_inc,argvInc , test_pid, 0, fileDescriptors);
+    pids[i + TOTAL_PAIR_PROCESSES] = createProcessFromSched("my_process_dec", 0, 3, &my_process_inc ,argvDec, test_pid, 0, fileDescriptors);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {

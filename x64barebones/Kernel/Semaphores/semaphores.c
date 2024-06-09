@@ -81,13 +81,14 @@ void createSemaphoreManager() {
 }
 
 int64_t semOpen(uint64_t value, uint64_t semId) {
+    if(value < 0 || semId < 0) {
+        return -1;
+    }
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semaphoresList = getSemaphoreManager();
-
     while (enter_region(&(semaphoresList->globalLock))) {
         yield();
     }
-
     Node *semNode = getSemNodeById(semId, semaphoresList);
     if (semNode == NULL) { // No existe
         uint64_t id = createSemaphore(value, semId);
@@ -100,6 +101,10 @@ int64_t semOpen(uint64_t value, uint64_t semId) {
 }
 
 int64_t semWait(uint64_t semId) {
+    if(semId < 0 ){
+        return -1;
+    }
+
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
     Node * semNode = getSemNodeById(semId, semList);
@@ -130,6 +135,9 @@ int64_t semWait(uint64_t semId) {
 }
 
 int64_t semPost(uint64_t semId) {
+    if(semId < 0 ){
+        return -1;
+    }
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
     Node * semNode = getSemNodeById(semId, semList);
@@ -149,6 +157,9 @@ int64_t semPost(uint64_t semId) {
 }
 
 int8_t semClose(uint64_t semId) {
+    if(semId < 0 ){
+        return -1;
+    }
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
 

@@ -71,11 +71,11 @@ int main() {
     createSemaphoreManager();
 //CREATE SEMAFOROS
     createPipeMaster();
-
+    int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
 	char * args[] = {"2", "idle", NULL};
-    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE, 1);
+    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
     char *argv[] = {"10", "1", NULL};
-    createProcessFromSched("test_sync", 1, LEVEL3, (Function) &test_sync, argv, 0, 0);
+    createProcessFromSched("test_sync", 1, LEVEL3, (Function) &test_sync, argv, 0, 0,fileDescriptors);
     loadIDT();
     _sti(); // Enable interruptions
 
