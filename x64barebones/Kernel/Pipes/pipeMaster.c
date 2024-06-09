@@ -26,7 +26,7 @@ void createPipeMaster() {
     pMaster->pipesQty = 0;
 }
 
-uint64_t getPipeId(){
+int64_t getPipeId(){
     PipeMasterADT pMaster = getPipeMaster();
     return pMaster->idCount++;
 }
@@ -72,11 +72,11 @@ Node * getPipeNodeById(uint64_t id) {
     return pipeNode;
 }
 
-uint16_t pipeOpen(uint64_t id, char mode) {     //aca no hay pid; el pid es el del process que esta RUNNING
+int16_t pipeOpen(int id, char mode) {     //aca no hay pid; el pid es el del process que esta RUNNING
     return pipeOpenAnonymous(id, mode, getCurrentPid());
 }
 
-uint16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {  // si no esta creado lo creo y lo meto a la lista
+int16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {  // si no esta creado lo creo y lo meto a la lista
     PipeMasterADT pMaster = getPipeMaster();
 
     if(id < CANT_FILE_DESCRIPTORS + 1){         //si es de las entradas estandar no hacemos nada
@@ -111,11 +111,11 @@ uint16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {  // si no esta cre
     return SUCCESS;
 }
 
-uint16_t pipeClose(uint64_t id) {       //aca no hay pid; el pid es el del process que esta RUNNING
+int16_t pipeClose(int id) {       //aca no hay pid; el pid es el del process que esta RUNNING
     return pipeCloseAnonymous(id, getCurrentPid());
 }
 
-uint16_t pipeCloseAnonymous(int id, uint32_t pid) {
+int16_t pipeCloseAnonymous(int id, uint32_t pid) {
     PipeMasterADT pMaster = getPipeMaster();
     Node * pipeNode = getPipeNodeById(id);
     PipeADT pipe;
@@ -141,7 +141,7 @@ uint16_t pipeCloseAnonymous(int id, uint32_t pid) {
     return SUCCESS;
 }
 
-uint16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
+int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
     Node * pipeNode = getPipeNodeById(id);
     PipeADT pipe;
 
@@ -174,7 +174,7 @@ uint16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
 }
 
 
-uint16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * readBytes) {
+int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * readBytes) {
     Node * pipeNode = getPipeNodeById(id);
     PipeADT pipe;
 
@@ -200,15 +200,10 @@ uint16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * r
         pipe->readPos++;
         i++;
 
-        if(buffer[i] == '\0'){
-            *readBytes = 0;
-        } else{
-            *readBytes = i;
-        }
+        *readBytes = i;
 
         // semPost(pipe->semWrite):       //semaforo para marcar que hay lugar para escribir
     }
-
     return SUCCESS;
 }
 
