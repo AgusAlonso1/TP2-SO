@@ -13,7 +13,7 @@
 #include <scheduler.h>
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID}SysID;
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ}SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -54,6 +54,10 @@ static uint64_t sys_waitpid(uint32_t pid);
 static void sys_free_process_copy(ProcessCopyList * processCopyList);
 static uint32_t sys_create_process_background(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);
 static uint64_t sys_get_pipe_id();
+static int16_t sys_pipe_open(int id, char mode);
+static int16_t sys_pipe_close(int id);
+static int16_t sys_pipe_write(int id, char* msg, int len);
+static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes);
 
 
 uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
@@ -152,6 +156,14 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return (uint64_t) sys_create_process_background((char *) rsi, (Function) rdx, (char **) rcx, (uint32_t) r8,(const int *) r9);
         case GET_PIPE_ID:
             return sys_get_pipe_id();
+        case PIPE_OPEN:
+            return sys_pipe_open((int) rsi, (char) rdx);
+        case PIPE_CLOSE:
+            return sys_pipe_close((int) rsi);
+        case PIPE_WRITE:
+            return sys_pipe_write((int) rsi, (char *) rdx, (int) rcx);
+        case PIPE_READ:
+            return sys_pipe_read((int) rsi, (char *) rdx, (int) rcx, (uint32_t *) r8);
         default :
             break;
     }
@@ -335,4 +347,20 @@ static uint32_t sys_create_process_background(char* name, Function function, cha
 
 static uint64_t sys_get_pipe_id(){
     return getPipeId();
+}
+
+static int16_t sys_pipe_open(int id, char mode) {
+    return pipeOpen(id, mode);
+}
+
+static int16_t sys_pipe_close(int id) {
+    return pipeClose(id);
+}
+
+static int16_t sys_pipe_write(int id, char* msg, int len){
+    return pipeWrite(id, getCurrentPid(), msg, len);
+}
+
+static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes){
+    return pipeRead(id, getCurrentPid(), buffer, len, readBytes);
 }

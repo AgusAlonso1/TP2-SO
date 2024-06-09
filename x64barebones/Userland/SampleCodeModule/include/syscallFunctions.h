@@ -43,5 +43,9 @@ uint64_t call_waitpid(uint32_t pid);
 void call_free_process_copy(ProcessCopyList * processCopyList);
 uint32_t call_create_process_background(char* name, Function function, char **args, uint32_t parentPid,  int * fileDescriptors);
 uint64_t call_get_pipe_id();
+int16_t call_pipe_open(int id, char mode);
+int16_t call_pipe_close(int id);
+int16_t call_pipe_write(int id, char* msg, int len);
+int16_t call_pipe_read(int id, char* msg, int len, uint32_t * readBytes);
 
 #endif

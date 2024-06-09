@@ -33,6 +33,10 @@ GLOBAL call_waitpid
 GLOBAL call_free_process_copy
 GLOBAL call_create_process_background
 GLOBAL call_get_pipe_id
+GLOBAL call_pipe_open
+GLOBAL call_pipe_close
+GLOBAL call_pipe_write
+GLOBAL call_pipe_read
 
 
 section .text
@@ -732,3 +736,94 @@ call_get_pipe_id:    ;call_get_pipe_id();
     mov rsp, rbp
     pop rbp
     ret
+
+call_pipe_open:    ;call_pipe_open(int id, char mode);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+
+    mov rdx, rsi        ; rdx -> mode
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 35
+    int 80h
+
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_close:    ;call_pipe_close(int id);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 36
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_write:    ;call_pipe_write(int id, char* msg, int len);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+
+    mov rcx, rdx        ; rcx -> len
+    mov rdx, rsi        ; rdx -> msg
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 37
+    int 80h
+
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_read:    ;call_pipe_read(int id, char* msg, int len, uint32_t * readBytes);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+    push r8
+
+    mov r8, rcx			; r8 -> readbytes
+    mov rcx, rdx        ; rcx -> len
+    mov rdx, rsi        ; rdx -> msg
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 38
+    int 80h
+
+    pop r8
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
