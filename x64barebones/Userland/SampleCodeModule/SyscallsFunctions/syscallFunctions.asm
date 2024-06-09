@@ -43,6 +43,7 @@ GLOBAL call_sem_close
 GLOBAL call_sem_wait
 GLOBAL call_sem_post
 GLOBAL call_yield
+GLOBAL call_sleep_seconds
 
 
 section .text
@@ -932,6 +933,24 @@ call_yield:
     mov rdi, 44
     int 80h
 
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_sleep_seconds:     ;call_sleep_seconds(unsigned long long seconds);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi        ; rsi -> ms
+    mov rdi, 45
+    int 80h
+
+    pop rsi
     pop rdi
 
     mov rsp, rbp
