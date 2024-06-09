@@ -22,7 +22,7 @@ GLOBAL call_get_ticks
 GLOBAL call_beep
 GLOBAL call_malloc
 GLOBAL call_free
-GLOBAL call_create_process
+GLOBAL call_create_process_foreground
 GLOBAL call_kill_process
 GLOBAL call_get_process_copy
 GLOBAL call_get_pid
@@ -31,6 +31,12 @@ GLOBAL call_set_priority
 GLOBAL call_block
 GLOBAL call_waitpid
 GLOBAL call_free_process_copy
+GLOBAL call_create_process_background
+GLOBAL call_get_pipe_id
+GLOBAL call_pipe_open
+GLOBAL call_pipe_close
+GLOBAL call_pipe_write
+GLOBAL call_pipe_read
 GLOBAL call_get_mem_info
 
 
@@ -519,7 +525,7 @@ call_free:  ;call_free(void * ptr);
     pop rbp
     ret
 
-call_create_process:    ;call_create_process(char* name, char position, Function function, char **args, uint32_t parentPid);
+call_create_process_foreground:    ;call_create_process(char* name, Function function, char **args, uint32_t parentPid, const uint64_t * filedescriptors);
     push rbp
     mov rbp, rsp
 
@@ -530,10 +536,10 @@ call_create_process:    ;call_create_process(char* name, char position, Function
     push r8
     push r9
 
-    mov r9, r8			; r9 -> parentPid
-    mov r8, rcx			; r8 -> args
-    mov rcx, rdx        ; rcx -> function
-    mov rdx, rsi        ; rdx -> position
+    mov r9, r8			; r9 -> filedescriptors
+    mov r8, rcx			; r8 -> parentPid
+    mov rcx, rdx        ; rcx -> args
+    mov rdx, rsi        ; rdx -> function
     mov rsi, rdi        ; rsi -> name
     mov rdi, 24
     int 80h
@@ -677,9 +683,144 @@ call_free_process_copy:   ;call_free_process_copy(ProcessCopyList * pcl);
     push rsi
 
     mov rsi, rdi        ; rsi -> pcl
-    mov rdi, 31
+    mov rdi, 32
     int 80h
 
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_create_process_background:    ;call_create_process_background(char* name, Function function, char **args, uint32_t parentPid, const uint64_t * fileDescriptors);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+    push r8
+    push r9
+
+    mov r9, r8			; r9 -> filedescriptors
+    mov r8, rcx			; r8 -> parentPid
+    mov rcx, rdx        ; rcx -> args
+    mov rdx, rsi        ; rdx -> function
+    mov rsi, rdi        ; rsi -> name
+    mov rdi, 33
+    int 80h
+
+    pop r9
+    pop r8
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_get_pipe_id:    ;call_get_pipe_id();
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+
+    mov rdi, 34
+    int 80h
+
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_open:    ;call_pipe_open(int id, char mode);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+
+    mov rdx, rsi        ; rdx -> mode
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 35
+    int 80h
+
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_close:    ;call_pipe_close(int id);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 36
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_write:    ;call_pipe_write(int id, char* msg, int len);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+
+    mov rcx, rdx        ; rcx -> len
+    mov rdx, rsi        ; rdx -> msg
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 37
+    int 80h
+
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_pipe_read:    ;call_pipe_read(int id, char* msg, int len, uint32_t * readBytes);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+    push r8
+
+    mov r8, rcx			; r8 -> readbytes
+    mov rcx, rdx        ; rcx -> len
+    mov rdx, rsi        ; rdx -> msg
+    mov rsi, rdi        ; rsi -> id
+    mov rdi, 38
+    int 80h
+
+    pop r8
+    pop rcx
+    pop rdx
     pop rsi
     pop rdi
 
@@ -693,7 +834,7 @@ call_get_mem_info:        ;call_get_mem_info();
 
     push rdi
 
-    mov rdi, 33
+    mov rdi, 39
     int 80h
 
     pop rdi
