@@ -60,7 +60,10 @@ static int16_t sys_pipe_close(int id);
 static int16_t sys_pipe_write(int id, char* msg, int len);
 static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes);
 static uint64_t sys_get_mem_info();
-
+static int64_t sys_sem_open(uint64_t value, uint64_t semId);
+static int8_t sys_sem_close(uint64_t semId);
+static uint64_t sys_sem_wait(uint64_t semId);
+static uint64_t sys_sem_post(uint64_t semId);
 
 
 uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
@@ -214,7 +217,7 @@ static void sys_write(uint8_t * buf, uint32_t * count) {
 }
 
 // Syscall Draw char - ID = 2
-static void sys_draw_char(uint8_t character){
+static void sys_draw_char(uint8_t character) {
     drawCharOnCursor(character);
 }
 
@@ -224,7 +227,7 @@ static void sys_delete_char() {
 }
 
 //Syscall Time - ID = 4
-static void sys_time(uint8_t ** currentTime){
+static void sys_time(uint8_t ** currentTime) {
     *currentTime = get_time();
 }
 
@@ -284,7 +287,7 @@ static void sys_get_registers(){
     }
 }
 
-static void sys_draw_square(uint32_t hexColor,uint64_t x, uint64_t y, uint32_t scale){
+static void sys_draw_square(uint32_t hexColor,uint64_t x, uint64_t y, uint32_t scale) { 
     drawSquare(hexColor,x,y,scale);
 }
 
@@ -327,35 +330,35 @@ static uint32_t sys_create_process_foreground(char* name, Function function, cha
     return createProcessFromSched((char*) name, (char) 1, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
 }
 
-static uint64_t sys_kill_process(uint32_t pid){
+static uint64_t sys_kill_process(uint32_t pid) {
     return killProcess(pid);
 }
 
-static ProcessCopyList * sys_get_processes_copy(){
+static ProcessCopyList * sys_get_processes_copy() {
     return getProcessCopy();
 }
 
-static uint32_t sys_get_pid(){
+static uint32_t sys_get_pid() {
     return getCurrentPid();
 }
 
-static uint32_t sys_get_parent_pid(){
+static uint32_t sys_get_parent_pid() {
     return getCurrentParentPid();
 }
 
-static uint64_t sys_set_priority(uint32_t pid, uint64_t priority){
+static uint64_t sys_set_priority(uint32_t pid, uint64_t priority){ 
     return setPriority(pid, priority);
 }
 
-static uint64_t sys_block(uint32_t pid){
+static uint64_t sys_block(uint32_t pid) {
     return block(pid);
 }
 
-static uint64_t sys_waitpid(uint32_t pid){
+static uint64_t sys_waitpid(uint32_t pid) {
     return waitProcessPid(pid);
 }
 
-static void sys_free_process_copy(ProcessCopyList * processCopyList){
+static void sys_free_process_copy(ProcessCopyList * processCopyList) {
     freeProcessCopy(processCopyList);
 }
 
@@ -363,7 +366,7 @@ static uint32_t sys_create_process_background(char* name, Function function, cha
     return createProcessFromSched((char*) name, (char) 0, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
 }
 
-static uint64_t sys_get_pipe_id(){
+static uint64_t sys_get_pipe_id() {
     return getPipeId();
 }
 
@@ -375,15 +378,16 @@ static int16_t sys_pipe_close(int id) {
     return pipeClose(id);
 }
 
-static int16_t sys_pipe_write(int id, char* msg, int len){
+static int16_t sys_pipe_write(int id, char* msg, int len) {
     return pipeWrite(id, getCurrentPid(), msg, len);
 }
 
-static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes){
+static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes) {
     return pipeRead(id, getCurrentPid(), buffer, len, readBytes);
 }
 
 static uint64_t sys_get_mem_info() {
+    return 1;
     // Me falta merge
 }
 

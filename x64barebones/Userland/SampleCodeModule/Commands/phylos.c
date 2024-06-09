@@ -27,13 +27,13 @@ static uint64_t mutex;
 void displayState() {
     for (int i = 0; i < num_philosophers; i++) {
         if (philosophers[i].state == EATIING) { 
-            putchar('E');
+            printChar('E');
         } else {
-            putchar('.');
+            printChar('.');
         }
-     //   putchar(' ');
+     //   printChar(' ');
     }
-    putchar('\n');
+    printChar('\n');
 }
 
 void think(int i) {
@@ -45,31 +45,32 @@ void eat(int i) {
 }
 
 void takeForks(int i) {
-    semWait(philosophers[i].leftFork);
-    semWait(philosophers[i].rightFork);
+    call_sem_wait(philosophers[i].leftFork);
+    call_sem_wait(philosophers[i].rightFork);
     philosophers[i].state = EATIING;
 }
 
 void putForks(int i) {
     philosophers[i].state = THINKING; 
-    semPost(philosophers[i].leftFork);
-    semPost(philosophers[i].rightFork);
+    call_sem_post(philosophers[i].leftFork);
+    call_sem_post(philosophers[i].rightFork);
 }
 
-void philosopher(uint64_t argc, char ** argv) {
-    int i = satoi(argv[0]);
+int philosopher(int argc, char ** argv) {
+    int i = atoi(argv[0]);
     philosophersPids[i] = call_get_pid();
     while (1) {
         think(i);
-        semWait(mutex);
+        call_sem_wait(mutex);
         takeForks(i);
-        semPost(mutex);
+        call_sem_post(mutex);
         eat(i);
-        semWait(mutex);
+        call_sem_wait(mutex);
         putForks(i);
-        semPost(mutex);
+        call_sem_post(mutex);
         displayState();
     }
+    return 0;
 }
 
 void addPhilosopher() {
@@ -90,8 +91,8 @@ void addPhilosopher() {
 void removePhilosopher() {
     if (num_philosophers > 1) {
         num_philosophers--;
-        semClose(philosophers[num_philosophers].leftFork);
-        semClose(philosophers[num_philosophers].rightFork);
+        call_sem_close(philosophers[num_philosophers].leftFork);
+        call_sem_close(philosophers[num_philosophers].rightFork);
         call_kill_process(philosophersPids[num_philosophers]);
     }
 }
@@ -111,20 +112,21 @@ int handleKeyboard(char key) {
 
 int execute() {
     num_philosophers = 0;
-    mutex = semOpen(1, MUTEX_ID);
+    mutex = call_sem_open(1, MUTEX_ID);
     for (int i = 0; i < MIN_PHILOSOPHERS; i++) {
         addPhilosopher();
     }
 
     int flag = 1;
     while (flag) {
-        char key = getchar();
+        char key = getChar();
         flag = handleKeyboard(key);
     }
 
     while (num_philosophers!=0){
         removePhilosopher();    
     }
+    call_sem_close(mutex);
     
     return 0;
 }
