@@ -67,7 +67,7 @@ void * allocMemory(const uint64_t size) {
     }
 
     if (expToAlloc < MIN_EXP ) { // Desired size is smaller than min chunk size
-        expIndexToAlloc = MIN_EXP - 1;
+        expIndexToAlloc = MIN_EXP;
     } else {
         expIndexToAlloc = expToAlloc;
     }
@@ -186,22 +186,21 @@ static MemoryChunk * createMemoryChunk(void * destinationAddress, uint8_t exp, M
     return newChunk;
 }
 
-// Removes the first chunk of the exp and returns its address
+// Removes "chunk" of the list and returns its address
 static void * removeChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
-    uint8_t chunksIndex = chunk->exp;
-    MemoryChunk * firstExpChunk = memoryManager->chunks[chunksIndex];
 
-    if (firstExpChunk->previousChunk != NULL) {
-        firstExpChunk->previousChunk->nextChunk = firstExpChunk->nextChunk;
+    if (chunk->previousChunk != NULL) {
+        chunk->previousChunk->nextChunk = chunk->nextChunk;
     } else {
-        memoryManager->chunks[chunksIndex ] = firstExpChunk->nextChunk;
+        memoryManager->chunks[chunk->exp] = chunk->nextChunk;
     }
 
-    if (firstExpChunk->nextChunk != NULL) {
-        firstExpChunk->nextChunk->previousChunk = firstExpChunk->previousChunk;
+    if (chunk->nextChunk != NULL) {
+        chunk->nextChunk->previousChunk = chunk->previousChunk;
     }
-    return (void *) firstExpChunk;
+
+    return (void *) chunk;
 }
 
 #endif
