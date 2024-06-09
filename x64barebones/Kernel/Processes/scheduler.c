@@ -14,7 +14,7 @@ typedef struct SchedulerCDT{
     uint32_t pidCounter;
     uint16_t processQuantum;
     uint64_t processQty;
-    char killCurrentProcess;
+    char killForegroundProcess;
  //  char blockCurrentProcess;
 } SchedulerCDT;
 
@@ -34,7 +34,7 @@ void createScheduler() {
     sched->currentPid = -1;
     sched->pidCounter = 0;
     sched->processQty = 0;
-    sched->killCurrentProcess = 0;
+    sched->killForegroundProcess = 0;
     sched->processQuantum = 0;
 }
 
@@ -105,10 +105,8 @@ void * schedule(void * currentStackPointer) {
         sched->processQuantum = quantumLevel[getProcessPriority(processToRun)];
         setProcessState(processToRun, RUNNING);
 
-        if(sched->killCurrentProcess && !getProcessMortality(processToRun)){
-            if(killProcess(getProcessPid(oldProcess)) != ERROR){
-                forceTimerTick();
-            }
+        if(sched->killForegroundProcess && !getProcessMortality(processToRun)){
+           killProcess(getProcessPid(oldProcess));
         }
 
     }
@@ -472,3 +470,11 @@ uint64_t getCurrentErrorFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessErrorFileDescriptor(current);
 }
+
+void killForegroundProcess(){
+    SchedulerADT sched = getScheduler();
+    sched->killForegroundProcess = 1;
+    sched->processQuantum = 0;
+}
+
+

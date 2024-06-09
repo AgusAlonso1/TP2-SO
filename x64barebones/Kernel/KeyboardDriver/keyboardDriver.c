@@ -1,6 +1,7 @@
 //Keyboard driver
 #include <keyboardDriver.h>
 #include <videoDriver.h>
+#include <scheduler.h>
 
 static char shiftPressed = 0;
 static char capsLockPressed = 0;
@@ -85,6 +86,10 @@ void keyHandler(uint64_t * registers) {
 
     if( shiftPressed && number == LEFT_ALT_PRESSED){
         updateRegs(registers);
+    }
+
+    if( shiftPressed && number == LEFT_ALT_PRESSED){
+        killForegroundProcess();
     }
     
     if(number == CTRL_PRESSED){ // if ctrl is pressed, do nothing
