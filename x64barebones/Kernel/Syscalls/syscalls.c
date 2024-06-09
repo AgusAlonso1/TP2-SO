@@ -13,7 +13,8 @@
 #include <scheduler.h>
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ}SysID;
+
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO}SysID;
 
 
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
@@ -58,6 +59,8 @@ static int16_t sys_pipe_open(int id, char mode);
 static int16_t sys_pipe_close(int id);
 static int16_t sys_pipe_write(int id, char* msg, int len);
 static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes);
+static uint64_t sys_get_mem_info();
+
 
 
 uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
@@ -164,6 +167,9 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return sys_pipe_write((int) rsi, (char *) rdx, (int) rcx);
         case PIPE_READ:
             return sys_pipe_read((int) rsi, (char *) rdx, (int) rcx, (uint32_t *) r8);
+        case GET_MEM_INFO:
+            return sys_get_mem_info();
+            break;
         default :
             break;
     }
@@ -363,4 +369,7 @@ static int16_t sys_pipe_write(int id, char* msg, int len){
 
 static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes){
     return pipeRead(id, getCurrentPid(), buffer, len, readBytes);
+
+static uint64_t sys_get_mem_info() {
+    // Me falta merge
 }

@@ -37,6 +37,7 @@ GLOBAL call_pipe_open
 GLOBAL call_pipe_close
 GLOBAL call_pipe_write
 GLOBAL call_pipe_read
+GLOBAL call_get_mem_info
 
 
 section .text
@@ -827,3 +828,17 @@ call_pipe_read:    ;call_pipe_read(int id, char* msg, int len, uint32_t * readBy
     pop rbp
     ret
 
+call_get_mem_info:        ;call_get_mem_info();
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+
+    mov rdi, 39
+    int 80h
+
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret

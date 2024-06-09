@@ -47,5 +47,6 @@ int16_t call_pipe_open(int id, char mode);
 int16_t call_pipe_close(int id);
 int16_t call_pipe_write(int id, char* msg, int len);
 int16_t call_pipe_read(int id, char* msg, int len, uint32_t * readBytes);
+//MemoryData * call_get_mem_info();
 
 #endif
