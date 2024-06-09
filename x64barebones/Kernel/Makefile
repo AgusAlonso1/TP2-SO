@@ -19,7 +19,7 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM) $(OBJECTS_SHA
 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_SHARED)
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -I../Shared/include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I../Shared/include $(MM) -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
