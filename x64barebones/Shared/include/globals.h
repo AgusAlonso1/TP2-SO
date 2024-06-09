@@ -21,7 +21,7 @@ typedef int (*Function)(int, char **);
 #define READ_FD 0
 #define WRITE_FD 1
 #define ERROR_FD 2
-
+#define EOF (-1)
 
 #define READ_MODE 'r'
 #define WRITE_MODE 'w'
