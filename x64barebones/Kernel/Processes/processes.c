@@ -19,9 +19,9 @@ typedef struct ProcessCDT {
     void * stack;
     void * basePointer;
     char position;  //Background (1) or Foreground (0)
-    uint64_t returnValue;  //no se si inicializarlo o dejarlo asi
+    int returnValue;  //no se si inicializarlo o dejarlo asi
     char ** arguments;
-    uint64_t fileDescriptors[CANT_FILE_DESCRIPTORS];
+    int fileDescriptors[CANT_FILE_DESCRIPTORS];
 } ProcessCDT;
 
 
@@ -152,7 +152,7 @@ void setProcessReturnValue(ProcessADT process, int returnValue) {
     process->returnValue = returnValue;
 }
 
-uint64_t getProcessReturnValue(ProcessADT process) {
+int getProcessReturnValue(ProcessADT process) {
     return process->returnValue;
 }
 
@@ -168,15 +168,15 @@ void setProcessWaitingPid(ProcessADT process, uint32_t childPid) {
     process->waitingPid = childPid;
 }
 
-uint64_t getProcessReadFileDescriptor(ProcessADT process){
+int getProcessReadFileDescriptor(ProcessADT process){
     return process->fileDescriptors[READ_FD];
 }
 
-uint64_t getProcessWriteFileDescriptor(ProcessADT process){
+int getProcessWriteFileDescriptor(ProcessADT process){
     return process->fileDescriptors[WRITE_FD];
 }
 
-uint64_t getProcessErrorFileDescriptor(ProcessADT process){
+int getProcessErrorFileDescriptor(ProcessADT process){
     return process->fileDescriptors[ERROR_FD];
 }
 

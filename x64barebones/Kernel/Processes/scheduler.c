@@ -120,7 +120,7 @@ SchedulerADT getScheduler() {
     return (SchedulerADT) SCHEDULER_ADDRESS;
 }
 
-uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
+int32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
     SchedulerADT sched = getScheduler();
     ProcessADT newProcess = NULL;
 
@@ -133,8 +133,7 @@ uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Fu
         sched->processQty++;
         return getProcessPid(newProcess);
     }
-
-    return -1;
+    return ERROR;
 }
 
 void listProcess(ProcessSchedADT processSched) {
@@ -147,7 +146,7 @@ void listProcess(ProcessSchedADT processSched) {
 }
 
 
-uint64_t setPriority(uint32_t pid, uint64_t priority){
+int64_t setPriority(uint32_t pid, uint64_t priority){
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
@@ -180,7 +179,7 @@ void yield(){
     forceTimerTick();
 }
 
-uint64_t killProcess(uint32_t pid){
+int64_t killProcess(uint32_t pid){
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
@@ -243,7 +242,7 @@ uint64_t killProcess(uint32_t pid){
     return SUCCESS;
 }
 
-uint16_t setState(uint32_t pid, uint64_t state) {
+int16_t setState(uint32_t pid, uint64_t state) {
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
@@ -316,7 +315,7 @@ void exitProcess(int returnValue){
     killProcess(getCurrentPid());
 }
 
-uint64_t waitProcessPid(uint32_t pid) {
+int waitProcessPid(uint32_t pid) {
     SchedulerADT sched = getScheduler();
     Node * childNode =  getProcessNode(pid);
     if(childNode == NULL) {
@@ -339,7 +338,8 @@ uint64_t waitProcessPid(uint32_t pid) {
         setState(sched->currentPid, BLOCKED);
         yield();
     }
-    uint64_t toReturn = getProcessReturnValue(childProcess);
+
+    int toReturn = getProcessReturnValue(childProcess);
 
     setProcessState(childProcess, ZOMBIE);
     freeProcessSched(processSched);
@@ -423,9 +423,9 @@ void removeFromAllProcesses(uint32_t pid){
     }
 }
 
-uint64_t block(uint32_t pid){
+int64_t block(uint32_t pid){
     Node * node = getProcessNode(pid);
-    uint64_t ret = SUCCESS;
+    int64_t ret = SUCCESS;
     if(node != NULL && node->data != NULL){
         ProcessSchedADT processSched = (ProcessSchedADT) node->data;
         if(processSched->processData != NULL){
@@ -446,7 +446,7 @@ uint64_t block(uint32_t pid){
     return ret;
 }
 
-uint64_t isProcessAlive(uint32_t pid){
+int64_t isProcessAlive(uint32_t pid){
     Node * node = getProcessNode(pid);
     if(node == NULL || node->data == NULL){
         return ERROR;
@@ -458,17 +458,17 @@ uint64_t isProcessAlive(uint32_t pid){
     return SUCCESS;
 }
 
-uint64_t getCurrentReadFileDescriptor(){
+int getCurrentReadFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessReadFileDescriptor(current);
 }
 
-uint64_t getCurrentWriteFileDescriptor(){
+int getCurrentWriteFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessWriteFileDescriptor(current);
 }
 
-uint64_t getCurrentErrorFileDescriptor(){
+int getCurrentErrorFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessErrorFileDescriptor(current);
 }

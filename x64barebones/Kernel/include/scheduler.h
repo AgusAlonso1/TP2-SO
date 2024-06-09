@@ -8,8 +8,8 @@
 #include <memoryManager.h>
 
 #define PRIORITY_LEVELS 5
-#define ERROR 0
-#define SUCCESS 1
+#define ERROR (-1)
+#define SUCCESS 0
 
 #define IDLE 0
 #define SHELL 1
@@ -29,14 +29,14 @@ typedef struct SchedulerCDT* SchedulerADT;
 void createScheduler();                                                         //create scheduler
 SchedulerADT getScheduler();
 void * schedule(void * currentStackPointer);                                    //schedule process ---> cambia de proceso running(se ejecuta cuando timer tick)
-uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);                //create process ----> se crea un proceso
+int32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);                //create process ----> se crea un proceso
 void listProcess(ProcessSchedADT processSched);
-uint64_t waitProcessPid(uint32_t pid);                           //waitpid -----> block al padre y vemos si bajamos prioridad
-uint64_t setPriority(uint32_t pid, uint64_t priority);                       //cambiar prioridad de un proceso
+int waitProcessPid(uint32_t pid);                           //waitpid -----> block al padre y vemos si bajamos prioridad
+int64_t setPriority(uint32_t pid, uint64_t priority);                       //cambiar prioridad de un proceso
 void yield();                                                                   //yield -----> renunciar al CPU (setear el quantum del proceso en 0 y forzar un timer tick)
-uint64_t killProcess(uint32_t pid);                                                //kill ------> mata al proceso
+int64_t killProcess(uint32_t pid);                                                //kill ------> mata al proceso
 Node * getProcessNode(uint32_t pid);
-uint16_t setState(uint32_t pid, uint64_t state);                                //cambiar estado ----> cambia el estado del proceso
+int16_t setState(uint32_t pid, uint64_t state);                                //cambiar estado ----> cambia el estado del proceso
 void exitProcess(int ret);                                                      //exit de la wrapper de proceso (maneja la terminacion de un proceso)
 uint32_t getCurrentPid();                                                              //getpid -----> usa getpid del process
 uint32_t getCurrentParentPid();                                                     //getppid ------> usa getppid del process
@@ -46,11 +46,11 @@ void freeProcessSched(ProcessSchedADT processSched);
 ProcessADT getCurrentProcess();
 void removeFromAllProcesses(uint32_t pid);
 void freeProcessCopy(ProcessCopyList * processCopyList);
-uint64_t block(uint32_t pid);
-uint64_t isProcessAlive(uint32_t pid);
-uint64_t getCurrentReadFileDescriptor();
-uint64_t getCurrentWriteFileDescriptor();
-uint64_t getCurrentErrorFileDescriptor();
+int64_t block(uint32_t pid);
+int64_t isProcessAlive(uint32_t pid);
+int getCurrentReadFileDescriptor();
+int getCurrentWriteFileDescriptor();
+int getCurrentErrorFileDescriptor();
 
 
 
