@@ -11,4 +11,5 @@ int loop(int argc, char** argv) {
         printf("Hola soy el process: %d\n", pid);
         call_sleep(ms);
     }
+    return 0;
 }

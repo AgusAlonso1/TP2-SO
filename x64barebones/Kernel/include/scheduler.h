@@ -51,6 +51,8 @@ int64_t isProcessAlive(uint32_t pid);
 int getCurrentReadFileDescriptor();
 int getCurrentWriteFileDescriptor();
 int getCurrentErrorFileDescriptor();
+void killForegroundProcess();
+
 
 
 
