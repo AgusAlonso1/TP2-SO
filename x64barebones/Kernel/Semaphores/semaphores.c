@@ -3,7 +3,7 @@
 #include <scheduler.h>
 #include <linkedListADT.h>
 
-extern uint64_t enter_region(uint8_t *lock);
+extern int64_t enter_region(uint8_t *lock);
 extern void leave_region(uint8_t *lock);
 
 typedef struct Semaphore {
@@ -60,6 +60,7 @@ static void spinLock(Semaphore * sem){
 }
 
 static void unlock(Semaphore * sem) {
+    leave_region(&(sem->lock));
     Node * currentNode = getFirst(sem->processBlockedPids);
     while(currentNode != NULL) {
         void *data = removeFirst(sem->processBlockedPids);
@@ -71,8 +72,6 @@ static void unlock(Semaphore * sem) {
         }
         currentNode = currentNode->next;
     }
-
-    leave_region(&(sem->lock));
 }
 
 void createSemaphoreManager() {
@@ -81,7 +80,7 @@ void createSemaphoreManager() {
    semaphoresList->globalLock = 0;
 }
 
-uint64_t semOpen(uint64_t value, uint64_t semId) {
+int64_t semOpen(uint64_t value, uint64_t semId) {
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semaphoresList = getSemaphoreManager();
 
@@ -100,7 +99,7 @@ uint64_t semOpen(uint64_t value, uint64_t semId) {
     return semId;
 }
 
-uint64_t semWait(uint64_t semId) {
+int64_t semWait(uint64_t semId) {
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
     Node * semNode = getSemNodeById(semId, semList);
@@ -113,8 +112,9 @@ uint64_t semWait(uint64_t semId) {
 
     spinLock(sem);
 
-    sem->value--;
-    if(sem->value < 0) {
+    if(sem->value > 0) {
+        sem->value--;
+    } else { 
         uint32_t processPid = getCurrentPid();
         void *pidPointer = (void *)(uintptr_t)processPid;
         insert(sem->processBlockedPids, pidPointer);
@@ -129,7 +129,7 @@ uint64_t semWait(uint64_t semId) {
     return 1;
 }
 
-uint64_t semPost(uint64_t semId) {
+int64_t semPost(uint64_t semId) {
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
     Node * semNode = getSemNodeById(semId, semList);
@@ -148,7 +148,7 @@ uint64_t semPost(uint64_t semId) {
     return 1;
 }
 
-uint8_t semClose(uint64_t semId) {
+int8_t semClose(uint64_t semId) {
     uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
 

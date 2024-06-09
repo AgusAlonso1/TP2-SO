@@ -14,6 +14,7 @@
 #define SEM_ID 77
 
 int64_t global; // shared memory
+uint32_t hola;
 
 void slowInc(int64_t *p, int64_t inc) {
   uint64_t aux = *p;
@@ -27,7 +28,7 @@ int my_process_inc(int argc, char *argv[]) {
   uint64_t n;
   int8_t inc;
   int8_t use_sem;
-  uint32_t hola;
+
 
   if (argc != 3)
     return -1;
@@ -48,27 +49,19 @@ int my_process_inc(int argc, char *argv[]) {
   uint64_t i;
   for (i = 0; i < n; i++) {
     if (use_sem)
-      semWait(SEM_ID);
+      semWait(SEM_ID); 
     slowInc(&global, inc);
     if (use_sem)
       semPost(SEM_ID);
   }
 
-  if (use_sem)
-    semClose(SEM_ID);
-
-  drawStringOnCursor((uint8_t *) "Succes", &hola);
-
-  uint32_t len;
-
-  uint8_t buffer[30];
-  intToString(global, (char *)buffer);
-  drawStringOnCursor(buffer, &len);
-
   return 0;
 }
 
 uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
+
+  int8_t useSem = satoi(argv[2]);
+
   uint32_t test_pid = getCurrentPid();
   initializeCursor(20,20, 2);
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
@@ -91,6 +84,17 @@ uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
     waitProcessPid(pids[i]);
     waitProcessPid(pids[i + TOTAL_PAIR_PROCESSES]);
   }
+
+  if (useSem)
+		semClose(SEM_ID);
+
+    drawStringOnCursor((uint8_t *) "Succes ", &hola);
+
+  uint32_t len;
+
+  uint8_t buffer[30];
+  intToString(global, (char *)buffer);
+  drawStringOnCursor(buffer, &len);
 
   return 0;
 }
