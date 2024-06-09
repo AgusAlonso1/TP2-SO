@@ -10,7 +10,6 @@
 #define NOT_DEFINED (-1)
 #define FOUND 1
 #define NOT_FOUND 0
-#define EOF (-1)
 
 
 

@@ -4,7 +4,7 @@ int wc(int argc, char** argv) {
     char newWord = 0;
     char c;
     unsigned int amountOfChars = 0, amountOfWords = 0, amountOfLines= 0;
-    while ((c = getChar())!= 0/* ACA VA EL EOF*/) {
+    while ((c = getChar())!= EOF/* ACA VA EL EOF*/) {
         if (c == ' ' && newWord) {
             amountOfWords++;
             newWord = 0;
