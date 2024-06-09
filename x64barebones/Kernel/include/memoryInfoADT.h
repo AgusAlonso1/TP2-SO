@@ -2,6 +2,7 @@
 #define MEMORY_INFO_ADT
 
 #include <stdint.h>
+#include <globals.h>
 
 typedef struct MemoryInfoCDT * MemoryInfoADT;
 

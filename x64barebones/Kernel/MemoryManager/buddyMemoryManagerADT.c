@@ -1,15 +1,12 @@
+#ifdef BUDDY
 #include <memoryManager.h>
-#include <stdlib.h>
-#include <memoryInfoADT.h>
 
-#define BASE (int) 2
-#define MIN_EXP 5 // 2^5 = 32 B
 #define TRUE 1
 #define FALSE 0
 
-#define FREE (uint8_t) 0
-#define IN_USE (uint8_t) 1
+#define MIN_EXP 5 // 2^5 = 32 B
 
+#define BASE 2
 
 typedef struct MemoryChunk { // Header of chunks with a size of 18 bytes -> MIN_EXP = 5 (32 bytes)
     uint8_t exp;
@@ -25,9 +22,6 @@ typedef struct MemoryManagerCDT {
     MemoryInfoADT info;
 } MemoryManagerCDT;
 
-static uint8_t log2(uint64_t argument);
-//static uint64_t pow2(uint64_t argument);
-
 static int reorderChunks(uint8_t expIndexToAlloc);
 static void splitChunk(uint8_t chunkIndex);
 static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk);
@@ -40,7 +34,7 @@ static void * removeChunk(MemoryChunk * chunk);
 
 MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
 
-MemoryManagerADT createMemoryManager(void * firstAddress, uint64_t const availableMem) {
+MemoryManagerADT createMemoryManager(void * firstAddress, const uint64_t availableMem) {
     MemoryManagerADT memoryManager = (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
     memoryManager->maxExpOfTwo = log2(availableMem);
     memoryManager->firstAvailableAddress = firstAddress;
@@ -116,25 +110,6 @@ void freeMemory(void * ptrToFree) {
 
 MemoryManagerADT getMemoryManager() {
     return (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
-}
-
-static uint8_t log2(uint64_t argument) {
-    unsigned int count = 0;
-    uint64_t value = 1;
-    while (value < argument) {
-        value *= BASE;
-        count++;
-    }
-    return count;
-}
-
-uint64_t pow2(uint64_t argument) {
-    uint64_t count = 1;
-    while (argument > 0) {
-        count *= BASE;
-        argument--;
-    }
-    return count;
 }
 
 static MemoryChunk * joinChunks(MemoryChunk * chunk, MemoryChunk * buddyChunk) {
@@ -223,3 +198,5 @@ static void * removeChunk(MemoryChunk * chunk) {
     }
     return (void *) firstExpChunk;
 }
+
+#endif
