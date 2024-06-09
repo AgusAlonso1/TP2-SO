@@ -19,7 +19,7 @@ void slowInc(int64_t *p, int64_t inc) {
 }
 
 int my_process_inc(int argc, char *argv[]) {
-  uint32_t p = getCurrentPid();
+  uint32_t p = call_get_pid();
   uint64_t n;
   int8_t inc;
   int8_t use_sem;
@@ -58,7 +58,6 @@ uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   int8_t useSem = satoi(argv[2]);
 
   uint32_t test_pid = call_get_pid();
-  initializeCursor(20,20, 2);
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
   if (argc != 2)
