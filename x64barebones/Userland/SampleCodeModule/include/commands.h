@@ -35,4 +35,8 @@ int block(int argc, char** argv);
 
 int minfo(int argc, char** argv);
 
+int cat(int argc, char** argv);
+
+int wc(int argc, char** argv);
+
 #endif
