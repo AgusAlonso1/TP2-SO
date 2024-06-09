@@ -179,11 +179,11 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 // Syscall Read - ID = 0
 static void sys_read(uint8_t * buf, uint32_t count, uint32_t * readBytes) {
     uint32_t pid = getCurrentPid();
-    uint64_t fd = getCurrentReadFileDescriptor();
+    int64_t fd = getCurrentReadFileDescriptor();
 
     if(fd == STDIN){
         readFromKeyboard(buf, count, readBytes);
-    } else if(fd != DEV_NULL){
+    } else if(fd != DEV_NULL) {
         pipeRead(fd, pid, (char *) buf, (int) count, readBytes);
     }
 }
@@ -369,6 +369,7 @@ static int16_t sys_pipe_write(int id, char* msg, int len){
 
 static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes){
     return pipeRead(id, getCurrentPid(), buffer, len, readBytes);
+}
 
 static uint64_t sys_get_mem_info() {
     // Me falta merge
