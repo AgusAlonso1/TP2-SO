@@ -8,7 +8,7 @@ int nice(int argc, char** argv) {
     int priority = atoi(argv[1]);
 
     uint64_t success = call_set_priority(pid, priority);
-    if(success != 0){
+    if(success != -1){
         printf("The process %d has been changed of priority successfully \n", pid);
     } else {
         printf("The process %d could not change its priority \n", pid);

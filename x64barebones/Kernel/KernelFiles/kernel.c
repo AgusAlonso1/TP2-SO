@@ -8,7 +8,6 @@
 #include <processes.h>
 #include <interruptions.h>
 #include <scheduler.h>
-#include <test_util.h>
 #include <timer.h>
 #include <pipeMaster.h>
 

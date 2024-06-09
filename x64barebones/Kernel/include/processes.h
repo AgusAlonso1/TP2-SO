@@ -36,15 +36,15 @@ ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process);
 void setProcessStack(ProcessADT process, void * stack);
 void * getProcessStack(ProcessADT process);
 void setProcessReturnValue(ProcessADT process, int returnValue);
-uint64_t getProcessReturnValue(ProcessADT process);
+int getProcessReturnValue(ProcessADT process);
 void argscopy(char*** arguments, char** args);
 char getProcessMortality(ProcessADT process);
 uint32_t getProcessWaitingPid(ProcessADT process);
 void setProcessWaitingPid(ProcessADT process, uint32_t childPid);
 void wrapper(Function function, char **args);
-uint64_t getProcessReadFileDescriptor(ProcessADT process);
-uint64_t getProcessWriteFileDescriptor(ProcessADT process);
-uint64_t getProcessErrorFileDescriptor(ProcessADT process);
+int getProcessReadFileDescriptor(ProcessADT process);
+int getProcessWriteFileDescriptor(ProcessADT process);
+int getProcessErrorFileDescriptor(ProcessADT process);
 
 
 #endif

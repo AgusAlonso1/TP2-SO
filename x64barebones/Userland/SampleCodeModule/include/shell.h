@@ -2,7 +2,8 @@
 #define SHELL_H
 
 #include <stdint.h>
-#define AMOUNT_OF_COMMANDS 19
+
+#define AMOUNT_OF_COMMANDS 22
 
 #define KILL_INDEX 13
 #define NICE_INDEX 14

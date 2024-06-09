@@ -15,7 +15,7 @@ typedef struct PipeCDT {
 
 typedef struct PipeMasterCDT{
     LinkedListADT pipes;
-    uint64_t idCount;
+    int idCount;
     uint64_t pipesQty;
 } PipeMasterCDT;
 
@@ -26,7 +26,7 @@ void createPipeMaster() {
     pMaster->pipesQty = 0;
 }
 
-int64_t getPipeId(){
+int getPipeId(){
     PipeMasterADT pMaster = getPipeMaster();
     return pMaster->idCount++;
 }
