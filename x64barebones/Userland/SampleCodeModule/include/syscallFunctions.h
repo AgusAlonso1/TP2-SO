@@ -41,5 +41,6 @@ uint64_t call_set_priority(uint32_t pid, uint64_t priority);
 uint64_t call_block(uint32_t pid);
 uint64_t call_waitpid(uint32_t pid);
 void call_free_process_copy(ProcessCopyList * processCopyList);
+//MemoryData * call_get_mem_info();
 
 #endif
