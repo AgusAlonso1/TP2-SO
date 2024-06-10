@@ -42,7 +42,7 @@ PipeADT createPipe(uint64_t id) {
     }
     pipe->id = id;
     int i = 0;
-    while(i < MAX_BUFFER_LEN){      //lo hice en un while porque por alguna razon no le gustaban los parentesis del for ???
+    while(i < MAX_BUFFER_LEN){
         pipe->buffer[i] = 0;
         i++;
     }
@@ -72,14 +72,14 @@ Node * getPipeNodeById(uint64_t id) {
     return pipeNode;
 }
 
-int16_t pipeOpen(int id, char mode) {     //aca no hay pid; el pid es el del process que esta RUNNING
+int16_t pipeOpen(int id, char mode) {
     return pipeOpenAnonymous(id, mode, getCurrentPid());
 }
 
-int16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {  // si no esta creado lo creo y lo meto a la lista
+int16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {
     PipeMasterADT pMaster = getPipeMaster();
 
-    if(id < CANT_FILE_DESCRIPTORS + 1){         //si es de las entradas estandar no hacemos nada
+    if(id < CANT_FILE_DESCRIPTORS + 1){
         return SUCCESS;
     }
 
@@ -111,7 +111,7 @@ int16_t pipeOpenAnonymous(int id, char mode, uint32_t pid) {  // si no esta crea
     return SUCCESS;
 }
 
-int16_t pipeClose(int id) {       //aca no hay pid; el pid es el del process que esta RUNNING
+int16_t pipeClose(int id) {
     return pipeCloseAnonymous(id, getCurrentPid());
 }
 
@@ -151,7 +151,7 @@ int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
         pipe = (PipeADT) pipeNode->data;
     }
 
-    if(pipe->writePid != pid) {     // el pid que quiere escribir en este pipe no tiene los permisos
+    if(pipe->writePid != pid) {
         return ERROR;
     }
 
@@ -159,7 +159,7 @@ int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
     while(i < len  && pipe->buffer[GET_INDEX(pipe->writePos)] != EOF){
        // semWait(pipe->semWrite);      //semaforo para ver si puedo escribir
 
-       if(isProcessAlive(pipe->writePid) == ERROR){     //chequeo que si se quedo bloqueado no se haya muerto antes de escribir (funcion que agregue a scheduler)
+       if(isProcessAlive(pipe->writePid) == ERROR){
            return ERROR;
        }
 
@@ -184,7 +184,7 @@ int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * re
         pipe = (PipeADT) pipeNode->data;
     }
 
-    if(pipe->readPid != pid) {     // el pid que quiere leer en este pipe no tiene los permisos
+    if(pipe->readPid != pid) {
         return ERROR;
     }
 
@@ -192,7 +192,7 @@ int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * re
     while(i < len  && pipe->buffer[GET_INDEX(pipe->readPos - 1)] != EOF){
         // semWait(pipe->semRead);      //semaforo para ver si puedo leer
 
-        if(isProcessAlive(pipe->readPid) == ERROR){     //chequeo que si se quedo bloqueado no se haya muerto antes de escribir
+        if(isProcessAlive(pipe->readPid) == ERROR){
             return ERROR;
         }
 

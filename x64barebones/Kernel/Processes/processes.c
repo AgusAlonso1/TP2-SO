@@ -3,11 +3,6 @@
 #include <scheduler.h>
 #include <pipeMaster.h>
 
-/* Comentarios process:
- *
- */
-
-
 typedef struct ProcessCDT {
     uint32_t pid;
     uint32_t parentPid;
@@ -26,7 +21,7 @@ typedef struct ProcessCDT {
 
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
-    ProcessADT process = allocMemory(sizeof(ProcessCDT)); //funcion proxima a ser creada
+    ProcessADT process = allocMemory(sizeof(ProcessCDT));
     process->pid = pid;
     process->parentPid = parentPid;
     process->waitingPid = 0;
@@ -43,11 +38,11 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     process->stack = _create_stack_frame(&wrapper, function, stackEnd, (void *) process->arguments);
     process->fileDescriptors[READ_FD] = fileDescriptors[READ_FD];
     process->fileDescriptors[WRITE_FD] = fileDescriptors[WRITE_FD];
- //   process->fileDescriptors[ERROR_FD] = fileDescriptors[ERROR_FD];
+    process->fileDescriptors[ERROR_FD] = fileDescriptors[ERROR_FD];
 
     pipeOpenAnonymous(process->fileDescriptors[READ_FD], READ_MODE, pid);
     pipeOpenAnonymous(process->fileDescriptors[WRITE_FD], WRITE_MODE, pid);
-  //  pipeOpenAnonymous(process->fileDescriptors[ERROR_FD], WRITE_MODE, pid);
+    pipeOpenAnonymous(process->fileDescriptors[ERROR_FD], WRITE_MODE, pid);
 
     return process;
 }
@@ -55,7 +50,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
 
 void wrapper(Function function, char **args) {
     int len = stringArrayLen(args);
-    int ret = function(len, args);     //todas las funciones reciben un argc y argv; el valor que retorna la funcion lo guardamos por si otro proceso lo necesita
+    int ret = function(len, args);
     exitProcess(ret);
 }
 
@@ -74,16 +69,8 @@ uint64_t getProcessState(ProcessADT process){
     return process->state;
 }
 
-void setProcessParentPid(ProcessADT process, uint32_t parentPid) {
-    process->parentPid = parentPid;
-}
-
 uint32_t getProcessParentPid(ProcessADT process){
     return process->parentPid;
-}
-
-void setProcessPid(ProcessADT process, uint32_t pid) {
-    process->pid = pid;
 }
 
 uint32_t getProcessPid(ProcessADT process){
@@ -96,10 +83,6 @@ void setProcessPriority(ProcessADT process, uint32_t priority) {
 
 uint32_t getProcessPriority(ProcessADT process){
     return process->priority;
-}
-
-void setProcessPosition(ProcessADT process, uint32_t position) {
-    process->position = position;
 }
 
 uint32_t getProcessPosition(ProcessADT process){

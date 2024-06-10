@@ -1,12 +1,5 @@
 #include <scheduler.h>
 
-/* Comentarios scheduler:
- *
- */
-
-// TAREAS IMPORTANTES PENDIENTES
-//ver logica de backgournd y foreground
-
 typedef struct SchedulerCDT{
     LinkedListADT allProcesses;
     LinkedListADT processes[PRIORITY_LEVELS];
@@ -15,7 +8,6 @@ typedef struct SchedulerCDT{
     uint16_t processQuantum;
     uint64_t processQty;
     char killForegroundProcess;
- //  char blockCurrentProcess;
 } SchedulerCDT;
 
 typedef struct ProcessSchedCDT{
