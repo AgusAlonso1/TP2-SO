@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define AMOUNT_OF_COMMANDS 24
+#define AMOUNT_OF_COMMANDS 23
 
 #define KILL_INDEX 13
 #define NICE_INDEX 14

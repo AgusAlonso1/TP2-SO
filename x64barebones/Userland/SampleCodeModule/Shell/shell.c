@@ -23,7 +23,7 @@
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill", "nice", "block", "minfo", "testmm", "testprocesses", "testprio", "cat", "wc", "filter", "producer"};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill", "nice", "block", "minfo", "testmm", "testprocesses", "testprio", "cat", "wc", "filter"};
 
 int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, char **)) man,
                                                                 (int (*)(int, char **)) time,
@@ -44,7 +44,7 @@ int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, ch
                                                                 minfo,
                                                                 test_mm,
                                                                 test_processes,
-                                                                (int (*)(int, char **)) test_prio, cat, wc, filter, producer};
+                                                                (int (*)(int, char **)) test_prio, cat, wc, filter};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];
@@ -251,15 +251,15 @@ int createProcess(char* command1, char** arguments1, uint32_t parentPid, int bac
 }
 
 
+/*
 int producer(){
-    printf("Hola soy el que escribio... \n");
-    return SUCCESS;
+   printf("Hola soy el que escribio... \n");
+   return SUCCESS;
 }
 
- /*
 int consumer(){
-    char* buf[30] = {0};
-    scanf("%S", buf);   //imprime en pantalla lo que esta en buf
-    return SUCCESS;
+   char* buf[30] = {0};
+   scanf("%S", buf);   //imprime en pantalla lo que esta en buf
+   return SUCCESS;
 }
 */
