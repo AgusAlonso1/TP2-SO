@@ -26,7 +26,7 @@ int atoi(char* value);
 
 void printChar(char c);
 
-int fprintf(int fd, const char* string, ...);
+//int fprintf(int fd, const char* string, ...);
 int putStringFD(char * c, int fd);
 
 

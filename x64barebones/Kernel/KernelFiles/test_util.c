@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "syscall.h"
 
+
 // Random
 static uint32_t m_z = 362436069;
 static uint32_t m_w = 521288629;
@@ -99,7 +100,7 @@ void bussy_wait(uint64_t n) {
     ;
 }
 
-int endless_loop(int argc, char * argv[]) {
+void endless_loop() {
   while (1)
     ;
 }

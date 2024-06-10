@@ -10,7 +10,6 @@
 #include <scheduler.h>
 #include <timer.h>
 #include <pipeMaster.h>
-#include <semaphores.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -67,19 +66,15 @@ int main() {
 	_cli(); // Disable interruptions
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
 	createScheduler();
-    createSemaphoreManager();
 //CREATE SEMAFOROS
     createPipeMaster();
-    int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
+
 	char * args[] = {"2", "idle", NULL};
-    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
-    char *argv[] = {"10", "1", NULL};
-    createProcessFromSched("test_sync", 1, LEVEL3, (Function) &test_sync, argv, 0, 0,fileDescriptors);
+    int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
+    createProcessFromSched("idle", 0, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
+
     loadIDT();
     _sti(); // Enable interruptions
-
-    
-
     return 0;
 }
 //0000000000105494
