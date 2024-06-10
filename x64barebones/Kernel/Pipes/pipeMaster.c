@@ -159,7 +159,7 @@ int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
     while(i < len  && pipe->buffer[GET_INDEX(pipe->writePos)] != EOF){
        // semWait(pipe->semWrite);      //semaforo para ver si puedo escribir
 
-       if(isProcessAlive(pipe->writePid) == -1){     //chequeo que si se quedo bloqueado no se haya muerto antes de escribir (funcion que agregue a scheduler)
+       if(isProcessAlive(pipe->writePid) == ERROR){     //chequeo que si se quedo bloqueado no se haya muerto antes de escribir (funcion que agregue a scheduler)
            return ERROR;
        }
 
@@ -189,10 +189,10 @@ int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * re
     }
 
     int i = 0;
-    while(i < len  && pipe->buffer[GET_INDEX(pipe->readPos)] != EOF){
+    while(i < len  && pipe->buffer[GET_INDEX(pipe->readPos - 1)] != EOF){
         // semWait(pipe->semRead);      //semaforo para ver si puedo leer
 
-        if(!isProcessAlive(pipe->readPid)){     //chequeo que si se quedo bloqueado no se haya muerto antes de escribir
+        if(isProcessAlive(pipe->readPid) == ERROR){     //chequeo que si se quedo bloqueado no se haya muerto antes de escribir
             return ERROR;
         }
 
@@ -204,6 +204,7 @@ int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * re
 
         // semPost(pipe->semWrite):       //semaforo para marcar que hay lugar para escribir
     }
+
     return SUCCESS;
 }
 

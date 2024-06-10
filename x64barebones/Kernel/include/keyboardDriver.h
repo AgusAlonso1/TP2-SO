@@ -16,12 +16,13 @@
 #define RIGHT_SHIFT_RELEASED 182
 #define CTRL_RELEASED 157
 #define C 46
+#define D 32
 
 #define BUFFER_SIZE 256
 #define REGISTERS_AMOUNT 20
 
 void keyHandler();
-void readFromKeyboard(uint8_t * toRetbuffer, uint32_t amount, uint32_t * size);
+void readFromKeyboard(char * toRetbuffer, uint32_t amount, uint32_t * size);
 int getKeyNumber();
 void valueToHexString(unsigned long long value, uint8_t * hexStr);
 void copyRegisters(uint64_t num, char*buffer);
