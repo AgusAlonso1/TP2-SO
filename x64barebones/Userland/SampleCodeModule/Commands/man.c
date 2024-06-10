@@ -1,12 +1,12 @@
 #include <commands.h>
 
 void man(){
-    printf("Welcome to MAT\n");
+    printf("Welcome to MATV\n");
     printf("NAME\n");
-    printf("\t man - the manual to the system reference\n\n");
+    printf("\t help - the manual to the system reference\n\n");
     printf("DESCRIPTION\n");
     printf("\t This is an assignment for a Computer Architecture Course at ITBA.\n");
-    printf("\t Created by Agustin Alonso, Magdalena Cullen, and Tomas Becerra.\n\n");
+    printf("\t Created by Agustin Alonso, Magdalena Cullen, Valentina Marti Reta , and Tomas Becerra.\n\n");
     printf("PROGRAMS AVAILABLE FOR USER\n");
     printf("\t -- Do not include space after command. --\n");
     printf("\t man - Access the manual.\n");
@@ -32,7 +32,7 @@ void man(){
     printf("\t testprio - Runs the priority test.\n");
     printf("\t testsynchro - Runs the synchronized test. Arguments are the number of increments, the number of processes, and whether to use semaphores or not.\n");
     printf("\t phylo - Simulates the philosophers problem.\n");
-    printf("\t Esto es Boca - BOCA.\n\n");
+    printf("\t EstoesBoca - BOCA.\n\n");
     printf("EXCEPTIONS\n");
     printf("\t inval op - Indicates an invalid operation.\n");
     printf("\t div0 - Signals division by zero.\n");
