@@ -14,8 +14,7 @@ typedef struct ProcessSchedCDT{
     ProcessADT processData;
     uint8_t  quantumWaiting;
 } ProcessSchedCDT;
-
-static int quantumLevel[PRIORITY_LEVELS] = {0, 2, 3, 4, 5};
+static int quantumLevel[PRIORITY_LEVELS] = {2, 3, 4, 5, 6};
 
 void createScheduler() {
     SchedulerADT sched = (SchedulerADT) SCHEDULER_ADDRESS;
@@ -52,7 +51,7 @@ void * schedule(void * currentStackPointer) {
     if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == ZOMBIE) {
 
         uint8_t found = 0; 
-        for(int i = LEVEL4; i > LEVEL0; i--) {
+        for(int i = LEVEL4; i >= LEVEL0; i--) {
             Node * currentNode = getFirst(sched->processes[i]);
             while(currentNode != NULL) {
                 ProcessSchedADT processSched = (ProcessSchedADT) currentNode->data;
@@ -84,7 +83,7 @@ void * schedule(void * currentStackPointer) {
 
         if(oldProcess != NULL) {
             uint64_t oldProcessPriority  = getProcessPriority(oldProcess);
-            if(oldProcessPriority != LEVEL1 && getProcessPid(oldProcess) != SHELL) {
+            if(oldProcessPriority != LEVEL0 && getProcessPid(oldProcess) != SHELL) {
                 oldProcessPriority--;
             }
             setPriority(getProcessPid(oldProcess), oldProcessPriority);
@@ -269,7 +268,7 @@ Node * getProcessNode(uint32_t pid){
     SchedulerADT sched = getScheduler();
     Node * processNode = NULL;
     uint8_t found = 0;
-    for(int i = LEVEL4; i > LEVEL0; i--) {
+    for(int i = LEVEL4; i >= LEVEL0; i--) {
         Node * currentNode = getFirst(sched->processes[i]);
         while(currentNode != NULL && !found) {
             ProcessSchedADT processSched = (ProcessSchedADT) currentNode->data;
