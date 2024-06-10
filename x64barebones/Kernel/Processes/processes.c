@@ -118,8 +118,6 @@ int freeProcess(ProcessADT process){
     }
     freeMemory(process->name);
     freeMemory(process->basePointer);
-    pipeCloseAnonymous(process->fileDescriptors[READ_FD], process->pid);
-    pipeCloseAnonymous(process->fileDescriptors[WRITE_FD], process->pid);
     freeMemory(process);
     return 0;
 }

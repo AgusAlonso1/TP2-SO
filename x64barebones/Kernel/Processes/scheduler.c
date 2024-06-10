@@ -210,6 +210,9 @@ int64_t killProcess(uint32_t pid){
         }
     }
 
+    pipeCloseAnonymous(getProcessReadFileDescriptor(processToKill), pid);
+    pipeCloseAnonymous(getProcessWriteFileDescriptor(processToKill), pid);
+
     Node * parent = getProcessNode(getProcessParentPid(processToKill));
     if(parent != NULL && parent->data != NULL) {
         ProcessSchedADT parentProcessSched = (ProcessSchedADT) parent->data;

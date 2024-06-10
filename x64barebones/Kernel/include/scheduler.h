@@ -6,6 +6,7 @@
 #include <processes.h>
 //#include <memoryasm.h>
 #include <memoryManager.h>
+#include <pipeMaster.h>
 
 #define PRIORITY_LEVELS 5
 #define ERROR (-1)
