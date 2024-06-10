@@ -331,7 +331,7 @@ static void sys_free(void * ptrToFree) {
 }
 
 static int32_t sys_create_process_foreground(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]){
-    return createProcessFromSched((char*) name, (char) 1, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
+    return createProcessFromSched((char*) name, (char) FOREGROUND, LEVEL4, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
 }
 
 static int64_t sys_kill_process(uint32_t pid){
@@ -367,7 +367,7 @@ static void sys_free_process_copy(ProcessCopyList * processCopyList){
 }
 
 static int32_t sys_create_process_background(char* name, Function function, char **args, uint32_t parentPid, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
-    return createProcessFromSched((char*) name, (char) 0, 3, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
+    return createProcessFromSched((char*) name, (char) BACKGROUND, LEVEL4, (Function) function,(char**) args, (uint32_t)parentPid, 0, fileDescriptors);
 }
 
 static int sys_get_pipe_id(){
