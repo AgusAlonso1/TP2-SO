@@ -1,5 +1,6 @@
 #ifdef FL
 #include <memoryManager.h>
+#include <stdlib.h>
 
 #define HEADER_FOOTER_SIZE (sizeof(MemoryChunkHeader) + sizeof(MemoryChunkFooter))
 #define HEADER_SIZE sizeof(MemoryChunkHeader)
@@ -9,26 +10,16 @@
 #define LEFT_COALESCING 1
 #define RIGHT_COALESCING 2
 
-#pragma pack(push)
-#pragma pack (1)
-
 typedef struct MemoryChunkHeader {
     uint64_t size;
     uint8_t state;
     struct MemoryChunkHeader * nextChunk; 
 } MemoryChunkHeader;
 
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack (1)
-
 typedef struct MemoryChunkFooter {
     uint64_t size;
     uint8_t state;
 } MemoryChunkFooter;
-
-#pragma pack(pop)
 
 typedef struct MemoryManagerCDT {
     MemoryChunkHeader * head;
@@ -40,7 +31,7 @@ typedef struct MemoryManagerCDT {
 //static MemoryManagerADT getMemoryManager();
 static MemoryChunkHeader * assignNewChunk(MemoryChunkHeader * intoChunk, uint64_t sizeRequested);
 
-static MemoryChunkHeader * leftCoalesceFree(MemoryChunkFooter * leftChunkFooter, MemoryChunkHeader * chunkToFreeHeader);
+static MemoryChunkHeader * leftCoalesceFree(MemoryChunkHeader * leftChunkFooter, MemoryChunkHeader * chunkToFreeHeader);
 static MemoryChunkHeader * rightCoalesceFree(MemoryChunkHeader * chunkToFreeHeader, MemoryChunkHeader * rightChunkHeader);
 static MemoryChunkHeader * noCoalesceFree(MemoryChunkHeader * chunkToFreeHeader);
 
@@ -103,6 +94,7 @@ void freeMemory(void * ptrToFree) {
     freeUpdateInfo(memoryManager->info, chunkToFree->size);
 
     MemoryChunkFooter * leftChunkFooter = (MemoryChunkFooter *) ((void *) chunkToFree - FOOTER_SIZE);
+    MemoryChunkHeader * leftChunkHeader = (MemoryChunkHeader *) ((void *) chunkToFree - (leftChunkFooter->size + HEADER_FOOTER_SIZE));
     MemoryChunkHeader * rightChunkHeader = (MemoryChunkHeader *) ((void *) chunkToFree + (chunkToFree->size + HEADER_FOOTER_SIZE));
     
     uint8_t decision = NO_COAELESCING;
@@ -114,27 +106,15 @@ void freeMemory(void * ptrToFree) {
         decision = LEFT_COALESCING;
     }
 
-    MemoryChunkHeader * newFreeChunk;
     switch (decision) {
         case LEFT_COALESCING:
-            newFreeChunk = leftCoalesceFree(leftChunkFooter, chunkToFree); 
-            MemoryChunkHeader * leftChunkHeader = (MemoryChunkHeader *) ((void *) leftChunkFooter - (leftChunkFooter->size + HEADER_SIZE));
-            newFreeChunk->nextChunk = leftChunkHeader->nextChunk;
-            if (leftChunkHeader == memoryManager->head) {
-                memoryManager->head = newFreeChunk;
-            }
-            leftChunkHeader = newFreeChunk;
+            leftCoalesceFree(leftChunkHeader, chunkToFree); 
             break;
         case RIGHT_COALESCING:
-            newFreeChunk = rightCoalesceFree(chunkToFree, rightChunkHeader);
-            newFreeChunk->nextChunk = rightChunkHeader->nextChunk;
-            if (rightChunkHeader == memoryManager->head) {
-                memoryManager->head = newFreeChunk;
-            }
-            rightChunkHeader = newFreeChunk;
+            rightCoalesceFree(chunkToFree, rightChunkHeader);
             break;
         case NO_COAELESCING: 
-            newFreeChunk = noCoalesceFree(chunkToFree); 
+            MemoryChunkHeader * newFreeChunk = noCoalesceFree(chunkToFree); 
             newFreeChunk->nextChunk = memoryManager->head;
             memoryManager->head = newFreeChunk;
             break;
@@ -143,24 +123,21 @@ void freeMemory(void * ptrToFree) {
     freeUpdateInfo(memoryManager->info, chunkToFree->size);
 }
 
-static MemoryChunkHeader * leftCoalesceFree(MemoryChunkFooter * leftChunkFooter, MemoryChunkHeader * chunkToFreeHeader) {
-    MemoryChunkHeader * newLeftChunkHeader = (MemoryChunkHeader *) ((void *) leftChunkFooter - (leftChunkFooter->size + HEADER_SIZE));
-    newLeftChunkHeader->size = leftChunkFooter->size + chunkToFreeHeader->size + HEADER_FOOTER_SIZE;
-    newLeftChunkHeader->state = FREE;
-    newLeftChunkHeader->nextChunk = NULL;
+static MemoryChunkHeader * leftCoalesceFree(MemoryChunkHeader * leftChunkHeader, MemoryChunkHeader * chunkToFreeHeader) {
+    leftChunkHeader->size = chunkToFreeHeader->size + leftChunkHeader->size + HEADER_FOOTER_SIZE;
+    leftChunkHeader->state = FREE;
 
-    MemoryChunkFooter * newLeftChunkFooter = (MemoryChunkFooter *) ((void *) newLeftChunkHeader + (newLeftChunkHeader->size + HEADER_SIZE));
-    newLeftChunkFooter->size = newLeftChunkHeader->size;
+    MemoryChunkFooter * newLeftChunkFooter = (MemoryChunkFooter *) ((void *) leftChunkHeader + (leftChunkHeader->size + HEADER_SIZE));
+    newLeftChunkFooter->size = leftChunkHeader->size;
     newLeftChunkFooter->state = FREE;
 
-    return newLeftChunkHeader;
+    return leftChunkHeader;
 }
 
 static MemoryChunkHeader * rightCoalesceFree(MemoryChunkHeader * chunkToFreeHeader, MemoryChunkHeader * rightChunkHeader) {
-    //MemoryChunkHeader * newRightChunkHeader = chunkToFreeHeader;
     chunkToFreeHeader->size = chunkToFreeHeader->size + rightChunkHeader->size + HEADER_FOOTER_SIZE;
     chunkToFreeHeader->state = FREE;
-    chunkToFreeHeader->nextChunk = NULL;
+    chunkToFreeHeader->nextChunk = rightChunkHeader->nextChunk;
 
     MemoryChunkFooter * newRightChunkFooter = (MemoryChunkFooter *) ((void *) rightChunkHeader + (rightChunkHeader->size + HEADER_SIZE));
     newRightChunkFooter->size = chunkToFreeHeader->size;
@@ -202,7 +179,14 @@ static MemoryChunkHeader * assignNewChunk(MemoryChunkHeader * intoChunk, uint64_
     newChunkHeaderFree->size = intoChunk->size - (sizeRequested + HEADER_FOOTER_SIZE);
     newChunkHeaderFree->nextChunk = intoChunk->nextChunk;
 
-    intoChunk = newChunkHeaderFree;
+    MemoryManagerADT memoryManager = getMemoryManager();
+
+    if (intoChunk == memoryManager->head) {
+        memoryManager->head = newChunkHeaderFree;
+    } else {
+        intoChunk = newChunkHeaderFree;
+    }
+
     return newChunkHeaderToAlloc;
 }
 
