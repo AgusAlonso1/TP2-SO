@@ -11,7 +11,7 @@ int nice(int argc, char** argv) {
     if(success != -1){
         printf("The process %d has been changed of priority successfully \n", pid);
     } else {
-        printf("The process %d could not change its priority \n", pid);
+        fprintf(STDERR,"The process %d could not change its priority \n", pid);
     }
 
     return 0;

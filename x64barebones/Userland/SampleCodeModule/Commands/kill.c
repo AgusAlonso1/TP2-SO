@@ -11,7 +11,7 @@ int kill(int argc, char** argv) {
     if(success != -1 ){
         printf("The process %d has been killed successfully \n", pid);
     } else{
-        printf("The process %d could not be killed \n", pid);
+        fprintf(STDERR,"The process %d could not be killed \n", pid);
     }
 
     return 0;

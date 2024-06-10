@@ -15,7 +15,7 @@ int block(int argc, char** argv) {
             printf("The process %d has been unblocked successfully \n", pid);
         }
     } else {
-        printf("The process %d could not be blocked/unblocked \n", pid);
+        fprintf(STDERR,"The process %d could not be blocked/unblocked \n", pid);
     }
 
     return 0;

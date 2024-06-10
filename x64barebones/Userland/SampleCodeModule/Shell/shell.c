@@ -71,7 +71,7 @@ void shell() {
 
         int flag = executeCommand(arguments, backgroundPos, pipePos, argslen);
         if(flag == ERROR) {
-            printf("Error: command not found\n");
+            fprintf(STDERR, "Error: command not found\n");
         }
     }
 }
@@ -89,7 +89,7 @@ int interpretCommand(char * command) {
 
 int printShellHeader() {
     uint32_t n;
-    call_write((int8_t *) "user> ", &n);
+    call_write((int8_t *) "user> ", &n, STDOUT);
     call_c_get_y((int *)&n);
     return n;
 }

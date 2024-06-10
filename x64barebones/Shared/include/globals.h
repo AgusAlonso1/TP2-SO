@@ -26,6 +26,28 @@ typedef int (*Function)(int, char **);
 #define READ_MODE 'r'
 #define WRITE_MODE 'w'
 
+#define FOREGROUND 1
+#define BACKGROUND 0
+
+
+#define ERROR (-1)
+#define SUCCESS 0
+
+#define IDLE 0
+#define SHELL 1
+
+#define PRIORITY_LEVELS 5
+
+
+enum levels {
+    LEVEL0 = 0,
+    LEVEL1 = 1,
+    LEVEL2 = 2,
+    LEVEL3 = 3,
+    LEVEL4 = 4
+};
+
+
 
 typedef struct ProcessCopy {
     uint32_t pid;
