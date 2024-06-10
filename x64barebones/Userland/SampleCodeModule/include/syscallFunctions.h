@@ -8,8 +8,8 @@
 
 typedef enum {WRITE=0, DELETE, ENTER, RELATIVE_ENTER, TAB}actionOfCursor;
 
-void call_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
-void call_write(uint8_t * buf, uint32_t * length);
+void call_read(char * buf, uint32_t count, uint32_t * readBytes);
+void call_write(int8_t * buf, uint32_t * length, int fd);
 void call_draw_char(uint8_t character);
 void call_delete_char();
 void call_get_time(uint8_t ** time);
@@ -30,19 +30,20 @@ void call_clear_screen();
 void call_sleep(unsigned long long ms);
 void call_get_ticks(unsigned long long * ticks);
 void call_beep(uint32_t frequency);
+
 void * call_malloc(uint64_t size);
 void call_free(void * ptr);
-uint32_t call_create_process_foreground(char* name, Function function, char **args, uint32_t parentPid, int * fileDescriptors);
-uint64_t call_kill_process(uint32_t pid);
+int32_t call_create_process_foreground(char* name, Function function, char **args, uint32_t parentPid, int * fileDescriptors);
+int64_t call_kill_process(uint32_t pid);
 ProcessCopyList * call_get_process_copy();
 uint32_t call_get_pid();
 uint32_t call_get_parent_pid();
-uint64_t call_set_priority(uint32_t pid, uint64_t priority);
-uint64_t call_block(uint32_t pid);
-uint64_t call_waitpid(uint32_t pid);
+int64_t call_set_priority(uint32_t pid, uint64_t priority);
+int64_t call_block(uint32_t pid);
+int call_waitpid(uint32_t pid);
 void call_free_process_copy(ProcessCopyList * processCopyList);
-uint32_t call_create_process_background(char* name, Function function, char **args, uint32_t parentPid,  int * fileDescriptors);
-uint64_t call_get_pipe_id();
+int32_t call_create_process_background(char* name, Function function, char **args, uint32_t parentPid,  int * fileDescriptors);
+int call_get_pipe_id();
 int16_t call_pipe_open(int id, char mode);
 int16_t call_pipe_close(int id);
 int16_t call_pipe_write(int id, char* msg, int len);
@@ -52,5 +53,7 @@ uint64_t call_sem_open(uint64_t value, uint64_t semId);
 uint8_t call_sem_close(uint64_t semId);
 uint64_t call_sem_wait(uint64_t semId);
 uint64_t call_sem_post(uint64_t semId); 
+void call_yield();
+void call_sleep_seconds(unsigned long long seconds);
 
 #endif

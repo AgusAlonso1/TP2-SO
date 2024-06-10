@@ -1,8 +1,10 @@
 //Keyboard driver
 #include <keyboardDriver.h>
 #include <videoDriver.h>
+#include <scheduler.h>
 
 static char shiftPressed = 0;
+static char controlPressed = 0;
 static char capsLockPressed = 0;
 static char altPressed = 0;
 static char buffer[BUFFER_SIZE];
@@ -77,17 +79,34 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
         {0, 0}, // right shift
         {0, 0}, //(keypad) * pressed
         {0, 0}, //left alt pressed
-        {' ', ' '} // space
+        {' ', ' '}, // space
     };
 
 void keyHandler(uint64_t * registers) {
     uint64_t number = getKeyNumber();
+    uint32_t size_ctrl;
 
     if( shiftPressed && number == LEFT_ALT_PRESSED){
         updateRegs(registers);
     }
     
+    if( controlPressed && number == C) {
+        killForegroundProcess();
+        return;
+    }
+
+    if( controlPressed && number == D) {
+        buffer[index % BUFFER_SIZE] = EOF;
+        index++;
+        return;
+    }
+
     if(number == CTRL_PRESSED){ // if ctrl is pressed, do nothing
+        controlPressed = 1;
+        return;
+    }
+    if(number == CTRL_RELEASED){
+        controlPressed = 0;
         return;
     }
 
@@ -100,6 +119,7 @@ void keyHandler(uint64_t * registers) {
         shiftPressed = 0;   // if shift is released, turn it off
         return;
     }
+
     if(number == CAPS_LOCK_PRESSED){
         capsLockPressed = 1 - capsLockPressed; // if caps lock is pressed, turn it off
         return;
@@ -134,7 +154,7 @@ void keyHandler(uint64_t * registers) {
     index++;
 }
 
-void readFromKeyboard(uint8_t * toRetbuffer, uint32_t amount, uint32_t * size) {
+void readFromKeyboard(char * toRetbuffer, uint32_t amount, uint32_t * size) {
     int j;
     int toConsume = index - currentKey;
     for (j = 0; j < toConsume && j < amount; j++) {
@@ -197,5 +217,3 @@ uint8_t * getRegisterName(int index){
 uint64_t getRegisterValue(int index){
     return currentRegisters[index];
 }
-
-

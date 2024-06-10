@@ -38,40 +38,40 @@ int my_strlen(const char * s) {
 
 int putString(char * c) {
     uint32_t length;
-    call_write((uint8_t *)c, &length);
+    call_write((int8_t *) c, &length, STDOUT);
     return length;
 }
 
 char getChar(){
-    uint8_t c;
+    char c;
     uint32_t size = 0;
-    while(size!=1){
+    while(size != 1){
         call_read(&c, 1, &size);
     }
     return c;
 }
 
-static int readFromKeyboard(char * buffer) {
-    int i=0;
-    char c = '\0';
-    while (c != ' ' && c != '\t' && c != '\n' && i < BUFFER_DIM) {
-        c = getChar();
-        buffer[i++] = c;
-    }
-    return i;
-}
+// static int readFromKeyboard(char * buffer) {
+//     int i=0;
+//     char c = '\0';
+//     while (c != ' ' && c != '\t' && c != '\n' && i < BUFFER_DIM) {
+//         c = getChar();
+//         buffer[i++] = c;
+//     }
+//     return i;
+// }
 
 
-static int strConcat(char *str1, char *str2){
-    int i = my_strlen(str1);
-    int j = 0;
-    while(str2[j] != '\0'){
-        str1[i] = str2[j];
-        i++;
-        j++;
-    }
-    return i;
-}
+// static int strConcat(char *str1, char *str2){
+//     int i = my_strlen(str1);
+//     int j = 0;
+//     while(str2[j] != '\0'){
+//         str1[i] = str2[j];
+//         i++;
+//         j++;
+//     }
+//     return i;
+// }
 
 
 
@@ -135,7 +135,7 @@ int printf(const char* string, ...){
 }
 
 char readChar(int * readBytes) {
-    uint8_t buffer;
+    char buffer;
     call_read(&buffer, 1, (uint32_t *) readBytes);
     return buffer;
 }
@@ -313,4 +313,70 @@ int wordlen(char* s){
         aux++;
     }
     return aux;
+}
+
+
+int fprintf(int fd, const char* string, ...){
+    va_list v;
+
+    char buffer[MAX_CHARS] = {0};
+    char buffAux[25] = {0};         // buffer auxiliar para cuando transformo el arg con otra funcion que requiere de un buffer
+    int i = 0, j = 0;               // con i recorro el string y con j el buffer
+    va_start(v, string);
+
+    while(string && string[i]){     // mientras string existe y no es un puntero nulo
+        // mientras string[i] no es el carácter nulo
+        if(string[i] == '%'){
+            i++;
+            switch(string[i]){
+                // convierte a char
+                case 'c':{
+                    buffer[j] = va_arg(v, int);
+                    j++;
+                    break;
+                }
+                    // convierte a decimal
+                case 'd':{
+                    itoa(va_arg(v, int), buffAux, 10);
+                    strcopy(&buffer[j], buffAux);
+                    j += my_strlen(buffAux);
+                    break;
+                }
+                    // convierte a string
+                case 's':{
+                    char* str = va_arg(v, char*);
+                    strcopy(&buffer[j], str);
+                    j += my_strlen(str);
+                    break;
+                }
+                    // convierte a hexa
+                case 'x':{
+                    itoa(va_arg(v, int), buffAux, 16);
+                    strcopy(&buffer[j], buffAux);
+                    j += my_strlen(buffAux);
+                    break;
+                }
+                case 'p': {
+                    uintptr_t num = (uintptr_t)va_arg(v, void*);
+                    itoa(num, buffAux, 16);
+                    for (int k = 0; buffAux[k] != '\0'; k++) {
+                        buffer[j++] = buffAux[k];
+                    }
+                    break;
+                }
+            }
+        }else{
+            buffer[j++] = string[i];            // si no es nada especial, copio el string normal en el buffer a devolver
+        }
+        i++;
+    }
+    buffer[j] = 0;      // asi le indico que aca terminamos
+    va_end(v);
+    return putStringFD(buffer, fd);
+}
+
+int putStringFD(char * c, int fd) {
+    uint32_t length;
+    call_write((int8_t *) c, &length, fd);
+    return length;
 }

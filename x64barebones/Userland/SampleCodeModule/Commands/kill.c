@@ -8,10 +8,10 @@ int kill(int argc, char** argv) {
     int pid = atoi(argv[0]);
 
     uint64_t success = call_kill_process(pid);
-    if(success != 0 ){
+    if(success != -1 ){
         printf("The process %d has been killed successfully \n", pid);
     } else{
-        printf("The process %d could not be killed \n", pid);
+        fprintf(STDERR,"The process %d could not be killed \n", pid);
     }
 
     return 0;

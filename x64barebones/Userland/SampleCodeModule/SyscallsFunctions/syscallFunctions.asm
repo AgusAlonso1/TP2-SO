@@ -42,6 +42,8 @@ GLOBAL call_sem_open
 GLOBAL call_sem_close
 GLOBAL call_sem_wait
 GLOBAL call_sem_post
+GLOBAL call_yield
+GLOBAL call_sleep_seconds
 
 
 section .text
@@ -93,12 +95,15 @@ call_write:        ;call_write(uint8_t * buf, uint32_t * length);
     push rdi
     push rsi
     push rdx
+    push rcx
 
+    mov rcx, rdx        ; rcx -> readBytes
     mov rdx, rsi        ; rdx -> length
     mov rsi, rdi        ; rsi -> buf
     mov rdi, 1
     int 80h
 
+    pop rcx
     pop rdx
     pop rsi
     pop rdi
@@ -905,7 +910,7 @@ call_sem_wait:
     ret
 
 call_sem_post:
-     push rbp
+    push rbp
     mov rbp, rsp
 
     push rdi
@@ -913,6 +918,39 @@ call_sem_post:
 
     mov rsi, rdi
     mov rdi, 43
+    int 80h
+
+    pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_yield:
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+
+    mov rdi, 44
+    int 80h
+
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_sleep_seconds:     ;call_sleep_seconds(unsigned long long seconds);
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+    push rsi
+
+    mov rsi, rdi        ; rsi -> ms
+    mov rdi, 45
     int 80h
 
     pop rsi

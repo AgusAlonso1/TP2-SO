@@ -1,12 +1,5 @@
 #include <scheduler.h>
 
-/* Comentarios scheduler:
- *
- */
-
-// TAREAS IMPORTANTES PENDIENTES
-//ver logica de backgournd y foreground
-
 typedef struct SchedulerCDT{
     LinkedListADT allProcesses;
     LinkedListADT processes[PRIORITY_LEVELS];
@@ -14,16 +7,14 @@ typedef struct SchedulerCDT{
     uint32_t pidCounter;
     uint16_t processQuantum;
     uint64_t processQty;
-    char killCurrentProcess;
- //  char blockCurrentProcess;
+    char killForegroundProcess;
 } SchedulerCDT;
 
 typedef struct ProcessSchedCDT{
     ProcessADT processData;
     uint8_t  quantumWaiting;
 } ProcessSchedCDT;
-
-static int quantumLevel[PRIORITY_LEVELS] = {0, 2, 3, 4, 5};
+static int quantumLevel[PRIORITY_LEVELS] = {2, 3, 4, 5, 6};
 
 void createScheduler() {
     SchedulerADT sched = (SchedulerADT) SCHEDULER_ADDRESS;
@@ -34,7 +25,7 @@ void createScheduler() {
     sched->currentPid = -1;
     sched->pidCounter = 0;
     sched->processQty = 0;
-    sched->killCurrentProcess = 0;
+    sched->killForegroundProcess = 0;
     sched->processQuantum = 0;
 }
 
@@ -60,7 +51,7 @@ void * schedule(void * currentStackPointer) {
     if(sched->processQuantum == 0 || currentState == BLOCKED || currentState == ZOMBIE) {
 
         uint8_t found = 0; 
-        for(int i = LEVEL4; i > LEVEL0; i--) {
+        for(int i = LEVEL4; i >= LEVEL0; i--) {
             Node * currentNode = getFirst(sched->processes[i]);
             while(currentNode != NULL) {
                 ProcessSchedADT processSched = (ProcessSchedADT) currentNode->data;
@@ -75,7 +66,7 @@ void * schedule(void * currentStackPointer) {
                             if (processSched->quantumWaiting == 10) { //El quantum se puede cambiar
                                 processSched->quantumWaiting = 0;
                                 uint64_t priority = getProcessPriority(processSched->processData);
-                                if (priority < LEVEL3) {
+                                if (priority < LEVEL2) {
                                     currentNode = currentNode->next;
                                     flag = 1;
                                     setPriority(getProcessPid(processSched->processData), priority + 1); //este me hace el free del nodo y del processSched
@@ -92,7 +83,7 @@ void * schedule(void * currentStackPointer) {
 
         if(oldProcess != NULL) {
             uint64_t oldProcessPriority  = getProcessPriority(oldProcess);
-            if(oldProcessPriority != LEVEL1 && getProcessPid(oldProcess) != SHELL) {
+            if(oldProcessPriority != LEVEL0 && getProcessPid(oldProcess) != SHELL) {
                 oldProcessPriority--;
             }
             setPriority(getProcessPid(oldProcess), oldProcessPriority);
@@ -105,12 +96,10 @@ void * schedule(void * currentStackPointer) {
         sched->processQuantum = quantumLevel[getProcessPriority(processToRun)];
         setProcessState(processToRun, RUNNING);
 
-        if(sched->killCurrentProcess && !getProcessMortality(processToRun)){
-            if(killProcess(getProcessPid(oldProcess)) != ERROR){
-                forceTimerTick();
-            }
+        if(sched->killForegroundProcess  && getProcessPosition(processToRun) == FOREGROUND){
+            sched->killForegroundProcess = 0;
+            killProcess(getProcessPid(processToRun));
         }
-
     }
 
     return getProcessStack(processToRun);
@@ -120,7 +109,7 @@ SchedulerADT getScheduler() {
     return (SchedulerADT) SCHEDULER_ADDRESS;
 }
 
-uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
+int32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
     SchedulerADT sched = getScheduler();
     ProcessADT newProcess = NULL;
 
@@ -133,8 +122,7 @@ uint32_t createProcessFromSched(char* name, char position, uint64_t priority, Fu
         sched->processQty++;
         return getProcessPid(newProcess);
     }
-
-    return -1;
+    return ERROR;
 }
 
 void listProcess(ProcessSchedADT processSched) {
@@ -147,7 +135,7 @@ void listProcess(ProcessSchedADT processSched) {
 }
 
 
-uint64_t setPriority(uint32_t pid, uint64_t priority){
+int64_t setPriority(uint32_t pid, uint64_t priority){
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
@@ -180,7 +168,7 @@ void yield(){
     forceTimerTick();
 }
 
-uint64_t killProcess(uint32_t pid){
+int64_t killProcess(uint32_t pid){
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
@@ -213,6 +201,9 @@ uint64_t killProcess(uint32_t pid){
         }
     }
 
+    pipeCloseAnonymous(getProcessReadFileDescriptor(processToKill), pid);
+    pipeCloseAnonymous(getProcessWriteFileDescriptor(processToKill), pid);
+
     Node * parent = getProcessNode(getProcessParentPid(processToKill));
     if(parent != NULL && parent->data != NULL) {
         ProcessSchedADT parentProcessSched = (ProcessSchedADT) parent->data;
@@ -234,8 +225,6 @@ uint64_t killProcess(uint32_t pid){
         }
     }
 
-
-
     if(sched->currentPid == pid){
         yield();
     }
@@ -243,7 +232,7 @@ uint64_t killProcess(uint32_t pid){
     return SUCCESS;
 }
 
-uint16_t setState(uint32_t pid, uint64_t state) {
+int16_t setState(uint32_t pid, uint64_t state) {
     SchedulerADT sched = getScheduler();
 
     Node * processNode = getProcessNode(pid);
@@ -279,7 +268,7 @@ Node * getProcessNode(uint32_t pid){
     SchedulerADT sched = getScheduler();
     Node * processNode = NULL;
     uint8_t found = 0;
-    for(int i = LEVEL4; i > LEVEL0; i--) {
+    for(int i = LEVEL4; i >= LEVEL0; i--) {
         Node * currentNode = getFirst(sched->processes[i]);
         while(currentNode != NULL && !found) {
             ProcessSchedADT processSched = (ProcessSchedADT) currentNode->data;
@@ -316,7 +305,7 @@ void exitProcess(int returnValue){
     killProcess(getCurrentPid());
 }
 
-uint64_t waitProcessPid(uint32_t pid) {
+int waitProcessPid(uint32_t pid) {
     SchedulerADT sched = getScheduler();
     Node * childNode =  getProcessNode(pid);
     if(childNode == NULL) {
@@ -339,7 +328,8 @@ uint64_t waitProcessPid(uint32_t pid) {
         setState(sched->currentPid, BLOCKED);
         yield();
     }
-    uint64_t toReturn = getProcessReturnValue(childProcess);
+
+    int toReturn = getProcessReturnValue(childProcess);
 
     setProcessState(childProcess, ZOMBIE);
     freeProcessSched(processSched);
@@ -423,9 +413,9 @@ void removeFromAllProcesses(uint32_t pid){
     }
 }
 
-uint64_t block(uint32_t pid){
+int64_t block(uint32_t pid){
     Node * node = getProcessNode(pid);
-    uint64_t ret = SUCCESS;
+    int64_t ret = SUCCESS;
     if(node != NULL && node->data != NULL){
         ProcessSchedADT processSched = (ProcessSchedADT) node->data;
         if(processSched->processData != NULL){
@@ -446,7 +436,7 @@ uint64_t block(uint32_t pid){
     return ret;
 }
 
-uint64_t isProcessAlive(uint32_t pid){
+int64_t isProcessAlive(uint32_t pid){
     Node * node = getProcessNode(pid);
     if(node == NULL || node->data == NULL){
         return ERROR;
@@ -458,17 +448,25 @@ uint64_t isProcessAlive(uint32_t pid){
     return SUCCESS;
 }
 
-uint64_t getCurrentReadFileDescriptor(){
+int getCurrentReadFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessReadFileDescriptor(current);
 }
 
-uint64_t getCurrentWriteFileDescriptor(){
+int getCurrentWriteFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessWriteFileDescriptor(current);
 }
 
-uint64_t getCurrentErrorFileDescriptor(){
+int getCurrentErrorFileDescriptor(){
     ProcessADT current = getCurrentProcess();
     return getProcessErrorFileDescriptor(current);
 }
+
+void killForegroundProcess(){
+    SchedulerADT sched = getScheduler();
+    sched->killForegroundProcess = 1;
+    sched->processQuantum = 0;
+}
+
+

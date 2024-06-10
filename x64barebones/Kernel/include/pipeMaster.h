@@ -10,7 +10,6 @@
 #define NOT_DEFINED (-1)
 #define FOUND 1
 #define NOT_FOUND 0
-#define EOF (-1)
 
 
 
@@ -28,6 +27,6 @@ int16_t pipeClose(int id);
 int16_t pipeCloseAnonymous(int id, uint32_t pid);
 int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len);
 int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * readBytes);
-int64_t getPipeId();
+int getPipeId();
 
 #endif
