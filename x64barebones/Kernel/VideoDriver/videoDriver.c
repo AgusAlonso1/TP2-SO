@@ -162,7 +162,7 @@ static void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
     framebuffer[offset+2]   =  (hexColor >> 16) & 0xFF; // rojo component
 }
 
-void drawCharOnCursor(uint8_t character) {
+void drawCharOnCursor(int8_t character) {
     unsigned char * bitMapChar = font8x16[character];
     int x0 = cursor.x, y0 = cursor.y;
 
@@ -196,7 +196,7 @@ void deleteCharOnCursor() {
     }
 }
 
-void drawStringOnCursor(uint8_t * string, uint32_t * length) {
+void drawStringOnCursor(int8_t * string, uint32_t * length) {
     int i = 0;
 
     while (string[i] != '\0') {

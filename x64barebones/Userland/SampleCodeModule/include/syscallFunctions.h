@@ -8,8 +8,8 @@
 
 typedef enum {WRITE=0, DELETE, ENTER, RELATIVE_ENTER, TAB}actionOfCursor;
 
-void call_read(uint8_t * buf, uint32_t count, uint32_t * readBytes);
-void call_write(uint8_t * buf, uint32_t * length);
+void call_read(char * buf, uint32_t count, uint32_t * readBytes);
+void call_write(int8_t * buf, uint32_t * length);
 void call_draw_char(uint8_t character);
 void call_delete_char();
 void call_get_time(uint8_t ** time);

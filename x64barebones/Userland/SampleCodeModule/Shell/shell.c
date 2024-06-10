@@ -18,12 +18,12 @@
 #define HEIGHT_FONT 16
 #define MAX_ARGUMENTS 7
 #define BUFFER_SIZE 256
-#define ERROR 0
-#define SUCCESS 1
+#define ERROR (-1)
+#define SUCCESS 0
 
 int printShellHeader();
 
-char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill", "nice", "block", "minfo", "testmm", "testprocesses", "testprio", "cat", "wc", "filter"};
+char * commands[AMOUNT_OF_COMMANDS] = {"man", "time", "registers", "snake", "div0", "invalidop", "clear", "zoomin", "zoomout", "settheme", "EstoesBoca", "loop", "ps", "kill", "nice", "block", "minfo", "testmm", "testprocesses", "testprio", "cat", "wc", "filter", "producer"};
 
 int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, char **)) man,
                                                                 (int (*)(int, char **)) time,
@@ -44,7 +44,7 @@ int (* commandsReferences[AMOUNT_OF_COMMANDS])(int, char **) = {(int (*)(int, ch
                                                                 minfo,
                                                                 test_mm,
                                                                 test_processes,
-                                                                (int (*)(int, char **)) test_prio, cat, wc, filter};
+                                                                (int (*)(int, char **)) test_prio, cat, wc, filter, producer};
 
 static char commandLine[BUFFER_SIZE] = {0};
 static char *arguments[MAX_ARGUMENTS];
@@ -89,7 +89,7 @@ int interpretCommand(char * command) {
 
 int printShellHeader() {
     uint32_t n;
-    call_write((uint8_t *) "user> ", &n);
+    call_write((int8_t *) "user> ", &n);
     call_c_get_y((int *)&n);
     return n;
 }
@@ -250,12 +250,13 @@ int createProcess(char* command1, char** arguments1, uint32_t parentPid, int bac
     return SUCCESS;
 }
 
-/*
+
 int producer(){
-    printf("Hola soy el que escribio...\n");
+    printf("Hola soy el que escribio... \n");
     return SUCCESS;
 }
 
+ /*
 int consumer(){
     char* buf[30] = {0};
     scanf("%S", buf);   //imprime en pantalla lo que esta en buf

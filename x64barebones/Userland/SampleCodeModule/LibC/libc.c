@@ -38,14 +38,14 @@ int my_strlen(const char * s) {
 
 int putString(char * c) {
     uint32_t length;
-    call_write((uint8_t *)c, &length);
+    call_write((int8_t *) c, &length);
     return length;
 }
 
 char getChar(){
-    uint8_t c;
+    char c;
     uint32_t size = 0;
-    while(size!=1){
+    while(size != 1){
         call_read(&c, 1, &size);
     }
     return c;
@@ -135,7 +135,7 @@ int printf(const char* string, ...){
 }
 
 char readChar(int * readBytes) {
-    uint8_t buffer;
+    char buffer;
     call_read(&buffer, 1, (uint32_t *) readBytes);
     return buffer;
 }
