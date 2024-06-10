@@ -14,3 +14,4 @@ x64barebones/runSound.sh
 x64barebones/task.json
 .gdbinit
 .config/PVS-Studio/PVS-Studio.lic
+.config/PVS-Studio
