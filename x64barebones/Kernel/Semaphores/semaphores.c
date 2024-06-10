@@ -9,7 +9,7 @@ extern void leave_region(uint8_t *lock);
 typedef struct Semaphore {
     uint64_t id;
     int64_t value;
-    uint8_t lock;
+    uint32_t lock;
     LinkedListADT processBlockedPids;
 } Semaphore;
 
@@ -126,7 +126,7 @@ int64_t semWait(uint64_t semId) {
 
     if(sem->value > 0) {
         sem->value--;
-    } else { 
+    } else if(sem->value == 0){ 
         uint32_t processPid = getCurrentPid();
         void *pidPointer = (void *)(uintptr_t)processPid;
         insert(sem->processBlockedPids, pidPointer);
@@ -134,6 +134,9 @@ int64_t semWait(uint64_t semId) {
         unlock(sem);
         yield();
         spinLock(sem);
+    } else {
+        unlock(sem);
+        return -1;
     }
 
     unlock(sem);
@@ -156,6 +159,11 @@ int64_t semPost(uint64_t semId) {
     }
 
     spinLock(sem);
+
+    if(sem->value < 0){
+        unlock(sem->lock);
+        return -1;
+    }
 
     sem->value++;
 
@@ -192,7 +200,6 @@ int8_t semClose(uint64_t semId) {
 
     freeMemory(sem->processBlockedPids);
     removeNode(semList->semaphores, semNode);
-    freeMemory(semNode); // Liberar el nodo del semáforo, no solo su contenido
     freeMemory(sem);
 
     leave_region(&(semList->globalLock));

@@ -117,7 +117,7 @@ enter_region:
     ret
 
 leave_region:
-    mov qword [rdi], 0 ;devuelvo lock=0 
+    mov dword [rdi], 0 ;devuelvo lock=0 
     ret
 
 

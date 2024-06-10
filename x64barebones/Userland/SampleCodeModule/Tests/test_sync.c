@@ -43,10 +43,10 @@ int my_process_inc(int argc, char *argv[]) {
   uint64_t i;
   for (i = 0; i < n; i++) {
     if (use_sem)
-      call_sem_wait(SEM_ID); 
+      if(call_sem_wait(SEM_ID) == -1) printf("Error semwait\n"); 
     slowInc(&global, inc);
     if (use_sem)
-      call_sem_post(SEM_ID);
+      if(call_sem_post(SEM_ID) == -1) printf("Error sempost\n");
   }
 
   return 0;
@@ -54,7 +54,7 @@ int my_process_inc(int argc, char *argv[]) {
 
 int test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
 
-  int8_t useSem = satoi(argv[2]);
+  int8_t useSem = satoi(argv[1]);
 
   uint32_t test_pid = call_get_pid();
   uint32_t pids[2 * TOTAL_PAIR_PROCESSES];
