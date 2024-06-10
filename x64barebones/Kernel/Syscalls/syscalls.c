@@ -18,7 +18,7 @@ typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C
 
 static void sys_read(char * buf, uint32_t count, uint32_t * readBytes);
 //static void sys_write(uint8_t * buf, uint32_t x, uint32_t y, uint32_t scale, uint32_t * count);
-static void sys_write(int8_t * buf, uint32_t * count);
+static void sys_write(int8_t * buf, uint32_t * count, int userlandFd);
 //static void sys_draw_char(uint8_t character, uint32_t x, uint32_t y, uint32_t scale);
 static void sys_draw_char(uint8_t character);
 //static void sys_delete_char( uint32_t x, uint32_t y, uint32_t scale) ;
@@ -74,7 +74,7 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             sys_read((char *) rsi, (uint32_t) rdx, (uint32_t *) rcx);
             break;
         case SYS_WRITE :
-            sys_write((int8_t *) rsi, (uint32_t *) rdx);
+            sys_write((int8_t *) rsi, (uint32_t *) rdx, (int) rcx);
             break;
         case DRAW_C :
             sys_draw_char((uint8_t) rsi);
@@ -208,15 +208,23 @@ static void sys_read(char * buf, uint32_t count, uint32_t * readBytes) {
 }
 
 // Syscall Write - ID = 1
-static void sys_write(int8_t * buf, uint32_t * count) {
+static void sys_write(int8_t * buf, uint32_t * count, int userlandFd) {
     uint32_t pid = getCurrentPid();
     int fd = getCurrentWriteFileDescriptor();
 
-    if(fd == STDOUT || fd == STDERR){
-        drawStringOnCursor(buf, count);
-    } else if(fd != DEV_NULL){
-      int len = my_strlen((char *) buf);
-      pipeWrite(fd, pid, (char *) buf, len);
+    if(userlandFd == STDERR){
+        uint32_t oldLetterColor = getFontColor();
+        uint32_t errorColor = 0xFF0000;
+        setFontColor(errorColor);
+        drawStringOnCursor(buf, count); //con color ROJO
+        setFontColor(oldLetterColor);
+    }else{
+        if(fd == STDOUT){
+            drawStringOnCursor(buf, count);
+        } else if(fd != DEV_NULL){
+            int len = my_strlen((char *) buf);
+            pipeWrite(fd, pid, (char *) buf, len);
+        }
     }
 }
 
@@ -278,16 +286,16 @@ static void sys_set_colors(uint32_t textColor, uint32_t backgroundColor) {
 static void sys_get_registers(){
     if(!savedRegs()){
         uint32_t length;
-        sys_write((uint8_t *)"Registers must be saved.\n", &length);
+        sys_write((int8_t *)"Registers must be saved.\n", &length, STDERR);
         return;
     }
     uint32_t length;
     char toHex[18];
     for(int i = REGISTERS_AMOUNT-1; i >= 0; i--) {
         copyRegisters(getRegisterValue(i), toHex);
-        sys_write(getRegisterName(i), &length);
-        sys_write((uint8_t *) toHex, &length);
-        sys_write((uint8_t *)"\n", &length);
+        sys_write(getRegisterName(i), &length, STDOUT);
+        sys_write((int8_t *) toHex, &length, STDOUT);
+        sys_write((int8_t *)"\n", &length, STDOUT);
     }
 }
 

@@ -95,12 +95,15 @@ call_write:        ;call_write(uint8_t * buf, uint32_t * length);
     push rdi
     push rsi
     push rdx
+    push rcx
 
+    mov rcx, rdx        ; rcx -> readBytes
     mov rdx, rsi        ; rdx -> length
     mov rsi, rdi        ; rsi -> buf
     mov rdi, 1
     int 80h
 
+    pop rcx
     pop rdx
     pop rsi
     pop rdi

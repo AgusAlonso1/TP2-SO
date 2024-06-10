@@ -17,4 +17,8 @@ void colorScreen(uint32_t hexColor);
 
 void drawCircle(uint32_t hexColor, uint64_t x, uint64_t y, uint32_t length, uint32_t backgroundColor);
 
+uint32_t getFontColor();
+
+void setFontColor(uint32_t color);
+
 #endif

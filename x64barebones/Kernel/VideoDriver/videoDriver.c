@@ -273,3 +273,11 @@ void drawCircle(uint32_t hexColor, uint64_t x, uint64_t y, uint32_t length, uint
 uint32_t getBackgroundColor() {
     return backgroundColor;
 }
+
+uint32_t getFontColor() {
+    return characterColor;
+}
+
+void setFontColor(uint32_t color) {
+    characterColor = color;
+}
