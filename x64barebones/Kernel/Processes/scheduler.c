@@ -66,7 +66,7 @@ void * schedule(void * currentStackPointer) {
                             if (processSched->quantumWaiting == 10) { //El quantum se puede cambiar
                                 processSched->quantumWaiting = 0;
                                 uint64_t priority = getProcessPriority(processSched->processData);
-                                if (priority < LEVEL3) {
+                                if (priority < LEVEL2) {
                                     currentNode = currentNode->next;
                                     flag = 1;
                                     setPriority(getProcessPid(processSched->processData), priority + 1); //este me hace el free del nodo y del processSched
