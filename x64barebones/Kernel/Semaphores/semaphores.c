@@ -41,10 +41,17 @@ static Node * getSemNodeById( uint64_t semId, SemaphoreListADT list ) {
 static uint64_t createSemaphore(uint64_t value, uint64_t semId) {
     SemaphoreListADT semaphoresList = getSemaphoreManager();
     Semaphore * newSem = allocMemory(sizeof(Semaphore));
+    if (newSem == NULL) {
+        return -1;
+    }
     newSem->id = semId ;
     newSem->value = value;
     newSem->lock = 0;
     newSem->processBlockedPids = createLinkedList();
+    if (newSem->processBlockedPids == NULL) {
+        freeMemory(newSem);
+        return -1;
+    }
     insert(semaphoresList->semaphores, newSem);
     return newSem->id;
 }
@@ -157,37 +164,36 @@ int64_t semPost(uint64_t semId) {
 }
 
 int8_t semClose(uint64_t semId) {
-    if(semId < 0 ){
+    if (semId < 0) {
         return -1;
     }
-    uint32_t p = getCurrentPid(); //eliminar
     SemaphoreListADT semList = getSemaphoreManager();
 
     while (enter_region(&(semList->globalLock))) {
         yield();
     }
 
-    Node * semNode = getSemNodeById(semId, semList);
-    if(semNode == NULL) {
-        leave_region(&(semList->globalLock));
-        return 1;
-    }
-
-    Semaphore * sem = semNode->data;
-    if(sem == NULL) {
+    Node *semNode = getSemNodeById(semId, semList);
+    if (semNode == NULL) {
         leave_region(&(semList->globalLock));
         return -1;
     }
 
-    if(getListSize(sem->processBlockedPids) != 0){
+    Semaphore *sem = semNode->data;
+    if (sem == NULL) {
         leave_region(&(semList->globalLock));
-        return -1; //processes wating for sem
+        return -1;
+    }
+
+    if (getListSize(sem->processBlockedPids) != 0) {
+        leave_region(&(semList->globalLock));
+        return -1; // Hay procesos esperando en el semáforo
     }
 
     freeMemory(sem->processBlockedPids);
     removeNode(semList->semaphores, semNode);
+    freeMemory(semNode); // Liberar el nodo del semáforo, no solo su contenido
     freeMemory(sem);
-    freeMemory(semNode);
 
     leave_region(&(semList->globalLock));
 

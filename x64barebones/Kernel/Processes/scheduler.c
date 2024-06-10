@@ -1,5 +1,7 @@
 #include <scheduler.h>
 
+extern void forceTimerTick();
+
 typedef struct SchedulerCDT{
     LinkedListADT allProcesses;
     LinkedListADT processes[PRIORITY_LEVELS];

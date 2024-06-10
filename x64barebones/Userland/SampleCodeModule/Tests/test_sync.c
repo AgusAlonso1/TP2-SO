@@ -52,12 +52,12 @@ int my_process_inc(int argc, char *argv[]) {
   return 0;
 }
 
-uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
+int test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
 
   int8_t useSem = satoi(argv[2]);
 
   uint32_t test_pid = call_get_pid();
-  uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
+  uint32_t pids[2 * TOTAL_PAIR_PROCESSES];
 
   if (argc != 2)
     return -1;
@@ -70,8 +70,8 @@ uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   uint64_t i;
   int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = call_create_process_foreground("my_process_inc", &my_process_inc, argvInc , test_pid, fileDescriptors);
-    pids[i + TOTAL_PAIR_PROCESSES] = call_create_process_foreground("my_process_dec", &my_process_inc ,argvDec, test_pid, fileDescriptors);
+    pids[i] = call_create_process_background("my_process_inc", &my_process_inc, argvInc , test_pid, fileDescriptors);
+    pids[i + TOTAL_PAIR_PROCESSES] = call_create_process_background("my_process_dec", &my_process_inc ,argvDec, test_pid, fileDescriptors);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
@@ -82,7 +82,7 @@ uint64_t test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   if (useSem)
 		call_sem_close(SEM_ID);
 
-  printf("Succes %d", global);
+  printf("Succes %d\n", global);
 
   return 0;
 }

@@ -10,6 +10,7 @@
 #include <scheduler.h>
 #include <timer.h>
 #include <pipeMaster.h>
+#include <semaphores.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -68,6 +69,7 @@ int main() {
 	createScheduler();
 //CREATE SEMAFOROS
     createPipeMaster();
+    createSemaphoreManager();
 
 	char * args[] = {"2", "idle", NULL};
     int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
