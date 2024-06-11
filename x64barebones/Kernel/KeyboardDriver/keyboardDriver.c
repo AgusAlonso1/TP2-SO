@@ -84,7 +84,6 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
 
 void keyHandler(uint64_t * registers) {
     uint64_t number = getKeyNumber();
-    uint32_t size_ctrl;
 
     if( shiftPressed && number == LEFT_ALT_PRESSED){
         updateRegs(registers);
