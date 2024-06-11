@@ -60,10 +60,10 @@ static int16_t sys_pipe_close(int id);
 static int16_t sys_pipe_write(int id, char* msg, int len);
 static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes);
 static uint64_t sys_get_mem_info();
-static int64_t sys_sem_open(uint64_t value, uint64_t semId);
-static int8_t sys_sem_close(uint64_t semId);
-static int64_t sys_sem_wait(uint64_t semId);
-static int64_t sys_sem_post(uint64_t semId);
+static int64_t sys_sem_open(int64_t value, int64_t semId);
+static int8_t sys_sem_close(int64_t semId);
+static int64_t sys_sem_wait(int64_t semId);
+static int64_t sys_sem_post(int64_t semId);
 static void sys_yield();
 static void sys_sleep_seconds(unsigned long long seconds);
 static uint64_t sys_get_new_sem_id();
@@ -178,13 +178,13 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
             return sys_get_mem_info();
             break;
         case SEM_OPEN:
-            return sys_sem_open(rsi, rdx);
+            return sys_sem_open((int64_t)rsi, (int64_t)rdx);
         case SEM_CLOSE:
-            return sys_sem_close(rsi);
+            return sys_sem_close((int64_t)rsi);
         case SEM_WAIT:
-            return sys_sem_wait(rsi);
+            return sys_sem_wait((int64_t)rsi);
         case SEM_POST:
-            return sys_sem_post(rsi);
+            return sys_sem_post((int64_t)rsi);
         case YIELD:
             sys_yield();
             break;
@@ -407,19 +407,19 @@ static uint64_t sys_get_mem_info() {
     // Me falta merge
 }
 
-static int64_t sys_sem_open(uint64_t value, uint64_t semId) {
+static int64_t sys_sem_open(int64_t value, int64_t semId) {
     return semOpen(value, semId);
 }
 
-static int8_t sys_sem_close(uint64_t semId) {
+static int8_t sys_sem_close(int64_t semId) {
     return semClose(semId);
 }
 
-static int64_t sys_sem_wait(uint64_t semId) {
+static int64_t sys_sem_wait(int64_t semId) {
     return semWait(semId);
 }
 
-static int64_t sys_sem_post(uint64_t semId) {
+static int64_t sys_sem_post(int64_t semId) {
     return semPost(semId);
 }
 
