@@ -51,6 +51,9 @@ int my_process_inc(int argc, char *argv[]) {
 
 int test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
 
+  if (argc != 2)
+      return -1;
+
   int8_t useSem = satoi(argv[1]);
 
   uint32_t test_pid = call_get_pid();
@@ -60,8 +63,6 @@ int test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   char semIdChar[30];
   itoa((int) semId, semIdChar, 10);
 
-  if (argc != 2)
-    return -1;
 
   char *argvDec[] = {argv[0], "-1", argv[1], semIdChar,NULL};
   char *argvInc[] = {argv[0], "1", argv[1], semIdChar,NULL};
@@ -87,7 +88,7 @@ int test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   }
 
 
-  printf("Succes %d\n", global);
+  printf("Global = %d\n", global);
 
   if (useSem)
 		call_sem_close(SEM_ID);
