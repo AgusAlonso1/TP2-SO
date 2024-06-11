@@ -12,7 +12,7 @@ typedef struct MemoryInfoCDT {
 void createMemoryInfo(MemoryInfoADT memoryInfo, uint64_t memSize) {
     #if defined BUDDY
         my_strcopy((char *) memoryInfo->typeName, "Buddy Allocator");
-    #elif defined OTHER
+    #elif defined FL
         my_strcopy((char *) memoryInfo->typeName, "Free-List Allocator");
     #endif
     memoryInfo->memoryInUse = 0;
