@@ -30,7 +30,7 @@ void man(){
     printf("\t testmm - Runs the memory manager test. Argument is the quantity of MB.\n");
     printf("\t testprocesses - Runs the processes test. Argument is the maximum amount of processes \n");
     printf("\t testprio - Runs the priority test.\n");
-    printf("\t testsynchro - Runs the synchronized test. Arguments are the number of increments, the number of processes, and whether to use semaphores or not.\n");
+    printf("\t testsync - Runs the synchronized test. Arguments are the number of increments, the number of processes, and whether to use semaphores or not.\n");
     printf("\t phylo - Simulates the philosophers problem.\n");
     printf("\t EstoesBoca - BOCA.\n\n");
     printf("EXCEPTIONS\n");
