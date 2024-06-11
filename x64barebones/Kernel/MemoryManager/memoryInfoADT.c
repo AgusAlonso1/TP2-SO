@@ -1,37 +1,30 @@
 #include <memoryInfoADT.h>
 #include <memoryManager.h>
 
-#define TYPE_NAME_SIZE 20
-
-typedef struct MemoryInfoCDT {
-    uint8_t typeName[TYPE_NAME_SIZE];
-    uint64_t memoryInUse;
-    uint64_t memoryFree;
-} MemoryInfoCDT;
-
-void createMemoryInfo(MemoryInfoADT memoryInfo, uint64_t memSize) {
+void createMemoryInfo(MemoryInfo * memoryInfo, uint64_t memSize) {
     #if defined BUDDY
-        my_strcopy((char *) memoryInfo->typeName, "Buddy Allocator");
+        my_strcopy(memoryInfo->typeName, "Buddy Allocator");
     #elif defined FL
-        my_strcopy((char *) memoryInfo->typeName, "Free-List Allocator");
+        my_strcopy(memoryInfo->typeName, "Free-List Allocator");
     #endif
     memoryInfo->memoryInUse = 0;
     memoryInfo->memoryFree = memSize;
 }
 
-void allocUpdateInfo(MemoryInfoADT memoryInfo, uint64_t block_size) {
+void allocUpdateInfo(MemoryInfo * memoryInfo, uint64_t block_size) {
     memoryInfo->memoryInUse += block_size;
     memoryInfo->memoryFree -= block_size;
 }
 
-void freeUpdateInfo(MemoryInfoADT memoryInfo, uint64_t block_size) {
+void freeUpdateInfo(MemoryInfo * memoryInfo, uint64_t block_size) {
     memoryInfo->memoryInUse -= block_size;
     memoryInfo->memoryFree += block_size;
 }
 
-MemoryData * getMemoryInfoCopy(MemoryInfoADT memoryInfo) {
+MemoryData * getMemoryInfoCopy(MemoryInfo * memoryInfo) {
     MemoryData * memoryDataCopy = allocMemory(sizeof(MemoryData));
-    my_strcopy((char *) memoryDataCopy->typeName, (char *) memoryInfo->typeName);
+    memoryDataCopy->typeName = (char *) allocMemory(my_strlen(memoryDataCopy->typeName) + 1);
+    my_strcopy(memoryDataCopy->typeName, memoryInfo->typeName);
     memoryDataCopy->memoryFree = memoryInfo->memoryFree;
     memoryDataCopy->memoryInUse = memoryInfo->memoryInUse;
 

@@ -24,7 +24,7 @@ typedef struct MemoryManagerCDT {
     uint8_t maxExpOfTwo;
     void * firstAvailableAddress;
     MemoryChunk * chunks[MAX_EXP + 1]; // Each position represents the power of two.
-    MemoryInfoADT info;
+    MemoryInfo info;
 } MemoryManagerCDT;
 
 static int reorderChunks(uint8_t expIndexToAlloc);
@@ -48,7 +48,7 @@ MemoryManagerADT createMemoryManager(void * firstAddress, const uint64_t availab
         return NULL;
     }
 
-    createMemoryInfo(memoryManager->info, availableMem);
+    createMemoryInfo(&(memoryManager->info), availableMem);
 
     for (uint8_t current_exp = 0; current_exp <= MAX_EXP; current_exp++) { // Initialize all chunks in NULL
         memoryManager->chunks[current_exp] = NULL;
@@ -84,7 +84,7 @@ void * allocMemory(const uint64_t size) {
     selectedChunk->nextChunk = NULL;
     selectedChunk->previousChunk = NULL;
 
-    allocUpdateInfo(memoryManager->info, pow2(selectedChunk->exp));
+    allocUpdateInfo(&(memoryManager->info), pow2(selectedChunk->exp));
 
     return (void *) selectedChunk + sizeof(MemoryChunk);
 }
@@ -100,7 +100,7 @@ void freeMemory(void * ptrToFree) {
 
     MemoryManagerADT memoryManager = getMemoryManager();
 
-    freeUpdateInfo(memoryManager->info, pow2(chunk->exp));
+    freeUpdateInfo(&(memoryManager->info), pow2(chunk->exp));
 
     MemoryChunk * buddyChunk = getBuddyChunk(chunk);
     while (chunk->exp < memoryManager->maxExpOfTwo && buddyChunk->state == FREE && chunk->exp == buddyChunk->exp) {
@@ -205,7 +205,7 @@ static void * removeChunk(MemoryChunk * chunk) {
 
 MemoryData * getMemoryInfo() {
     MemoryManagerADT memoryManager = getMemoryManager();
-    return getMemoryInfoCopy(memoryManager->info);
+    return getMemoryInfoCopy(&(memoryManager->info));
 }
 
 #endif

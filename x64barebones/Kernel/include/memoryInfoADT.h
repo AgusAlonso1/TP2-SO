@@ -5,11 +5,17 @@
 #include <globals.h>
 #include <libString.h>
 
-typedef struct MemoryInfoCDT * MemoryInfoADT;
+#define TYPE_NAME_SIZE 20
 
-void createMemoryInfo(MemoryInfoADT memoryInfo, uint64_t memSize);
-void allocUpdateInfo(MemoryInfoADT memoryInfo, uint64_t block_size);
-void freeUpdateInfo(MemoryInfoADT memoryInfo, uint64_t block_size);
-MemoryData * getMemoryInfoCopy(MemoryInfoADT memoryInfo);
+typedef struct MemoryInfo {
+    char typeName[TYPE_NAME_SIZE];
+    uint64_t memoryInUse;
+    uint64_t memoryFree;
+} MemoryInfo;
+
+void createMemoryInfo(MemoryInfo * memoryInfo, uint64_t memSize);
+void allocUpdateInfo(MemoryInfo * memoryInfo, uint64_t block_size);
+void freeUpdateInfo(MemoryInfo * memoryInfo, uint64_t block_size);
+MemoryData * getMemoryInfoCopy(MemoryInfo * memoryInfo);
 
 #endif

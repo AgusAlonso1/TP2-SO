@@ -62,7 +62,7 @@ typedef struct ProcessCopy {
 } ProcessCopy;
 
 typedef struct MemoryData {
-    uint8_t typeName[TYPE_NAME_SIZE];
+    char * typeName;
     uint64_t memoryInUse;
     uint64_t memoryFree;
 } MemoryData;

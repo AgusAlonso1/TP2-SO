@@ -19,10 +19,6 @@ void freeMemory(void * ptrToFree);
 
 MemoryData * getMemoryInfo();
 
-//Despues borrar
 MemoryManagerADT getMemoryManager();
-
-// Despues mover de aca
-uint64_t pow2(uint64_t argument);
 
 #endif

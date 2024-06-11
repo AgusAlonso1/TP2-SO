@@ -25,7 +25,7 @@ typedef struct MemoryManagerCDT {
     MemoryChunkHeader * head;
     void * firstAddress;
     uint64_t size;
-    MemoryInfoADT info;
+    MemoryInfo info;
 } MemoryManagerCDT;
 
 static MemoryChunkHeader * assignNewChunk(MemoryChunkHeader * intoChunk, uint64_t sizeRequested);
@@ -52,7 +52,7 @@ MemoryManagerADT createMemoryManager(void * const firstAdress, const uint64_t av
     firstChunkFooter->state = FREE;
 
     memoryManager->head = firstChunkHeader;
-    createMemoryInfo(memoryManager->info, availableMem);
+    createMemoryInfo(&(memoryManager->info), availableMem);
 
     return memoryManager;
 }
@@ -76,7 +76,7 @@ void * allocMemory(const uint64_t size) {
 
     MemoryChunkHeader * newChunkAlloc = assignNewChunk(currentChunkHeader, size);
 
-    allocUpdateInfo(memoryManager->info, size);
+    allocUpdateInfo(&(memoryManager->info), size);
 
     return (void *) newChunkAlloc + HEADER_SIZE;
 }
@@ -90,7 +90,7 @@ void freeMemory(void * ptrToFree) {
 
     MemoryManagerADT memoryManager = getMemoryManager();
 
-    freeUpdateInfo(memoryManager->info, chunkToFree->size);
+    freeUpdateInfo(&(memoryManager->info), chunkToFree->size);
 
     MemoryChunkFooter * leftChunkFooter = (MemoryChunkFooter *) ((void *) chunkToFree - FOOTER_SIZE);
     MemoryChunkHeader * leftChunkHeader = (MemoryChunkHeader *) ((void *) chunkToFree - (leftChunkFooter->size + HEADER_FOOTER_SIZE));
@@ -119,7 +119,7 @@ void freeMemory(void * ptrToFree) {
             break;
     }
 
-    freeUpdateInfo(memoryManager->info, chunkToFree->size);
+    freeUpdateInfo(&(memoryManager->info), chunkToFree->size);
 }
 
 static MemoryChunkHeader * leftCoalesceFree(MemoryChunkHeader * leftChunkHeader, MemoryChunkHeader * chunkToFreeHeader) {
@@ -195,7 +195,7 @@ MemoryManagerADT getMemoryManager() {
 
 MemoryData * getMemoryInfo() {
     MemoryManagerADT memoryManager = getMemoryManager();
-    return getMemoryInfoCopy(memoryManager->info);
+    return getMemoryInfoCopy(&(memoryManager->info));
 }
 
 #endif
