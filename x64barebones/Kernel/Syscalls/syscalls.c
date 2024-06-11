@@ -62,8 +62,8 @@ static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes
 static uint64_t sys_get_mem_info();
 static int64_t sys_sem_open(uint64_t value, uint64_t semId);
 static int8_t sys_sem_close(uint64_t semId);
-static uint64_t sys_sem_wait(uint64_t semId);
-static uint64_t sys_sem_post(uint64_t semId);
+static int64_t sys_sem_wait(uint64_t semId);
+static int64_t sys_sem_post(uint64_t semId);
 static void sys_yield();
 static void sys_sleep_seconds(unsigned long long seconds);
 
@@ -294,7 +294,7 @@ static void sys_get_registers(){
     char toHex[18];
     for(int i = REGISTERS_AMOUNT-1; i >= 0; i--) {
         copyRegisters(getRegisterValue(i), toHex);
-        sys_write(getRegisterName(i), &length, STDOUT);
+        sys_write((int8_t *)getRegisterName(i), &length, STDOUT);
         sys_write((int8_t *) toHex, &length, STDOUT);
         sys_write((int8_t *)"\n", &length, STDOUT);
     }
@@ -405,19 +405,19 @@ static uint64_t sys_get_mem_info() {
 }
 
 static int64_t sys_sem_open(uint64_t value, uint64_t semId) {
-    //return semOpen(value, semId);
+    return semOpen(value, semId);
 }
 
 static int8_t sys_sem_close(uint64_t semId) {
-    //return semClose(semId);
+    return semClose(semId);
 }
 
-static uint64_t sys_sem_wait(uint64_t semId) {
-    //return semWait(semId);
+static int64_t sys_sem_wait(uint64_t semId) {
+    return semWait(semId);
 }
 
-static uint64_t sys_sem_post(uint64_t semId) {
-    //return semPost(semId);
+static int64_t sys_sem_post(uint64_t semId) {
+    return semPost(semId);
 }
 
 static void sys_yield(){
