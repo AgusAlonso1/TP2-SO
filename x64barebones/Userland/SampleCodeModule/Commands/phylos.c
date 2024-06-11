@@ -1,9 +1,8 @@
 #include <commands.h>
 #define MAX_PHILOSOPHERS 20
 #define MIN_PHILOSOPHERS 5
-#define MUTEX_ID 75
 #define THINKING  0
-#define EATIING  1
+#define EATING  1
 #define HUNGRY  2
 #define CONTINUE 1
 #define FINISH 0
@@ -18,17 +17,25 @@ Philosopher philosophers[MAX_PHILOSOPHERS];
 int num_philosophers; 
 int philosophersPids[MAX_PHILOSOPHERS];
 int64_t mutex;
+int64_t change_sem;
+
+
+int canEat(int i) {
+    int left = (i + num_philosophers - 1) % num_philosophers;
+    int right = (i + 1) % num_philosophers;
+    return philosophers[left].state != EATING && philosophers[right].state != EATING;
+}
 
 void displayState() {
     for (int i = 0; i < num_philosophers; i++) {
-        if (philosophers[i].state == EATIING) { 
+        if (philosophers[i].state == EATING) { 
             printChar('E');
         } else {
             printChar('.');
         }
-     //   printChar(' ');
+        printChar(' ');
     }
-    printChar('\n');
+    printf("\n");
 }
 
 void think(int i) {
@@ -40,9 +47,12 @@ void eat(int i) {
 }
 
 void takeForks(int i) {
-    call_sem_wait(philosophers[i].leftFork);
-    call_sem_wait(philosophers[i].rightFork);
-    philosophers[i].state = EATIING;
+    philosophers[i].state = HUNGRY;
+    if (canEat(i)) {
+        philosophers[i].state = EATING;
+        call_sem_wait(philosophers[i].leftFork);
+        call_sem_wait(philosophers[i].rightFork);
+    }
 }
 
 void putForks(int i) {
@@ -59,21 +69,26 @@ int philosopher(int argc, char ** argv) {
         call_sem_wait(mutex);
         takeForks(i);
         call_sem_post(mutex);
-        eat(i);
-        call_sem_wait(mutex);
-        putForks(i);
-        call_sem_post(mutex);
+        if (philosophers[i].state == EATING) {
+            eat(i);
+            call_sem_wait(mutex);
+            putForks(i);
+            call_sem_post(mutex);
+        }
         displayState();
     }
     return 0;
 }
 
 void addPhilosopher() {
+    call_sem_wait(change_sem);
     if (num_philosophers < MAX_PHILOSOPHERS) {
         int i = num_philosophers;
+        int idForkLeft = call_get_new_sem_id();
+        int idForkRight = call_get_new_sem_id();
         philosophers[i].state = THINKING; 
-        philosophers[i].leftFork = call_sem_open(1, (MUTEX_ID + i));
-        philosophers[i].rightFork = call_sem_open(1, (MUTEX_ID + i + 1) % (num_philosophers + 1));
+        philosophers[i].leftFork = call_sem_open(1, idForkLeft);
+        philosophers[i].rightFork = call_sem_open(1, idForkRight);
         char philoNumber[4];
         itoa(i, philoNumber, 10);
         char *argv[] = {philoNumber, NULL};
@@ -81,15 +96,17 @@ void addPhilosopher() {
         int fileDescriptors[CANT_FILE_DESCRIPTORS] = {DEV_NULL, STDOUT, STDERR};
         call_create_process_background("philosopher", &philosopher, argv, call_get_pid(), fileDescriptors);
     }
+    call_sem_post(change_sem);
 }
 
 void removePhilosopher() {
-    if (num_philosophers > 1) {
+    call_sem_wait(change_sem);
         num_philosophers--;
         call_sem_close(philosophers[num_philosophers].leftFork);
         call_sem_close(philosophers[num_philosophers].rightFork);
         call_kill_process(philosophersPids[num_philosophers]);
-    }
+
+    call_sem_post(change_sem);
 }
 
 int handleKeyboard(char key) {
@@ -97,17 +114,34 @@ int handleKeyboard(char key) {
         addPhilosopher();
         return CONTINUE;
     } else if (key == 'r') {
-        removePhilosopher();
+        if(num_philosophers > MIN_PHILOSOPHERS)
+            removePhilosopher();
         return CONTINUE;
-    } else if (key ==  'e'){
+    } else if (key == 'e') {
         return FINISH;
     }
     return CONTINUE;
 }
 
+void displayHeader() {
+    printf("Instructions:\n");
+    printf("Press - a - Add philosopher\n");
+    printf("Press - r - Remove philosopher\n");
+    printf("Press - e - Exit\n");
+    printf("State of philosophers:\n");
+    printf(" - E - Comiendo\n");
+    printf(" - . - Pensando\n");
+}
+
 int phylos(int argc, char ** argv) {
     num_philosophers = 0;
-    mutex = call_sem_open(1, MUTEX_ID);
+    mutex = call_get_new_sem_id();
+    call_sem_open(1, mutex);
+    change_sem = call_get_new_sem_id();
+    call_sem_open(1, change_sem);
+
+    displayHeader();  
+
     for (int i = 0; i < MIN_PHILOSOPHERS; i++) {
         addPhilosopher();
     }
@@ -118,10 +152,11 @@ int phylos(int argc, char ** argv) {
         flag = handleKeyboard(key);
     }
 
-    while (num_philosophers!=0){
+    while (num_philosophers > 0) {
         removePhilosopher();    
     }
     call_sem_close(mutex);
+    call_sem_close(change_sem);
     
     return 0;
 }
