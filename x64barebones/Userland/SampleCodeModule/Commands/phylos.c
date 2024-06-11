@@ -1,8 +1,4 @@
-#include <stdint.h>
-#include <libc.h>
-#include <syscallFunctions.h>
-#include <libString.h>
-
+#include <commands.h>
 #define MAX_PHILOSOPHERS 20
 #define MIN_PHILOSOPHERS 5
 #define MUTEX_ID 75
@@ -18,10 +14,10 @@ typedef struct {
     uint64_t rightFork;
 } Philosopher;
 
-static Philosopher philosophers[MAX_PHILOSOPHERS];
-static int num_philosophers; 
-static int philosophersPids[MAX_PHILOSOPHERS];
-static uint64_t mutex;
+Philosopher philosophers[MAX_PHILOSOPHERS];
+int num_philosophers; 
+int philosophersPids[MAX_PHILOSOPHERS];
+int64_t mutex;
 
 void displayState() {
     for (int i = 0; i < num_philosophers; i++) {
@@ -36,11 +32,11 @@ void displayState() {
 }
 
 void think(int i) {
-    call_sleep(1500);
+    call_sleep_seconds(1);
 }
 
 void eat(int i) {
-    call_sleep(1500);
+    call_sleep_seconds(2);
 }
 
 void takeForks(int i) {
@@ -82,8 +78,8 @@ void addPhilosopher() {
         itoa(i, philoNumber, 10);
         char *argv[] = {philoNumber, NULL};
         num_philosophers++;
-        int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
-        call_create_process_foreground("philosopher", &philosopher, argv, call_get_pid(), fileDescriptors);
+        int fileDescriptors[CANT_FILE_DESCRIPTORS] = {DEV_NULL, STDOUT, STDERR};
+        call_create_process_background("philosopher", &philosopher, argv, call_get_pid(), fileDescriptors);
     }
 }
 
@@ -109,7 +105,7 @@ int handleKeyboard(char key) {
     return CONTINUE;
 }
 
-int execute() {
+int phylos(int argc, char ** argv) {
     num_philosophers = 0;
     mutex = call_sem_open(1, MUTEX_ID);
     for (int i = 0; i < MIN_PHILOSOPHERS; i++) {

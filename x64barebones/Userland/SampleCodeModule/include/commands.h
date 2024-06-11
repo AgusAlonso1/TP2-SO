@@ -41,4 +41,6 @@ int wc(int argc, char** argv);
 
 int filter(int argc, char** argv);
 
+int phylos(int argc, char** argv);
+
 #endif
