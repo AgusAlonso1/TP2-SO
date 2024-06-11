@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define SEMAPHORE_MANAGER_ADDRESS 
-
 typedef struct SemaphoreListCDT * SemaphoreListADT;
 
 void createSemaphoreManager(); 
