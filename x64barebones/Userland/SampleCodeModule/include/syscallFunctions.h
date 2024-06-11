@@ -55,5 +55,6 @@ int64_t call_sem_wait(uint64_t semId);
 int64_t call_sem_post(uint64_t semId); 
 void call_yield();
 void call_sleep_seconds(unsigned long long seconds);
+uint64_t call_get_new_sem_id();
 
 #endif

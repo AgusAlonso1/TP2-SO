@@ -15,7 +15,7 @@
 
 
 
-typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE_MEMORY, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO, SEM_OPEN, SEM_CLOSE, SEM_WAIT, SEM_POST, YIELD, SLEEP_SECONDS}SysID;
+typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE_MEMORY, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO, SEM_OPEN, SEM_CLOSE, SEM_WAIT, SEM_POST, YIELD, SLEEP_SECONDS, GET_NEW_SEM_ID}SysID;
 
 static void sys_read(char * buf, uint32_t count, uint32_t * readBytes);
 //static void sys_write(uint8_t * buf, uint32_t x, uint32_t y, uint32_t scale, uint32_t * count);
@@ -66,6 +66,7 @@ static int64_t sys_sem_wait(uint64_t semId);
 static int64_t sys_sem_post(uint64_t semId);
 static void sys_yield();
 static void sys_sleep_seconds(unsigned long long seconds);
+static uint64_t sys_get_new_sem_id();
 
 
 
@@ -190,6 +191,8 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
         case SLEEP_SECONDS:
             sys_sleep_seconds((uint64_t) rsi);
             break;
+        case GET_NEW_SEM_ID:
+            return sys_get_new_sem_id();
         default :
             break;
     }
@@ -426,4 +429,8 @@ static void sys_yield(){
 
 static void sys_sleep_seconds(unsigned long long seconds) {
     sleepSeconds(seconds);
+}
+
+static uint64_t sys_get_new_sem_id(){
+    return getNewSemId();
 }

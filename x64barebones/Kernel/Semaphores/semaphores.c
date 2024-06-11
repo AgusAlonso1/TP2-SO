@@ -14,6 +14,7 @@ typedef struct Semaphore {
 
 typedef struct SemaphoreListCDT {
     LinkedListADT semaphores;
+    uint64_t idCounter;
 } SemaphoreListCDT;
 
 
@@ -23,6 +24,11 @@ static SemaphoreListADT getSemaphoreManager() {
 
 static uint64_t getSemId(Semaphore * sem) {
     return sem->id;
+}
+
+uint64_t getNewSemId(){
+    SemaphoreListADT semaphoreList = getSemaphoreManager();
+    return semaphoreList->idCounter++;
 }
 
 static Node * getSemNodeById( uint64_t semId, SemaphoreListADT list ) {
@@ -71,6 +77,7 @@ void release(Semaphore * sem) {
 void createSemaphoreManager() {
    SemaphoreListADT semaphoresList = getSemaphoreManager();
    semaphoresList->semaphores = createLinkedList();
+   semaphoresList->idCounter = 0;
 }
 
 int64_t semOpen(uint64_t value, uint64_t semId) {

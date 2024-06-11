@@ -21,8 +21,9 @@ int my_process_inc(int argc, char *argv[]) {
   uint64_t n;
   int8_t inc;
   int8_t use_sem;
+  uint64_t semId;
 
-  if (argc != 3)
+  if (argc != 4)
     return -1;
 
   if ((n = satoi(argv[0])) <= 0)
@@ -32,14 +33,17 @@ int my_process_inc(int argc, char *argv[]) {
   if ((use_sem = satoi(argv[2])) < 0)
     return -1;
 
+  if ((semId = satoi(argv[3])) < 0)
+     return -1;
+
 
   uint64_t i;
   for (i = 0; i < n; i++) {
     if (use_sem)
-      if(call_sem_wait(SEM_ID) == -1) printf("Error semwait\n"); 
+      if(call_sem_wait(semId) == -1) printf("Error semwait\n");
     slowInc(&global, inc);
     if (use_sem)
-      if(call_sem_post(SEM_ID) == -1) printf("Error sempost\n");
+      if(call_sem_post(semId) == -1) printf("Error sempost\n");
   }
 
   return 0;
@@ -52,16 +56,20 @@ int test_sync(int argc, char *argv[]) { //{n, use_sem, 0}
   uint32_t test_pid = call_get_pid();
   uint32_t pids[2 * TOTAL_PAIR_PROCESSES];
 
+  uint64_t semId = call_get_new_sem_id();
+  char semIdChar[30];
+  itoa((int) semId, semIdChar, 10);
+
   if (argc != 2)
     return -1;
 
-  char *argvDec[] = {argv[0], "-1", argv[1], NULL};
-  char *argvInc[] = {argv[0], "1", argv[1], NULL};
+  char *argvDec[] = {argv[0], "-1", argv[1], semIdChar,NULL};
+  char *argvInc[] = {argv[0], "1", argv[1], semIdChar,NULL};
 
   global = 0;
 
    if (useSem)
-    if ((call_sem_open(1, SEM_ID)) < 0) {
+    if ((call_sem_open(1, semId)) < 0) {
       printf("test_sync: ERROR opening semaphore\n");
       return -1;
     }

@@ -44,6 +44,7 @@ GLOBAL call_sem_wait
 GLOBAL call_sem_post
 GLOBAL call_yield
 GLOBAL call_sleep_seconds
+GLOBAL call_get_new_sem_id
 
 
 section .text
@@ -954,6 +955,21 @@ call_sleep_seconds:     ;call_sleep_seconds(unsigned long long seconds);
     int 80h
 
     pop rsi
+    pop rdi
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+call_get_new_sem_id:     ;call_get_new_sem_id();
+    push rbp
+    mov rbp, rsp
+
+    push rdi
+
+    mov rdi, 46
+    int 80h
+
     pop rdi
 
     mov rsp, rbp
