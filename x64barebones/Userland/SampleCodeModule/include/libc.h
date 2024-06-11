@@ -1,10 +1,13 @@
 #ifndef LIB_C_H
 #define LIB_C_H
 
+
 #define DIM 610
+
 
 int my_strlen(const char * s);
 int strcmp(const char * s1, const char * s2);
+
 int putString(char *c);
 char getChar();
 int printf(const char * format, ...);
@@ -20,7 +23,11 @@ int abs(int value);
 void printChar(char c);
 int wordlen(char* s);
 int atoi(char* value);
+
 void printChar(char c);
+
+int fprintf(int fd, const char* string, ...);
+int putStringFD(char * c, int fd);
 
 
 

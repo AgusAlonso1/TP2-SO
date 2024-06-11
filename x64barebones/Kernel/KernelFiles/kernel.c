@@ -8,8 +8,9 @@
 #include <processes.h>
 #include <interruptions.h>
 #include <scheduler.h>
-#include <test_util.h>
 #include <timer.h>
+#include <pipeMaster.h>
+#include <semaphores.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -51,7 +52,8 @@ void * initializeKernelBinary() {
 int idle(int argc, char **argv){
     char * args[] = {"2", "shell", NULL};   // el 2 es el argc
     uint32_t currentPid = getCurrentPid();
-    createProcessFromSched("shell", 1, LEVEL4, (Function) sampleCodeModuleAddress, args, currentPid);
+    int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
+    createProcessFromSched("shell", 1, LEVEL4, (Function) sampleCodeModuleAddress, args, currentPid, 1, fileDescriptors);
 
     while (1){
         _hlt();
@@ -66,12 +68,15 @@ int main() {
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
 	createScheduler();
 //CREATE SEMAFOROS
-//CREATE PIPEMASTER
+    createPipeMaster();
+    createSemaphoreManager();
 
 	char * args[] = {"2", "idle", NULL};
-    createProcessFromSched("idle", 1, LEVEL3, (Function) &idle, args, IDLE);
+    int fileDescriptors[CANT_FILE_DESCRIPTORS] = {STDIN, STDOUT, STDERR};
+    createProcessFromSched("idle", 0, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
 
     loadIDT();
     _sti(); // Enable interruptions
     return 0;
 }
+//0000000000105494

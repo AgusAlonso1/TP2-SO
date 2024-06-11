@@ -18,11 +18,19 @@ unsigned long long seconds_elapsed() {
 unsigned long long ms_elapsed() {
 	return ticks * 55;
 }
+
 void sleep(unsigned long long ms) {
 	unsigned long long intial_time = ms_elapsed();
 	unsigned long long currentTime = intial_time;
     while( currentTime - intial_time <= ms) {
 		currentTime = ms_elapsed();
 	    _hlt();
+    }
+}
+
+void sleepSeconds(unsigned long long seconds) {
+    unsigned long long initial_time = seconds_elapsed();
+    while ((seconds_elapsed() - initial_time) < seconds) {
+        _hlt();
     }
 }

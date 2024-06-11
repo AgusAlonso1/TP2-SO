@@ -22,8 +22,8 @@ uint32_t getCursorY();
 uint32_t getCursorScale();
 void setCursorScale(int scale);
 
-void drawCharOnCursor(uint8_t character);
+void drawCharOnCursor(int8_t character);
 void deleteCharOnCursor();
-void drawStringOnCursor(uint8_t * string, uint32_t * length);
+void drawStringOnCursor(int8_t * string, uint32_t * length);
 
 #endif

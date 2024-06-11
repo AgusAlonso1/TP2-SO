@@ -181,27 +181,21 @@ _irq04Handler:
 _irq05Handler:
 	irqHandlerMaster 5
 
-_irq80Handler:
+_irq80Handler:      ; en rdi el mode, luego en el resto de los registros los parametros usuales de cada syscall
     push rbp
-    mov rbp, rsp
-    pushState
+    push rsp
+    push r12
+    push r13
+    push r15
+    push r10
 
-    ;parameters for systemcalls
-    push r9
-    push r8
-    push rcx
-    push rdx
-    push rsi
-    push rdi
-
-    mov rdi, rax
-    mov rsi, rsp   ; stack pointer is pointing towards first element in the stack
     call syscallsDispatcher
 
-    add rsp, 8*6    ; Restablezco el stack
-
-    popState
-    mov rsp, rbp
+    pop r10
+    pop r15
+    pop r13
+    pop r12
+    pop rsp
     pop rbp
     iretq
 
