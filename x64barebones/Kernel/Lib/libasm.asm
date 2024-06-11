@@ -9,6 +9,7 @@ GLOBAL inPortSpeaker
 GLOBAL forceTimerTick
 GLOBAL enter_region
 GLOBAL leave_region
+GLOBAL _xchg
 
 
 
@@ -117,9 +118,14 @@ enter_region:
     ret
 
 leave_region:
-    mov dword [rdi], 0 ;devuelvo lock=0 
+    mov rax, 0
+    xchg [rdi], rax ;devuelvo lock=0 
     ret
 
+_xchg: 
+    mov rax, rsi 
+    xchg [rdi], eax 
+    ret
 
 ;lock = 0 -> disponible
 ;lock = 1 -> ocupado
