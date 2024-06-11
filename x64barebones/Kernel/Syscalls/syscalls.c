@@ -11,7 +11,8 @@
 #include <pipeMaster.h>
 #include <memoryasm.h>
 #include <scheduler.h>
-//#include <semaphores.h>
+#include <semaphores.h>
+
 
 
 typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE_MEMORY, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO, SEM_OPEN, SEM_CLOSE, SEM_WAIT, SEM_POST, YIELD, SLEEP_SECONDS}SysID;
@@ -61,8 +62,8 @@ static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes
 static uint64_t sys_get_mem_info();
 static int64_t sys_sem_open(uint64_t value, uint64_t semId);
 static int8_t sys_sem_close(uint64_t semId);
-static uint64_t sys_sem_wait(uint64_t semId);
-static uint64_t sys_sem_post(uint64_t semId);
+static int64_t sys_sem_wait(uint64_t semId);
+static int64_t sys_sem_post(uint64_t semId);
 static void sys_yield();
 static void sys_sleep_seconds(unsigned long long seconds);
 
@@ -229,7 +230,7 @@ static void sys_write(int8_t * buf, uint32_t * count, int userlandFd) {
 }
 
 // Syscall Draw char - ID = 2
-static void sys_draw_char(uint8_t character){
+static void sys_draw_char(uint8_t character) {
     drawCharOnCursor(character);
 }
 
@@ -239,7 +240,7 @@ static void sys_delete_char() {
 }
 
 //Syscall Time - ID = 4
-static void sys_time(uint8_t ** currentTime){
+static void sys_time(uint8_t ** currentTime) {
     *currentTime = get_time();
 }
 
@@ -293,13 +294,13 @@ static void sys_get_registers(){
     char toHex[18];
     for(int i = REGISTERS_AMOUNT-1; i >= 0; i--) {
         copyRegisters(getRegisterValue(i), toHex);
-        sys_write(getRegisterName(i), &length, STDOUT);
+        sys_write((int8_t *)getRegisterName(i), &length, STDOUT);
         sys_write((int8_t *) toHex, &length, STDOUT);
         sys_write((int8_t *)"\n", &length, STDOUT);
     }
 }
 
-static void sys_draw_square(uint32_t hexColor,uint64_t x, uint64_t y, uint32_t scale){
+static void sys_draw_square(uint32_t hexColor,uint64_t x, uint64_t y, uint32_t scale) { 
     drawSquare(hexColor,x,y,scale);
 }
 
@@ -346,15 +347,15 @@ static int64_t sys_kill_process(uint32_t pid){
     return killProcess(pid);
 }
 
-static ProcessCopyList * sys_get_processes_copy(){
+static ProcessCopyList * sys_get_processes_copy() {
     return getProcessCopy();
 }
 
-static uint32_t sys_get_pid(){
+static uint32_t sys_get_pid() {
     return getCurrentPid();
 }
 
-static uint32_t sys_get_parent_pid(){
+static uint32_t sys_get_parent_pid() {
     return getCurrentParentPid();
 }
 
@@ -370,7 +371,7 @@ static int sys_waitpid(uint32_t pid){
     return waitProcessPid(pid);
 }
 
-static void sys_free_process_copy(ProcessCopyList * processCopyList){
+static void sys_free_process_copy(ProcessCopyList * processCopyList) {
     freeProcessCopy(processCopyList);
 }
 
@@ -390,32 +391,33 @@ static int16_t sys_pipe_close(int id) {
     return pipeClose(id);
 }
 
-static int16_t sys_pipe_write(int id, char* msg, int len){
+static int16_t sys_pipe_write(int id, char* msg, int len) {
     return pipeWrite(id, getCurrentPid(), msg, len);
 }
 
-static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes){
+static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes) {
     return pipeRead(id, getCurrentPid(), buffer, len, readBytes);
 }
 
 static uint64_t sys_get_mem_info() {
+    return 1;
     // Me falta merge
 }
 
 static int64_t sys_sem_open(uint64_t value, uint64_t semId) {
-    //return semOpen(value, semId);
+    return semOpen(value, semId);
 }
 
 static int8_t sys_sem_close(uint64_t semId) {
-    //return semClose(semId);
+    return semClose(semId);
 }
 
-static uint64_t sys_sem_wait(uint64_t semId) {
-    //return semWait(semId);
+static int64_t sys_sem_wait(uint64_t semId) {
+    return semWait(semId);
 }
 
-static uint64_t sys_sem_post(uint64_t semId) {
-    //return semPost(semId);
+static int64_t sys_sem_post(uint64_t semId) {
+    return semPost(semId);
 }
 
 static void sys_yield(){

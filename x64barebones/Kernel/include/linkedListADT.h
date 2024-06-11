@@ -16,5 +16,7 @@ void insert(LinkedListADT list, void *data);
 int isEmpty(LinkedListADT list);
 void removeNode(LinkedListADT list, Node * node);
 Node * getFirst(LinkedListADT list);
+int getListSize(LinkedListADT list);
+void * removeFirst(LinkedListADT list); 
 
 #endif

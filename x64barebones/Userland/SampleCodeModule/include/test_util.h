@@ -11,3 +11,6 @@ void endless_loop_print(uint64_t wait);
 int test_mm(int argc, char *argv[]);
 int test_processes(int argc, char *argv[]);
 void test_prio();
+int test_sync(int argc, char *argv[]);
+void test_yield();
+void test_waitProcessPid();

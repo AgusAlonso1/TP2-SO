@@ -49,10 +49,10 @@ int16_t call_pipe_close(int id);
 int16_t call_pipe_write(int id, char* msg, int len);
 int16_t call_pipe_read(int id, char* msg, int len, uint32_t * readBytes);
 //MemoryData * call_get_mem_info();
-uint64_t call_sem_open(uint64_t value, uint64_t semId);
-uint8_t call_sem_close(uint64_t semId);
-uint64_t call_sem_wait(uint64_t semId);
-uint64_t call_sem_post(uint64_t semId); 
+int64_t call_sem_open(uint64_t value, uint64_t semId);
+int8_t call_sem_close(uint64_t semId);
+int64_t call_sem_wait(uint64_t semId);
+int64_t call_sem_post(uint64_t semId); 
 void call_yield();
 void call_sleep_seconds(unsigned long long seconds);
 
