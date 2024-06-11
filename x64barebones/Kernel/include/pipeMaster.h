@@ -4,6 +4,7 @@
 #include "scheduler.h"
 #include "definitions.h"
 #include <stddef.h>
+#include "semaphores.h"
 
 #define MAX_BUFFER_LEN 256
 

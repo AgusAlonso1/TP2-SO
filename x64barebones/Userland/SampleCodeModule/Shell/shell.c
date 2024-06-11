@@ -249,17 +249,3 @@ int createProcess(char* command1, char** arguments1, uint32_t parentPid, int bac
     }
     return SUCCESS;
 }
-
-
-/*
-int producer(){
-   printf("Hola soy el que escribio... \n");
-   return SUCCESS;
-}
-
-int consumer(){
-   char* buf[30] = {0};
-   scanf("%S", buf);   //imprime en pantalla lo que esta en buf
-   return SUCCESS;
-}
-*/

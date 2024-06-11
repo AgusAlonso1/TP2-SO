@@ -7,8 +7,8 @@ typedef struct PipeCDT {
     char buffer[MAX_BUFFER_LEN];
     int writePid;
     int readPid;
-//  sem_t semWrite;  //semaforo para escribir, se inicializa en MAX_BUFFER_LEN
-//  sem_t semRead;  //semaforo para leer, se incializa en 0
+    int64_t semWrite;
+    int64_t semRead;
     uint64_t writePos;
     uint64_t readPos;
 } PipeCDT;
@@ -50,8 +50,14 @@ PipeADT createPipe(uint64_t id) {
     pipe->readPid = NOT_DEFINED;
     pipe->writePos = 0;
     pipe->readPos = 0;
-//  sem_t semWrite = createSem(MAX_BUFFER_LEN, ...);  //crear el semaforo
-//  sem_t semRead = createSem(0, ...);                //crear el semaforo
+    int64_t semIdWrite = getPipeId();
+    int64_t semIdRead = getPipeId();
+    if(semOpen(MAX_BUFFER_LEN, semIdWrite) == -1 || semOpen(0, semIdRead) == -1){
+        return NULL;
+    }
+    pipe->semWrite = semIdWrite;
+    pipe->semRead = semIdRead;
+
     return pipe;
 }
 
@@ -131,6 +137,8 @@ int16_t pipeCloseAnonymous(int id, uint32_t pid) {
         pipeWrite(id, pid, endOfFile, 1);
         pipe->writePid = NOT_DEFINED;
     } else if(pipe->readPid == pid){
+        semClose(pipe->semWrite);
+        semClose(pipe->semRead);
         removeNode(pMaster->pipes, pipeNode);
         freeMemory(pipe);
         pMaster->pipesQty--;
@@ -157,7 +165,7 @@ int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
 
     int i = 0;
     while(i < len  && pipe->buffer[GET_INDEX(pipe->writePos)] != EOF){
-       // semWait(pipe->semWrite);      //semaforo para ver si puedo escribir
+        semWait(pipe->semWrite);
 
        if(isProcessAlive(pipe->writePid) == ERROR){
            return ERROR;
@@ -167,7 +175,7 @@ int16_t pipeWrite(uint64_t id, uint32_t pid, char* msg, int len) {
        pipe->writePos++;
        i++;
 
-       // semPost(pipe->semRead):       //semaforo para marcar que hay algo para leer
+        semPost(pipe->semRead);
     }
 
     return SUCCESS;
@@ -190,7 +198,7 @@ int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * re
 
     int i = 0;
     while(i < len  && pipe->buffer[GET_INDEX(pipe->readPos - 1)] != EOF){
-        // semWait(pipe->semRead);      //semaforo para ver si puedo leer
+        semWait(pipe->semRead);
 
         if(isProcessAlive(pipe->readPid) == ERROR){
             return ERROR;
@@ -202,7 +210,7 @@ int16_t pipeRead(uint64_t id, uint32_t pid, char* buffer, int len, uint32_t * re
 
         *readBytes = i;
 
-        // semPost(pipe->semWrite):       //semaforo para marcar que hay lugar para escribir
+        semPost(pipe->semWrite);
     }
 
     return SUCCESS;
