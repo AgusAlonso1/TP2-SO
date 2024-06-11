@@ -203,4 +203,9 @@ static void * removeChunk(MemoryChunk * chunk) {
     return (void *) chunk;
 }
 
+MemoryData * getMemoryInfo() {
+    MemoryManagerADT memoryManager = getMemoryManager();
+    return getMemoryInfoCopy(memoryManager->info);
+}
+
 #endif

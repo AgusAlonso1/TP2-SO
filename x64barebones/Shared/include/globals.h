@@ -74,8 +74,4 @@ typedef struct ProcessCopyList {
     ProcessCopy * processCopyList;
 } ProcessCopyList;
 
-
-uint64_t pow2(uint64_t argument);
-uint8_t log2(uint64_t argument);
-
 #endif

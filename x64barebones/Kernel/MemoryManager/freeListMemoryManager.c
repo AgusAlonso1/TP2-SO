@@ -28,7 +28,6 @@ typedef struct MemoryManagerCDT {
     MemoryInfoADT info;
 } MemoryManagerCDT;
 
-//static MemoryManagerADT getMemoryManager();
 static MemoryChunkHeader * assignNewChunk(MemoryChunkHeader * intoChunk, uint64_t sizeRequested);
 
 static MemoryChunkHeader * leftCoalesceFree(MemoryChunkHeader * leftChunkFooter, MemoryChunkHeader * chunkToFreeHeader);
@@ -190,9 +189,13 @@ static MemoryChunkHeader * assignNewChunk(MemoryChunkHeader * intoChunk, uint64_
     return newChunkHeaderToAlloc;
 }
 
-//Despues de borra creo
 MemoryManagerADT getMemoryManager() {
     return (MemoryManagerADT) MEMORY_MANAGER_ADDRESS;
+}
+
+MemoryData * getMemoryInfo() {
+    MemoryManagerADT memoryManager = getMemoryManager();
+    return getMemoryInfoCopy(memoryManager->info);
 }
 
 #endif

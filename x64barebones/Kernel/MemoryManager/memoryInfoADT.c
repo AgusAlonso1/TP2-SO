@@ -1,5 +1,4 @@
 #include <memoryInfoADT.h>
-
 #include <memoryManager.h>
 
 #define TYPE_NAME_SIZE 20

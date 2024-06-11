@@ -17,7 +17,7 @@ MemoryManagerADT createMemoryManager(void * firstAdress, const uint64_t availabl
 void * allocMemory(const uint64_t size);
 void freeMemory(void * ptrToFree);
 
-MemoryInfoADT getMemoryInfo();
+MemoryData * getMemoryInfo();
 
 //Despues borrar
 MemoryManagerADT getMemoryManager();

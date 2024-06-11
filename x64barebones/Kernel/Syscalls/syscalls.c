@@ -403,8 +403,7 @@ static int16_t sys_pipe_read(int id, char* buffer, int len, uint32_t * readBytes
 }
 
 static uint64_t sys_get_mem_info() {
-    return 1;
-    // Me falta merge
+    return (uint64_t) getMemoryInfo();
 }
 
 static int64_t sys_sem_open(int64_t value, int64_t semId) {

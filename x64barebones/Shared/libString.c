@@ -116,23 +116,6 @@ int abs(int value){
     return value;
 }
 
-int atoi(char* value){
-    int isNegative = 0;
-    int aux = 0;
-    if(value[0] == '-'){
-        isNegative = 1;
-    }
-    for (int i = isNegative; value[i] != '\0'; ++i){
-        if(value[i] >= '0' && value[i] <= '9'){
-            aux = aux * 10 + value[i] - '0';
-        }
-    }
-
-    if(isNegative){
-        aux = -aux;
-    }
-    return aux;
-}
 
 int wordlen(char* s){
     int aux = 0;
@@ -142,14 +125,21 @@ int wordlen(char* s){
     return aux;
 }
 
-// static int strConcat(char *str1, char *str2){
-//     int i = my_strlen(str1);
-//     int j = 0;
-//     while(str2[j] != '\0'){
-//         str1[i] = str2[j];
-//         i++;
-//         j++;
-//     }
-//     return i;
-// }
+uint8_t log2(uint64_t argument) {
+    unsigned int count = 0;
+    uint64_t value = 1;
+    while (value < argument) {
+        value *= 2;
+        count++;
+    }
+    return count;
+}
 
+uint64_t pow2(uint64_t argument) {
+    uint64_t count = 1;
+    while (argument > 0) {
+        count *= 2;
+        argument--;
+    }
+    return count;
+}
