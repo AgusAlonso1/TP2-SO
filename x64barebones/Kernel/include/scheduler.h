@@ -13,7 +13,7 @@ typedef struct SchedulerCDT* SchedulerADT;
 void createScheduler();
 SchedulerADT getScheduler();
 void * schedule(void * currentStackPointer);
-int32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);                //create process ----> se crea un proceso
+int32_t createProcessFromSched(char* name, char position, uint64_t priority, Function function, char **args, uint32_t parentPid, char mortality, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);
 void listProcess(ProcessSchedADT processSched);
 int waitProcessPid(uint32_t pid);
 int64_t setPriority(uint32_t pid, uint64_t priority);

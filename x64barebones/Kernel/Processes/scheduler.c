@@ -16,6 +16,7 @@ typedef struct ProcessSchedCDT{
     ProcessADT processData;
     uint8_t  quantumWaiting;
 } ProcessSchedCDT;
+
 static int quantumLevel[PRIORITY_LEVELS] = {2, 3, 4, 5, 6};
 
 void createScheduler() {
@@ -30,7 +31,6 @@ void createScheduler() {
     sched->killForegroundProcess = 0;
     sched->processQuantum = 0;
 }
-
 
 void * schedule(void * currentStackPointer) {
     SchedulerADT sched = getScheduler();

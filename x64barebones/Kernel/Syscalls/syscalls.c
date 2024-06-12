@@ -9,20 +9,14 @@
 #include <sound.h>
 #include <memoryManager.h>
 #include <pipeMaster.h>
-#include <memoryasm.h>
 #include <scheduler.h>
 #include <semaphores.h>
-
-
 
 typedef enum {SYS_READ = 0, SYS_WRITE, DRAW_C, DELETE_C, TIME, THEME, SET_EXC, C_GET_X, C_GET_Y, C_GET_S, C_SET_S, C_MOVE, C_INIT, SET_COLORS, GET_REGS, DRAW_SQUARE, COLOR_SCREEN, DRAW_CIRCLE, CLEAR_SCREEN, SLEEP, GET_TICKS, BEEP, MALLOC, FREE_MEMORY, CREATE_PROCESS_FOREGROUND, KILL_PROCESS, GET_PROCESSES_COPY, GET_PID, GET_PARENT_PID, SET_PRIORITY, BLOCK, WAITPID, FREE_PROCESS_COPY, CREATE_PROCESS_BACKGROUND, GET_PIPE_ID, PIPE_OPEN, PIPE_CLOSE, PIPE_WRITE, PIPE_READ, GET_MEM_INFO, SEM_OPEN, SEM_CLOSE, SEM_WAIT, SEM_POST, YIELD, SLEEP_SECONDS, GET_NEW_SEM_ID}SysID;
 
 static void sys_read(char * buf, uint32_t count, uint32_t * readBytes);
-//static void sys_write(uint8_t * buf, uint32_t x, uint32_t y, uint32_t scale, uint32_t * count);
 static void sys_write(int8_t * buf, uint32_t * count, int userlandFd);
-//static void sys_draw_char(uint8_t character, uint32_t x, uint32_t y, uint32_t scale);
 static void sys_draw_char(uint8_t character);
-//static void sys_delete_char( uint32_t x, uint32_t y, uint32_t scale) ;
 static void sys_delete_char();
 static void sys_shell_theme(uint32_t * theme);
 static void sys_time(uint8_t ** currentTime);
@@ -67,8 +61,6 @@ static int64_t sys_sem_post(int64_t semId);
 static void sys_yield();
 static void sys_sleep_seconds(unsigned long long seconds);
 static uint64_t sys_get_new_sem_id();
-
-
 
 uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9, uint64_t aux) {
     switch(rdi) {
@@ -199,7 +191,6 @@ uint64_t syscallsDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
     return -1;
 }
 
-// Syscall Read - ID = 0
 static void sys_read(char * buf, uint32_t count, uint32_t * readBytes) {
     uint32_t pid = getCurrentPid();
     int fd = getCurrentReadFileDescriptor();
@@ -211,7 +202,6 @@ static void sys_read(char * buf, uint32_t count, uint32_t * readBytes) {
     }
 }
 
-// Syscall Write - ID = 1
 static void sys_write(int8_t * buf, uint32_t * count, int userlandFd) {
     uint32_t pid = getCurrentPid();
     int fd = getCurrentWriteFileDescriptor();
@@ -232,22 +222,18 @@ static void sys_write(int8_t * buf, uint32_t * count, int userlandFd) {
     }
 }
 
-// Syscall Draw char - ID = 2
 static void sys_draw_char(uint8_t character) {
     drawCharOnCursor(character);
 }
 
-// Syscall Delete char - ID = 3
 static void sys_delete_char() {
     deleteCharOnCursor();
 }
 
-//Syscall Time - ID = 4
 static void sys_time(uint8_t ** currentTime) {
     *currentTime = get_time();
 }
 
-// Syscall theme  - ID = 5
 static void sys_shell_theme(uint32_t * theme) {
     uint32_t font_color = theme[1], background_color = theme[0];
     setColor(font_color, background_color);

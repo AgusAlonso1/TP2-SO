@@ -16,9 +16,7 @@ typedef struct MemoryManagerCDT * MemoryManagerADT;
 MemoryManagerADT createMemoryManager(void * firstAdress, const uint64_t availableMem);
 void * allocMemory(const uint64_t size);
 void freeMemory(void * ptrToFree);
-
 MemoryData * getMemoryInfo();
-
 MemoryManagerADT getMemoryManager();
 
 #endif

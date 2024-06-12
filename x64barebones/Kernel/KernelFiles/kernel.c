@@ -64,10 +64,9 @@ int idle(int argc, char **argv){
 
 
 int main() {
-	_cli(); // Disable interruptions
+	_cli();
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
 	createScheduler();
-//CREATE SEMAFOROS
     createPipeMaster();
     createSemaphoreManager();
 
@@ -76,7 +75,6 @@ int main() {
     createProcessFromSched("idle", 0, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
 
     loadIDT();
-    _sti(); // Enable interruptions
+    _sti();
     return 0;
 }
-//0000000000105494

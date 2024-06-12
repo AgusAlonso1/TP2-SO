@@ -8,13 +8,13 @@ typedef struct ProcessCDT {
     uint32_t parentPid;
     uint32_t waitingPid;
     char immortal;
-    char * name; //?uint32_t
-    uint64_t priority; //?
+    char * name;
+    uint64_t priority;
     uint64_t state;
     void * stack;
     void * basePointer;
-    char position;  //Background (1) or Foreground (0)
-    int returnValue;  //no se si inicializarlo o dejarlo asi
+    char position;          //Background (1) or Foreground (0)
+    int returnValue;
     char ** arguments;
     int fileDescriptors[CANT_FILE_DESCRIPTORS];
 } ProcessCDT;
@@ -30,7 +30,7 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     my_strcopy(process->name, name);
     process->priority = priority;
     process->state = READY;
-    process->position = position;   //foreground or background
+    process->position = position;
     process->basePointer = allocMemory(STACK_SIZE);
     void* stackEnd = (void*) ((uint64_t)process->basePointer + STACK_SIZE);
     process->arguments = NULL;
@@ -46,7 +46,6 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
 
     return process;
 }
-
 
 void wrapper(Function function, char **args) {
     int len = stringArrayLen(args);
@@ -105,8 +104,6 @@ int freeProcess(ProcessADT process){
     return 0;
 }
 
-
-
 ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process){
     processCopy->name =  allocMemory(sizeof(my_strlen(process->name)+1));
     my_strcopy(processCopy->name, process->name);
@@ -160,7 +157,6 @@ int getProcessWriteFileDescriptor(ProcessADT process){
 int getProcessErrorFileDescriptor(ProcessADT process){
     return process->fileDescriptors[ERROR_FD];
 }
-
 
 void argscopy(char ***arguments, char **args) {
     if (args == NULL) {
