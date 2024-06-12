@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands.h>
 #define MAX_PHILOSOPHERS 20
 #define MIN_PHILOSOPHERS 5
@@ -27,6 +29,7 @@ int canEat(int i) {
 }
 
 void displayState() {
+    printf("\t\t\t\t");
     for (int i = 0; i < num_philosophers; i++) {
         if (philosophers[i].state == EATING) { 
             printChar('E');
@@ -124,13 +127,13 @@ int handleKeyboard(char key) {
 }
 
 void displayHeader() {
-    printf("Instructions:\n");
-    printf("Press - a - Add philosopher\n");
-    printf("Press - r - Remove philosopher\n");
-    printf("Press - e - Exit\n");
-    printf("State of philosophers:\n");
-    printf(" - E - Comiendo\n");
-    printf(" - . - Pensando\n");
+    printf("\n\t\t\tInstructions:\n");
+    printf("\t\t\tPress - a - Add philosopher\n");
+    printf("\t\t\tPress - r - Remove philosopher\n");
+    printf("\t\t\tPress - e - Exit\n");
+    printf("\t\t\tState of philosophers:\n");
+    printf("\t\t\t - E - Comiendo\n");
+    printf("\t\t\t - . - Pensando\n\n\n");
 }
 
 int phylos(int argc, char ** argv) {

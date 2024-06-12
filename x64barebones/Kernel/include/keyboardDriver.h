@@ -21,7 +21,7 @@
 #define BUFFER_SIZE 256
 #define REGISTERS_AMOUNT 20
 
-void keyHandler();
+void keyHandler(uint64_t * reg);
 void readFromKeyboard(char * toRetbuffer, uint32_t amount, uint32_t * size);
 int getKeyNumber();
 void valueToHexString(unsigned long long value, uint8_t * hexStr);
