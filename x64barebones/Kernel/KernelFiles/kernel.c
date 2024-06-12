@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <string.h>
 #include <lib.h>
@@ -79,4 +81,3 @@ int main() {
     _sti(); // Enable interruptions
     return 0;
 }
-//0000000000105494

@@ -29,5 +29,6 @@ $(LOADEROBJECT):
 
 clean:
 	rm -rf */*.o *.o *.bin *.elf
+	rm -rf ../Shared/*.o
 
 .PHONY: all clean
