@@ -44,13 +44,13 @@ MemoryManagerADT createMemoryManager(void * firstAddress, const uint64_t availab
     memoryManager->maxExpOfTwo = log2(availableMem);
     memoryManager->firstAvailableAddress = firstAddress;
 
-    if (memoryManager->maxExpOfTwo < MIN_EXP) {
+    if (memoryManager->maxExpOfTwo < MIN_EXP) { // Max exp is lower than min possible exp.
         return NULL;
     }
 
     createMemoryInfo(&(memoryManager->info), availableMem);
 
-    for (uint8_t current_exp = 0; current_exp <= MAX_EXP; current_exp++) {
+    for (uint8_t current_exp = 0; current_exp <= MAX_EXP; current_exp++) { // Initialize all chunks in NULL
         memoryManager->chunks[current_exp] = NULL;
     }
 
@@ -62,11 +62,11 @@ void * allocMemory(const uint64_t size) {
     uint8_t expToAlloc = log2(size + sizeof(MemoryChunk));
     uint8_t expIndexToAlloc;
 
-    if (expToAlloc >= MAX_EXP) {
+    if (expToAlloc >= MAX_EXP) { // Desired size is bigger than the full available memory
         return NULL;
     }
 
-    if (expToAlloc < MIN_EXP ) {
+    if (expToAlloc < MIN_EXP ) { // Desired size is smaller than min chunk size
         expIndexToAlloc = MIN_EXP;
     } else {
         expIndexToAlloc = expToAlloc;
@@ -186,6 +186,7 @@ static MemoryChunk * createMemoryChunk(void * destinationAddress, uint8_t exp, M
     return newChunk;
 }
 
+// Removes "chunk" of the list and returns its address
 static void * removeChunk(MemoryChunk * chunk) {
     MemoryManagerADT memoryManager = getMemoryManager();
 

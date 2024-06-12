@@ -8,7 +8,8 @@
 #define MINUTES 2
 #define SECONDS 0
 
-static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base) {
+static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base)
+{
 	uint8_t *p = buffer;
 	uint8_t *p1, *p2;
 	int digit = 0;
@@ -44,7 +45,7 @@ static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base) {
 
 }
 
-static void arg_time_zone(uint8_t *hours) {
+static void arg_time_zone(uint8_t *hours){
 	int hour = 0;
 	if(hours[0] == '0'){
 		hour = hours[1] - '0';
@@ -62,7 +63,7 @@ static void arg_time_zone(uint8_t *hours) {
 	hours[1] = hour%10 + '0';
 }
 
-uint8_t * get_time() {
+uint8_t * get_time(){
 	uint8_t * actualTime = {0};
     uint64_t hours = realTimeClock(HOURS), mins= realTimeClock(MINUTES), secs = realTimeClock(SECONDS);
     

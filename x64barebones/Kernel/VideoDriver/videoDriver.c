@@ -2,18 +2,19 @@
 #include <fonts.h>
 #include <cursor.h>
 
-// Font
+//font
 #define WIDTH_FONT 8
 #define HEIGHT_FONT 16
 #define TAB_SIZE 4
 
-// Screen
+//screen
 #define LAST_X 1024
 #define LAST_Y 768
 
-static uint32_t characterColor = 0xFFFFFF;  // Default color white
-static uint32_t backgroundColor = 0x000000; // Default color black
+static uint32_t characterColor = 0xFFFFFF; // default color white
+static uint32_t backgroundColor = 0x000000; // default color black
 
+//static void drawSquare(uint32_t hexColor, uint64_t x, uint64_t y, uint32_t scale);
 static void drawSquareOnCursor(uint32_t hexColor, int x, int y);
 static void clearTerminal();
 
@@ -80,6 +81,7 @@ uint32_t getCursorScale() {
 void setCursorScale(int scale) {
     cursor.scale = scale;
 }
+
 
 static void moveRight() {
     if(cursor.x < (MAX_X - (WIDTH_FONT * cursor.scale))) {
@@ -148,16 +150,16 @@ void moveCursor(actionOfCursor action) {
 VBEInfoPtr VBE_mode_info = (VBEInfoPtr) 0x0000000000005C00;
 
 static void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
-	// The location in memory where the graphics framebuffer is stored
+	//the location in memory where the graphics framebuffer is stored
     uint8_t * framebuffer = (uint8_t *) ((uint64_t) VBE_mode_info->framebuffer);
 
-	// Indicates where the pixel's color information should be stored
+	// indicates where the pixel's color information should be stored
     uint64_t offset = (x * ((VBE_mode_info->bpp)/8)) + (y * VBE_mode_info->pitch);
 
-	// Setting color
-    framebuffer[offset]     =  (hexColor) & 0xFF;       // Blue components
-    framebuffer[offset+1]   =  (hexColor >> 8) & 0xFF;  // Green component
-    framebuffer[offset+2]   =  (hexColor >> 16) & 0xFF; // Red component
+	//setting color
+    framebuffer[offset]     =  (hexColor) & 0xFF;  // blue components
+    framebuffer[offset+1]   =  (hexColor >> 8) & 0xFF;  // green component
+    framebuffer[offset+2]   =  (hexColor >> 16) & 0xFF; // rojo component
 }
 
 void drawCharOnCursor(int8_t character) {
@@ -176,11 +178,11 @@ void drawCharOnCursor(int8_t character) {
         y0 += cursor.scale;
     }
 
-    moveCursor(WRITE);
+    moveCursor(WRITE); // Moves cursor to next key position.
 }
 
 void deleteCharOnCursor() {
-    moveCursor(DELETE);
+    moveCursor(DELETE); // Moves cursor to the key to be deleted
 
     int x0 = cursor.x, y0 = cursor.y;
 
@@ -203,7 +205,7 @@ void drawStringOnCursor(int8_t * string, uint32_t * length) {
         } else {
             if (string[i] == '\t') {
                 moveCursor(TAB);
-            } else if(string[i] != 27) {
+            } else if(string[i] != 27) { // exclude ESC key
                 drawCharOnCursor(string[i]);
             }
         }
@@ -245,8 +247,10 @@ static void clearTerminal() {
     colorScreen(backgroundColor);
 }
 
+// x y coordinates are the border of the square where the circle is inscribed
 void drawCircle(uint32_t hexColor, uint64_t x, uint64_t y, uint32_t length, uint32_t backgroundColor) {
     uint32_t radius = length/2 - 1;
+    // center of square
     x = x + radius;
     y = y + radius;
    for(int i=0;i<radius;i++) {

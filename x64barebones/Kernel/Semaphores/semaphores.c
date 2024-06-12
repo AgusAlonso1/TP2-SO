@@ -17,6 +17,7 @@ typedef struct SemaphoreListCDT {
     uint64_t idCounter;
 } SemaphoreListCDT;
 
+
 static SemaphoreListADT getSemaphoreManager() {
     return (SemaphoreListADT) SEMAPHORES_MANAGER_ADDRESS;
 }
@@ -59,6 +60,7 @@ static uint64_t createSemaphore(uint64_t value, uint64_t semId) {
     return newSem->id;
 }
 
+
 void acquire(Semaphore * sem) { 
     while (_xchg(&sem->lock, 1) != 0){
         uint32_t processPid = getCurrentPid();
@@ -67,8 +69,7 @@ void acquire(Semaphore * sem) {
         setState(processPid, BLOCKED);
         yield(); 
     } 
-}
-
+} 
 void release(Semaphore * sem) { 
     _xchg(&sem->lock, 0); 
 }

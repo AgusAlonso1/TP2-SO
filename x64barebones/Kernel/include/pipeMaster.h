@@ -12,8 +12,11 @@
 #define FOUND 1
 #define NOT_FOUND 0
 
+
+
 typedef struct PipeMasterCDT* PipeMasterADT;
 typedef struct PipeCDT* PipeADT;
+
 
 void createPipeMaster();
 PipeMasterADT getPipeMaster();

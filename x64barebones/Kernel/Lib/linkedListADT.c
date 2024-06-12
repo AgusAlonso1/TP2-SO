@@ -1,11 +1,13 @@
 #include <linkedListADT.h>
 #include <processes.h>
 #include <stddef.h>
+
 typedef struct LinkedListCDT {
     Node * first;
     Node * last;
     uint64_t size;
 } LinkedListCDT;
+
 
 LinkedListADT createLinkedList() {
     LinkedListADT list = allocMemory(sizeof(LinkedListCDT));
@@ -18,7 +20,7 @@ LinkedListADT createLinkedList() {
     return list;
 }
 
-// Insert at the end.
+//inserta al final
 void insert(LinkedListADT list, void *data) {
     Node *newNode = allocMemory(sizeof(Node));
     if (newNode == NULL) {
@@ -36,6 +38,7 @@ void insert(LinkedListADT list, void *data) {
     list->size++;
 }
 
+//elimina el primero
 void * removeFirst(LinkedListADT list) {
     if (list->first == NULL) {
         return NULL;
