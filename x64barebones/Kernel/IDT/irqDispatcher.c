@@ -14,13 +14,12 @@ void irqDispatcher(uint64_t irq, uint64_t * registers) {
     }
 }
 
-// Interruption 00 ---------------------------
+// Interruption 00
 void int_00() {
     time_handler();
 }
-//--------------------------------------------
 
-// Interruption 01 ---------------------------
+// Interruption 01
 void int_01(uint64_t * registers) {
     keyHandler(registers);
 }

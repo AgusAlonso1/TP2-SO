@@ -22,7 +22,6 @@ LinkedListADT createLinkedList() {
     return list;
 }
 
-//inserta al final
 void insert(LinkedListADT list, void *data) {
     Node *newNode = allocMemory(sizeof(Node));
     if (newNode == NULL) {
@@ -40,7 +39,6 @@ void insert(LinkedListADT list, void *data) {
     list->size++;
 }
 
-//elimina el primero
 void * removeFirst(LinkedListADT list) {
     if (list->first == NULL) {
         return NULL;

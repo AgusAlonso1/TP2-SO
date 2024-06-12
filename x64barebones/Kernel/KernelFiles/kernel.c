@@ -6,7 +6,6 @@
 #include <moduleLoader.h>
 #include <idtManager.h>
 #include <videoDriver.h>
-//#include <memoryManager.h>
 #include <processes.h>
 #include <interruptions.h>
 #include <scheduler.h>
@@ -66,10 +65,9 @@ int idle(int argc, char **argv){
 
 
 int main() {
-	_cli(); // Disable interruptions
+	_cli();
 	createMemoryManager((void * ) MEMORY_MANAGER_FIRST_ADDRESS, pow2(MAX_EXP));
 	createScheduler();
-//CREATE SEMAFOROS
     createPipeMaster();
     createSemaphoreManager();
 
@@ -78,6 +76,6 @@ int main() {
     createProcessFromSched("idle", 0, LEVEL3, (Function) &idle, args, IDLE, 1, fileDescriptors);
 
     loadIDT();
-    _sti(); // Enable interruptions
+    _sti();
     return 0;
 }

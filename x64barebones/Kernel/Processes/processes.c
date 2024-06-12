@@ -21,7 +21,6 @@ typedef struct ProcessCDT {
     int fileDescriptors[CANT_FILE_DESCRIPTORS];
 } ProcessCDT;
 
-
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args, const int fileDescriptors[CANT_FILE_DESCRIPTORS]) {
     ProcessADT process = allocMemory(sizeof(ProcessCDT));
     process->pid = pid;
@@ -49,13 +48,11 @@ ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t
     return process;
 }
 
-
 void wrapper(Function function, char **args) {
     int len = stringArrayLen(args);
     int ret = function(len, args);
     exitProcess(ret);
 }
-
 
 int setProcessState(ProcessADT process, uint64_t state) {
     if (process == NULL) {
@@ -106,8 +103,6 @@ int freeProcess(ProcessADT process){
     freeMemory(process);
     return 0;
 }
-
-
 
 ProcessCopy * copyProcess(ProcessCopy * processCopy , ProcessADT process){
     processCopy->name =  allocMemory(sizeof(my_strlen(process->name)+1));
@@ -162,7 +157,6 @@ int getProcessWriteFileDescriptor(ProcessADT process){
 int getProcessErrorFileDescriptor(ProcessADT process){
     return process->fileDescriptors[ERROR_FD];
 }
-
 
 void argscopy(char ***arguments, char **args) {
     if (args == NULL) {

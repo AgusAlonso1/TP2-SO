@@ -4,7 +4,7 @@
 #include <memoryManager.h>
 
 // Access
-#define ACS_PRESENT 0x80        // Segmento presente en memoria
+#define ACS_PRESENT 0x80        // Present segment
 #define ACS_CSEG 0x18           // Code segment
 #define ACS_DSEG 0x20           // Data segment
 #define ACS_READ 0x02           // Read segment

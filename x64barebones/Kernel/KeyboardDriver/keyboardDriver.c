@@ -21,11 +21,9 @@ static uint64_t currentRegisters[REGISTERS_AMOUNT];
 static uint64_t binaryToHex(uint64_t binaryNum);
 static void uint64HexaToString(uint64_t valorHexa, char *hexaString);
 
-char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
-                     // primer elemento es la tecla que presionas
-                     // y el segundo es la tecla sumada con shift
+char keyMap[][2] = {       
         {0, 0},
-        {27, 27}, // esc key
+        {27, 27},
         {'1', '!'},
         {'2', '@'},
         {'3', '#'},
@@ -38,8 +36,8 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
         {'0', ')'},
         {'-', '_'},
         {'-', '+'},
-        {'\b', '\b'}, // delete
-        {'\t', '\t'}, //tab
+        {'\b', '\b'},
+        {'\t', '\t'},
         {'q', 'Q'},
         {'w', 'W'},
         {'e', 'E'},
@@ -52,8 +50,8 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
         {'p', 'P'},
         {'[', '{'},
         {']', '}'},
-        {'\n', '\n'}, //enter
-        {17, 17}, //ctrl
+        {'\n', '\n'},
+        {17, 17},
         {'a', 'A'},
         {'s', 'S'},
         {'d', 'D'},
@@ -66,7 +64,7 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
         {';', ':'},
         {'\'', '\"'},
         {167, '~'},
-        {0, 0}, // left shift
+        {0, 0},
         {'\\', '|'},
         {'z', 'Z'},
         {'x', 'X'},
@@ -78,11 +76,11 @@ char keyMap[][2] = { // [cantidad de teclas][2] => teclado estandar en ingles
         {',', '<'},
         {'.', '>'},
         {'/', '?'},
-        {0, 0}, // right shift
-        {0, 0}, //(keypad) * pressed
-        {0, 0}, //left alt pressed
-        {' ', ' '}, // space
-    };
+        {0, 0},
+        {0, 0},
+        {0, 0},
+        {' ', ' '},
+};
 
 void keyHandler(uint64_t * registers) {
     uint64_t number = getKeyNumber();
@@ -102,7 +100,7 @@ void keyHandler(uint64_t * registers) {
         return;
     }
 
-    if(number == CTRL_PRESSED){ // if ctrl is pressed, do nothing
+    if(number == CTRL_PRESSED){
         controlPressed = 1;
         return;
     }
@@ -112,17 +110,17 @@ void keyHandler(uint64_t * registers) {
     }
 
     if(number == LEFT_SHIFT_PRESSED  || number == RIGHT_SHIFT_PRESSED){
-        shiftPressed = 1;   // if shift is pressed, turn it on
+        shiftPressed = 1;
         return;
     }
 
     if(number == LEFT_SHIFT_RELEASED || number == RIGHT_SHIFT_RELEASED){
-        shiftPressed = 0;   // if shift is released, turn it off
+        shiftPressed = 0;
         return;
     }
 
     if(number == CAPS_LOCK_PRESSED){
-        capsLockPressed = 1 - capsLockPressed; // if caps lock is pressed, turn it off
+        capsLockPressed = 1 - capsLockPressed;
         return;
     }
 
@@ -136,7 +134,7 @@ void keyHandler(uint64_t * registers) {
     }
 
     if(number >= RELEASED){
-        return; // if key is released, do nothing
+        return;
     }
 
     if (shiftPressed) {
@@ -145,8 +143,8 @@ void keyHandler(uint64_t * registers) {
         return;
     }
 
-    if (capsLockPressed /* Agregar Condicion*/) {
-        buffer[index % BUFFER_SIZE] = keyMap[number][1]; // add the key to the buffer
+    if (capsLockPressed) {
+        buffer[index % BUFFER_SIZE] = keyMap[number][1];
         index++;
         return;
     }
@@ -208,7 +206,7 @@ static void uint64HexaToString(uint64_t valorHexa, char *hexaString) {
         hexaString[15 - i] = (nibble < 10) ? (char)('0' + nibble) : (char)('A' + (nibble - 10));
     }
     hexaString[16] = 'h';
-    hexaString[17] = '\0'; // Terminar la cadena con el carácter nulo
+    hexaString[17] = '\0';
 }
 
 uint8_t * getRegisterName(int index){

@@ -8,7 +8,6 @@
 #define ZERO_EXCEPTION_ID 0
 #define INVALID_OPCODE_EXCEPTION_ID 6
 
-
 typedef void (*exceptionHandler)(uint64_t exceptionCode, char * exception);
 
 void setExceptionHandler(uint64_t number, exceptionHandler exception);

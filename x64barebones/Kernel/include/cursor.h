@@ -12,16 +12,14 @@ typedef enum {WRITE=0, DELETE, ENTER, TAB}actionOfCursor;
 
 typedef struct {
     int x, y, scale;
-}Cursor;
+} Cursor;
 
 void initializeCursor(int x, int y, int scale);
 void moveCursor(actionOfCursor action);
-
 uint32_t getCursorX();
 uint32_t getCursorY();
 uint32_t getCursorScale();
 void setCursorScale(int scale);
-
 void drawCharOnCursor(int8_t character);
 void deleteCharOnCursor();
 void drawStringOnCursor(int8_t * string, uint32_t * length);

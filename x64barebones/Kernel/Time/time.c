@@ -10,13 +10,12 @@
 #define MINUTES 2
 #define SECONDS 0
 
-static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base)
-{
+static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base) {
 	uint8_t *p = buffer;
 	uint8_t *p1, *p2;
 	int digit = 0;
 
-	//Calculate characters for each digit
+	// Calculate characters for each digit
 	do
 	{
 		uint32_t remainder = value % base;
@@ -33,7 +32,7 @@ static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base)
 	// Terminate string in buffer.
 	*p = 0;
 
-	//Reverse string in buffer.
+	// Reverse string in buffer.
 	p1 = buffer;
 	p2 = p -1;
 	while (p1 < p2)
@@ -47,7 +46,7 @@ static void uintToBase(uint64_t value, uint8_t * buffer, uint32_t base)
 
 }
 
-static void arg_time_zone(uint8_t *hours){
+static void arg_time_zone(uint8_t *hours) {
 	int hour = 0;
 	if(hours[0] == '0'){
 		hour = hours[1] - '0';
@@ -65,7 +64,7 @@ static void arg_time_zone(uint8_t *hours){
 	hours[1] = hour%10 + '0';
 }
 
-uint8_t * get_time(){
+uint8_t * get_time() {
 	uint8_t * actualTime = {0};
     uint64_t hours = realTimeClock(HOURS), mins= realTimeClock(MINUTES), secs = realTimeClock(SECONDS);
     

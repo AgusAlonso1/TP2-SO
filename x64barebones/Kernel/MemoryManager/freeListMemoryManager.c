@@ -31,11 +31,9 @@ typedef struct MemoryManagerCDT {
 } MemoryManagerCDT;
 
 static MemoryChunkHeader * assignNewChunk(MemoryChunkHeader * intoChunk, uint64_t sizeRequested);
-
 static MemoryChunkHeader * leftCoalesceFree(MemoryChunkHeader * leftChunkFooter, MemoryChunkHeader * chunkToFreeHeader);
 static MemoryChunkHeader * rightCoalesceFree(MemoryChunkHeader * chunkToFreeHeader, MemoryChunkHeader * rightChunkHeader);
 static MemoryChunkHeader * noCoalesceFree(MemoryChunkHeader * chunkToFreeHeader);
-
 static uint8_t addressInBounds(void * address);
 
 MemoryManagerADT createMemoryManager(void * const firstAdress, const uint64_t availableMem) {

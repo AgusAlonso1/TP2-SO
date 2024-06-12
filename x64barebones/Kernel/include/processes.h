@@ -11,11 +11,10 @@
 
 #define STACK_SIZE 4096
 
-
 typedef struct ProcessCDT* ProcessADT;
 
 ProcessADT createProcess(uint32_t parentPid, uint32_t pid, char * name, uint64_t priority, char immortal, char position, Function function, char **args, const int fileDescriptors[CANT_FILE_DESCRIPTORS]);
-        int setProcessState(ProcessADT process, uint64_t state);
+int setProcessState(ProcessADT process, uint64_t state);
 uint64_t getProcessState(ProcessADT process);
 uint32_t getProcessParentPid(ProcessADT process);
 uint32_t getProcessPid(ProcessADT process);
@@ -36,6 +35,5 @@ void wrapper(Function function, char **args);
 int getProcessReadFileDescriptor(ProcessADT process);
 int getProcessWriteFileDescriptor(ProcessADT process);
 int getProcessErrorFileDescriptor(ProcessADT process);
-
 
 #endif
