@@ -29,7 +29,6 @@ typedef int (*Function)(int, char **);
 #define FOREGROUND 1
 #define BACKGROUND 0
 
-
 #define ERROR (-1)
 #define SUCCESS 0
 
@@ -38,7 +37,6 @@ typedef int (*Function)(int, char **);
 
 #define PRIORITY_LEVELS 5
 
-
 enum levels {
     LEVEL0 = 0,
     LEVEL1 = 1,
@@ -46,10 +44,6 @@ enum levels {
     LEVEL3 = 3,
     LEVEL4 = 4
 };
-
-
-
-#define TYPE_NAME_SIZE 20
 
 typedef struct ProcessCopy {
     uint32_t pid;

@@ -114,7 +114,7 @@ void parseCommand(char* commandline, char** args, int* backgroundPos, int *pipeP
             if (*cursor == '|') {
                 *pipePos = i;
             }
-            if (*cursor == '&') {      //donde encuentra este, ahi se termina el comando
+            if (*cursor == '&') {
                 *backgroundPos = i;
                 cursor++;
                 break;
@@ -137,17 +137,6 @@ void parseCommand(char* commandline, char** args, int* backgroundPos, int *pipeP
     args[i++] = NULL;
     *argslen = i;
 }
-
-
-// si hay un pipe y no hay nada despues ---> ERROR
-/*
-int executeFunction(int indexCommand, int argc, char **argv) {
-    if (indexCommand == -1 ) {
-        return ERROR;
-    }
-    return commandsReferences[indexCommand](argc, argv);
-}
- */
 
 int executeCommand(char** args, int backgroundPos, int pipePos, int argslen){
     char * command1 = arguments[0];
@@ -201,11 +190,11 @@ int createPipedProcess(char* command1, char** arguments1, char* command2, char**
     int pipeId = call_get_pipe_id();
 
     fileDescriptors1[WRITE_FD] = pipeId;
-    //  fileDescriptors1[ERROR_FD] = STDERR;
+    // fileDescriptors1[ERROR_FD] = STDERR;
 
     fileDescriptors2[WRITE_FD] = STDOUT;
     fileDescriptors2[READ_FD] = pipeId;
-    //  fileDescriptors2[ERROR_FD] = STDERR;
+    // fileDescriptors2[ERROR_FD] = STDERR;
 
     uint32_t pid1;
     uint32_t pid2;
@@ -235,12 +224,12 @@ int createProcess(char* command1, char** arguments1, uint32_t parentPid, int bac
     if(background){
         fileDescriptors[READ_FD] = DEV_NULL;
         fileDescriptors[WRITE_FD] = STDOUT;
-      //  fileDescriptors[ERROR_FD] = STDERR;
+        // fileDescriptors[ERROR_FD] = STDERR;
         call_create_process_background(command1,(Function) commandsReferences[id1], arguments1, (uint32_t) parentPid,  fileDescriptors);
     } else {
         fileDescriptors[READ_FD] = STDIN;
         fileDescriptors[WRITE_FD] = STDOUT;
-        //  fileDescriptors[ERROR_FD] = STDERR;
+        // fileDescriptors[ERROR_FD] = STDERR;
         uint32_t pid1 = call_create_process_foreground(command1,(Function) commandsReferences[id1], arguments1, (uint32_t) parentPid, fileDescriptors);
 
         if(pid1 != -1){

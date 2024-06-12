@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <globals.h>
 
-
 typedef enum {WRITE=0, DELETE, ENTER, RELATIVE_ENTER, TAB}actionOfCursor;
 
 void call_read(char * buf, uint32_t count, uint32_t * readBytes);

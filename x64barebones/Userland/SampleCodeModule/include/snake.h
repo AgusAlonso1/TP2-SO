@@ -5,22 +5,22 @@
 #include <libc.h>
 #include <syscallFunctions.h>
 
-//snake
+// Snake
 #define MIN_SNAKE_LENGTH 5
 #define MAX_SNAKE_LENGTH 100
 
-//pixel positions
+// Pixel positions
 #define Y_MAX 768
 #define X_MAX 1024
 #define PIXEL_POS_X(i) (i) * SQUARE_SIZE
 #define PIXEL_POS_Y(i) (i + 1) * SQUARE_SIZE
 
-//board positions
+// Board positions
 #define SQUARE_SIZE 32
 #define X_SQUARES (X_MAX / SQUARE_SIZE) // 32
 #define Y_SQUARES 23 // 24
 
-//menu positions
+// Menu positions
 #define MENU_PLAYER_1 704
 #define MENU_PLAYER_2 936
 #define MENU 96
@@ -28,13 +28,13 @@
 #define MENU_HEIGHT 32
 #define MENU_SCALE 1
 
-//board status
+// Board status
 #define SNAKE_PLAYER_1 '#'
 #define SNAKE_PLAYER_2 '@'
 #define FOOD '*'
 #define EMPTY '\0'
 
-//colors
+// Colors
 #define BOARD_COLORS 3
 #define SNAKE_COLORS 4
 #define FOOD_TYPES 4

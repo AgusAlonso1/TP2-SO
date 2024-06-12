@@ -26,7 +26,7 @@ static int boardThemes[][2] = {
 static uint32_t dark = 0x000000;
 static uint32_t light = 0xFFFFFF;
 
-// snake -----------------------------------------------------------------------------
+// Snake -----------------------------------------------------------------------------
 static char collision(snake * s);
 static char ateFood(snake * s);
 static void updateBody(snake * s);
@@ -49,7 +49,7 @@ static void topPointsInGame(snake * s1, snake * s2);
 
 // Game -----------------------------------------------------------------------------
 void snakeNewGame(){
-    topScore = 0; // reset for each new game
+    topScore = 0;
     snakeGame();
     quitGame();
     return;

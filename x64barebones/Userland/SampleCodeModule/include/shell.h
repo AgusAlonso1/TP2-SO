@@ -27,10 +27,4 @@ void parseCommand(char* commandLine, char** args, int* background, int *pipePos,
 int createPipedProcess(char* command1, char** arguments1, char* command2, char** arguments2, uint32_t parentPid, int background, int id1, int id2);
 int createProcess(char* command1, char** arguments1, uint32_t parentPid, int background, int id1);
 
-int producer();
-
-int consumer();
-
-
-
 #endif

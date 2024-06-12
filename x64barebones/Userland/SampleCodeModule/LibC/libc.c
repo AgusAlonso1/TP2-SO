@@ -53,64 +53,35 @@ char getChar(){
     return c;
 }
 
-// static int readFromKeyboard(char * buffer) {
-//     int i=0;
-//     char c = '\0';
-//     while (c != ' ' && c != '\t' && c != '\n' && i < BUFFER_DIM) {
-//         c = getChar();
-//         buffer[i++] = c;
-//     }
-//     return i;
-// }
-
-
-// static int strConcat(char *str1, char *str2){
-//     int i = my_strlen(str1);
-//     int j = 0;
-//     while(str2[j] != '\0'){
-//         str1[i] = str2[j];
-//         i++;
-//         j++;
-//     }
-//     return i;
-// }
-
-
-
 int printf(const char* string, ...){
     va_list v;
 
     char buffer[MAX_CHARS] = {0};
-    char buffAux[25] = {0};         // buffer auxiliar para cuando transformo el arg con otra funcion que requiere de un buffer
-    int i = 0, j = 0;               // con i recorro el string y con j el buffer
+    char buffAux[25] = {0};     
+    int i = 0, j = 0;               
     va_start(v, string);
 
-    while(string && string[i]){     // mientras string existe y no es un puntero nulo
-        // mientras string[i] no es el carácter nulo
+    while(string && string[i]){
         if(string[i] == '%'){
             i++;
             switch(string[i]){
-                // convierte a char
                 case 'c':{
                     buffer[j] = va_arg(v, int);
                     j++;
                     break;
                 }
-                    // convierte a decimal
                 case 'd':{
                     itoa(va_arg(v, int), buffAux, 10);
                     strcopy(&buffer[j], buffAux);
                     j += my_strlen(buffAux);
                     break;
                 }
-                    // convierte a string
                 case 's':{
                     char* str = va_arg(v, char*);
                     strcopy(&buffer[j], str);
                     j += my_strlen(str);
                     break;
                 }
-                    // convierte a hexa
                 case 'x':{
                     itoa(va_arg(v, int), buffAux, 16);
                     strcopy(&buffer[j], buffAux);
@@ -127,11 +98,11 @@ int printf(const char* string, ...){
                 }
             }
         }else{
-            buffer[j++] = string[i];            // si no es nada especial, copio el string normal en el buffer a devolver
+            buffer[j++] = string[i];            
         }
         i++;
     }
-    buffer[j] = 0;      // asi le indico que aca terminamos
+    buffer[j] = 0;
     va_end(v);
     return putString(buffer);
 }
@@ -162,7 +133,6 @@ int scanf(const char* fmt, ...){
     int i = 0;
 
     while ((c = getChar()) != '\n' && i < BUFFER_SHELL_SIZE - 1){
-        // if(c != UP_1 && c != DOWN_1 && c != LEFT_1 && c != RIGHT_1){
         if(c == '\b' && i > 0){
             buffer[i--] = ' ';
             call_delete_char();
@@ -170,7 +140,6 @@ int scanf(const char* fmt, ...){
             buffer[i++] = c;
             printChar(c);
         }
-        //  }
     }
     putString("\n");
 
@@ -184,14 +153,12 @@ int scanf(const char* fmt, ...){
         if(fmt[j] == '%'){
             j++;
             switch(fmt[j]){
-                // convierte a char
                 case 'c':{
                     *(char*) va_arg(v, char *) = buffer[i];
                     i++;
                     params++;
                     break;
                 }
-                    // convierte a decimal
                 case 'd':{
                     int aux = wordlen(&buffer[i]);
                     buffer[i+aux] = 0;
@@ -201,7 +168,6 @@ int scanf(const char* fmt, ...){
                     params++;
                     break;
                 }
-                    // convierte a string
                 case 's':{
                     int aux = wordlen(&buffer[i]);
                     buffer[i+aux] = '\0';
@@ -211,7 +177,6 @@ int scanf(const char* fmt, ...){
                     params++;
                     break;
                 }
-                    //convierte a cadena de strings
                 case 'S':{
                     int aux = my_strlen(&buffer[i]);
                     buffer[i+aux] = '\0';
@@ -238,7 +203,7 @@ int scanf(const char* fmt, ...){
 
 void itoa(int value, char* buff, int base){
     int i = 0;
-    int val = abs(value);       // tomo el valor absoluto para no mandarme un moco con los signos
+    int val = abs(value);
 
     if(val == 0){
         buff[i++] = '0';
@@ -248,16 +213,16 @@ void itoa(int value, char* buff, int base){
         int resto = val % base;
         if(resto < 10){
             buff[i++] = resto + '0';
-        }else{                          // con esto vemos si es hexa
+        }else {
             buff[i++] = resto + 'A' - 10;
         }
         val /= base;
     }
 
-    if (value < 0 && base == 10) {      // si es base 10, le pongo el signo menos
+    if (value < 0 && base == 10) {
         buff[i++] = '-';
     }
-    int dim = i;        // me guardo dim del numero
+    int dim = i;
 
     int j = 0;
     i -= 1;
@@ -322,36 +287,31 @@ int fprintf(int fd, const char* string, ...){
     va_list v;
 
     char buffer[MAX_CHARS] = {0};
-    char buffAux[25] = {0};         // buffer auxiliar para cuando transformo el arg con otra funcion que requiere de un buffer
-    int i = 0, j = 0;               // con i recorro el string y con j el buffer
+    char buffAux[25] = {0};
+    int i = 0, j = 0;
     va_start(v, string);
 
-    while(string && string[i]){     // mientras string existe y no es un puntero nulo
-        // mientras string[i] no es el carácter nulo
+    while(string && string[i]){
         if(string[i] == '%'){
             i++;
             switch(string[i]){
-                // convierte a char
                 case 'c':{
                     buffer[j] = va_arg(v, int);
                     j++;
                     break;
                 }
-                    // convierte a decimal
                 case 'd':{
                     itoa(va_arg(v, int), buffAux, 10);
                     strcopy(&buffer[j], buffAux);
                     j += my_strlen(buffAux);
                     break;
                 }
-                    // convierte a string
                 case 's':{
                     char* str = va_arg(v, char*);
                     strcopy(&buffer[j], str);
                     j += my_strlen(str);
                     break;
                 }
-                    // convierte a hexa
                 case 'x':{
                     itoa(va_arg(v, int), buffAux, 16);
                     strcopy(&buffer[j], buffAux);
@@ -368,7 +328,7 @@ int fprintf(int fd, const char* string, ...){
                 }
             }
         }else{
-            buffer[j++] = string[i];            // si no es nada especial, copio el string normal en el buffer a devolver
+            buffer[j++] = string[i];
         }
         i++;
     }

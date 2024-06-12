@@ -2,7 +2,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands.h>
 
-
 int kill(int argc, char** argv) {
     if(argc < 1){
         return -1;
